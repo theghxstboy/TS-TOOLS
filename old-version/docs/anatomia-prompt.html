@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomia do Prompt - TS Academy</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .article-content {
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.75rem;
+            margin: 3rem 0 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .formula-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2.5rem 0;
+        }
+
+        .formula-part {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .formula-label {
+            background-color: var(--primary-color);
+            color: black;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .example-bad {
+            color: #ef4444;
+        }
+
+        .example-good {
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../docs.html" class="back-link">
+            <i class="ph ph-arrow-left"></i> Voltar à Academy
+        </a>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Primeiros Passos</div>
+            <a href="inicio-rapido.html" class="nav-link">Início Rápido</a>
+            <a href="#" class="nav-link">Workflow TSS</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Engenharia</div>
+            <a href="anatomia-prompt.html" class="nav-link active">Anatomia do Prompt</a>
+            <a href="parametros-flow.html" class="nav-link">Parâmetros Flow AI</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <h1 class="article-title">Anatomia do Prompt</h1>
+            <p>A estrutura técnica que garante o fotorrealismo e a autoridade de marca.</p>
+        </header>
+
+        <section class="article-content">
+            <p>Diferente de usuários comuns, na TS TOOLS nós não "conversamos" com a IA. Nós entregamos
+                <strong>instruções estruturadas</strong>. Um prompt profissional segue uma hierarquia clara de
+                informações.</p>
+
+            <div class="formula-box">
+                <h3 style="margin-bottom: 1.5rem;">A Nossa Fórmula Secreta:</h3>
+                <div class="formula-part">
+                    <span class="formula-label">SUJEITO</span>
+                    <span>Um técnico profissional, uniforme impecável, em ação.</span>
+                </div>
+                <div class="formula-part">
+                    <span class="formula-label">AÇÃO</span>
+                    <span>Pintando uma parede em ângulo focado.</span>
+                </div>
+                <div class="formula-part">
+                    <span class="formula-label">AMBIENTE</span>
+                    <span>Interior de uma casa de luxo em New Jersey.</span>
+                </div>
+                <div class="formula-part">
+                    <span class="formula-label">LUZ</span>
+                    <span>Luz natural suave entrando pela janela (Golden Hour).</span>
+                </div>
+                <div class="formula-part">
+                    <span class="formula-label">QUALIDADE</span>
+                    <span>Shot with DSLR, 8k resolution, photorealistic.</span>
+                </div>
+            </div>
+
+            <h2>1. O Sujeito (O Herói)</h2>
+            <p>Seja específico sobre quem está na cena. No mercado americano, detalhes como o tipo de uniforme e as
+                ferramentas que o profissional segura transmitem "Trust" (Confiança).</p>
+            <p class="example-bad">❌ Errado: "Um pintor trabalhando."</p>
+            <p class="example-good">✅ Certo: "A professional male painter, wearing a clean white branded uniform and a
+                utility belt, precisely using a high-quality roller."</p>
+
+            <h2>2. O Contexto Geográfico</h2>
+            <p>Como nosso foco é <strong>Home Services EUA</strong>, a IA precisa entender o estilo arquitetônico. Uma
+                casa na Flórida é diferente de uma cabana no Colorado. Use termos como "Modern luxury glass house" ou
+                "Suburban family home facade".</p>
+
+            <h2>3. Iluminação e Lente</h2>
+            <p>A iluminação comercial diferencia um criativo amador de um profissional. Use adjetivos de cinematografia:
+            </p>
+            <ul>
+                <li><strong>Cinematic Lighting:</strong> Para um ar dramático e heroico.</li>
+                <li><strong>Studio Lighting:</strong> Para foco total no produto/serviço, sem distrações.</li>
+                <li><strong>Soft Natural Light:</strong> Para um aspecto caseiro e acolhedor.</li>
+            </ul>
+        </section>
+    </main>
+</body>
+
+</html>

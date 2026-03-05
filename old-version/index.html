@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TS TOOLS - Central de Ferramentas</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Minimal Header */
+        .hub-header {
+            padding: 3rem 2rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hub-logo img {
+            height: 60px;
+            width: auto;
+        }
+
+        /* Main Content area */
+        .hub-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .hub-hero {
+            margin-bottom: 4rem;
+        }
+
+        .hub-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .hub-hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Categorization */
+        .hub-section {
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 4rem;
+            text-align: left;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--border-color), transparent);
+        }
+
+        /* Square Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem 1.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            aspect-ratio: 1 / 1;
+            justify-content: center;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 15px 35px -12px rgba(245, 158, 11, 0.15);
+        }
+
+        .tool-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: var(--bg-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-size: 2.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .tool-icon {
+            background: rgba(245, 158, 11, 0.1);
+            transform: scale(1.1);
+        }
+
+        .tool-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Badges & Tags */
+        .card-tag {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .badge-orange {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-purple {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #a78bfa;
+        }
+
+        .badge-blue {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+
+        .badge-green {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+        }
+
+        /* Horizontal Knowledge Cards */
+        .knowledge-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .knowledge-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 2rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .knowledge-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(245, 158, 11, 0.03);
+            transform: translateX(8px);
+        }
+
+        .k-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--primary-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .k-content {
+            flex-grow: 1;
+        }
+
+        .k-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .k-desc {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .k-arrow {
+            color: var(--border-color);
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .knowledge-item:hover .k-arrow {
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        @media (max-width: 600px) {
+            .knowledge-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                text-align: left;
+            }
+
+            .k-arrow {
+                display: none;
+            }
+        }
+
+        /* Footer */
+        .hub-footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Patch Notes Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .modal-header h2 i {
+            color: var(--primary-color);
+        }
+
+        .modal-body {
+            max-height: 380px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+            padding-right: 0.5rem;
+            text-align: left;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
+
+        .patch-note-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .patch-date {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .patch-note-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text-primary);
+        }
+
+        .patch-note-item p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dont-show-again {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            user-select: none;
+        }
+
+        .dont-show-again input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary-color);
+        }
+
+        .btn-modal-close {
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-modal-close:hover {
+            background: var(--primary-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Minimal Header -->
+    <header class="hub-header">
+        <a href="index.html" class="hub-logo">
+            <img src="logo.png" alt="TS TOOLS">
+        </a>
+    </header>
+
+    <!-- Main Hub Content -->
+    <main class="hub-main">
+        <div class="hub-hero">
+            <h1>Crie. Converta. <span class="highlight-text">Escale.</span></h1>
+            <p>Sua central de inteligência e automação para escalar operações de <strong>Home Services nos EUA</strong>.
+            </p>
+        </div>
+
+        <!-- Section: Tools (Squared) -->
+        <section class="hub-section">
+            <h3 class="section-title"><i class="ph ph-wrench"></i> Ferramentas</h3>
+            <div class="tools-grid">
+                <a href="gerador.html" class="tool-card">
+                    <span class="card-tag badge-orange">Hot</span>
+                    <div class="tool-icon"><i class="ph ph-magic-wand"></i></div>
+                    <h2 class="tool-name">Imagens</h2>
+                    <p class="tool-desc">Prompts estruturados para criativos estáticos de alto impacto.</p>
+                </a>
+
+                <a href="antes-depois.html" class="tool-card">
+                    <span class="card-tag badge-purple">Expert</span>
+                    <div class="tool-icon"><i class="ph ph-images"></i></div>
+                    <h2 class="tool-name">Antes & Depois</h2>
+                    <p class="tool-desc">Poder de conversão visual com splits perfeitos para anúncios.</p>
+                </a>
+
+                <a href="gerador-video.html" class="tool-card">
+                    <span class="card-tag badge-blue">Veo</span>
+                    <div class="tool-icon"><i class="ph ph-video-camera"></i></div>
+                    <h2 class="tool-name">Vídeo</h2>
+                    <p class="tool-desc">Roteiros e direções táticas para geração de vídeo por IA.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Section: Knowledge (Horizontal) -->
+        <section class="hub-section">
+            <h3 class="section-title"><i class="ph ph-graduation-cap"></i> Conhecimento</h3>
+            <div class="knowledge-stack">
+                <a href="docs/nichos.html" class="knowledge-item">
+                    <div class="k-icon"><i class="ph ph-buildings"></i></div>
+                    <div class="k-content">
+                        <h4 class="k-title">Manual dos Nichos</h4>
+                        <p class="k-desc">Aprenda a anatomia, workflow e vocabulário técnico de cada serviço.</p>
+                    </div>
+                    <i class="ph ph-caret-circle-right k-arrow"></i>
+                </a>
+
+                <a href="docs.html" class="knowledge-item">
+                    <div class="k-icon"><i class="ph ph-book-open-text"></i></div>
+                    <div class="k-content">
+                        <h4 class="k-title">Prompt Academy</h4>
+                        <p class="k-desc">Documentação técnica completa sobre a ciência dos prompts comerciais.</p>
+                    </div>
+                    <i class="ph ph-caret-circle-right k-arrow"></i>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="hub-footer">
+        <p>TSS &copy; 2026. Feito para o Grupo TS.</p>
+    </footer>
+
+    <!-- Patch Notes Modal -->
+    <div class="modal-overlay" id="patch-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal-x" aria-label="Fechar">
+                <i class="ph ph-x"></i>
+            </button>
+
+            <div class="modal-header">
+                <h2><i class="ph ph-rocket-launch"></i> Patch Notes v2.0</h2>
+                <p class="text-muted">Confira as novidades do sistema</p>
+            </div>
+
+            <div class="modal-body">
+                <div class="patch-note-item">
+                    <span class="patch-date">Hoje</span>
+                    <h4>📚 Manual de Nichos 2.0</h4>
+                    <p>Documentação expandida para 15+ nichos dos EUA. Glossário técnico, guia de workflow e dicas de
+                        criativos integrados.</p>
+                </div>
+
+                <div class="patch-note-item">
+                    <span class="patch-date">Hoje</span>
+                    <h4>🔍 Busca Inteligente</h4>
+                    <p>Encontre qualquer nicho ou documentação instantaneamente com o novo campo de pesquisa no Hub de
+                        Docs.</p>
+                </div>
+
+                <div class="patch-note-item">
+                    <span class="patch-date">Recentemente</span>
+                    <h4>⚡ Geradores Otimizados</h4>
+                    <p>Selects de nichos agora agrupados por categoria (Pisos, Reformas, Exterior) para facilitar sua
+                        navegação.</p>
+                </div>
+
+                <div class="patch-note-item">
+                    <span class="patch-date">Recentemente</span>
+                    <h4>🎨 Refinamento Visual</h4>
+                    <p>Interface do Hub e Academy refinada para uma experiência mais limpa e focada na produtividade.
+                    </p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <label class="dont-show-again">
+                    <input type="checkbox" id="dont-show-check">
+                    Não mostrar novamente
+                </label>
+                <button class="btn-modal-close" id="close-modal-btn">Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('patch-modal');
+        const closeBtnX = document.getElementById('close-modal-x');
+        const closeBtnMain = document.getElementById('close-modal-btn');
+        const dontShowCheck = document.getElementById('dont-show-check');
+        const MODAL_KEY = 'ts_tools_patch_v2_skip';
+
+        function showModal() {
+            const shouldSkip = localStorage.getItem(MODAL_KEY);
+            if (!shouldSkip) {
+                setTimeout(() => {
+                    modal.classList.add('active');
+                }, 800);
+            }
+        }
+
+        function closeModal() {
+            if (dontShowCheck.checked) {
+                localStorage.setItem(MODAL_KEY, 'true');
+            }
+            modal.classList.remove('active');
+        }
+
+        closeBtnX.addEventListener('click', closeModal);
+        closeBtnMain.addEventListener('click', closeModal);
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Initialize
+        showModal();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert em Vídeo - TS Academy</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .article-content {
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.75rem;
+            margin: 3rem 0 1.2rem;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .video-tip {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .video-tip i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .video-tip h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .video-tip p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../docs.html" class="back-link">
+            <i class="ph ph-arrow-left"></i> Voltar à Academy
+        </a>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Primeiros Passos</div>
+            <a href="inicio-rapido.html" class="nav-link">Início Rápido</a>
+            <a href="#" class="nav-link">Workflow TSS</a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">Expert</div>
+            <a href="video-expert.html" class="nav-link active">Estratégia de Vídeo</a>
+            <a href="anatomia-prompt.html" class="nav-link">Anatomia do Prompt</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <h1 class="article-title">Direção de Vídeos</h1>
+            <p>Como transformar fotos estáticas em cenas cinematográficas de alta retenção.</p>
+        </header>
+
+        <section class="article-content">
+            <p>O <strong>Gerador de Vídeos AI</strong> da TS TOOLS foi desenhado para dominar ferramentas de última
+                geração como <strong>Google Veo</strong> e <strong>Kling</strong>. O segredo de um vídeo profissional de
+                5 a 10 segundos não está na complexidade da cena, mas na <strong>movimentação de câmera</strong>.</p>
+
+            <h2>Movimentação Tática (Câmera)</h2>
+            <p>Para anúncios de Home Services, a câmera deve guiar o olhar do cliente para a solução do problema. Aqui
+                estão os movimentos que mais geram retenção:</p>
+
+            <div class="video-grid">
+                <div class="video-tip">
+                    <i class="ph ph-magnifying-glass-plus"></i>
+                    <h3>Slow Zoom In</h3>
+                    <p>Aproximação lenta no detalhe da pintura ou da mangueira de limpeza. Transmite foco e
+                        perfeccionismo.</p>
+                </div>
+                <div class="video-tip">
+                    <i class="ph ph-arrows-left-right"></i>
+                    <h3>Pan / Tracking</h3>
+                    <p>Acompanha o movimento do técnico caminhando em direção à casa. Transmite prontidão e agilidade.
+                    </p>
+                </div>
+                <div class="video-tip">
+                    <i class="ph ph-arrows-out"></i>
+                    <h3>Drone / Pull Out</h3>
+                    <p>Revela a magnitude do trabalho (ex: um telhado inteiro limpo). Transmite o valor final da
+                        entrega.</p>
+                </div>
+            </div>
+
+            <h2>Ritmo e Framerate</h2>
+            <p>Para criativos de tráfego pago, o ritmo do vídeo deve ser constante. Evite cortes bruscos gerados pela IA
+                usando instruções como:</p>
+            <ul>
+                <li><strong>Consistent Pace:</strong> Mantém a velocidade da ação uniforme.</li>
+                <li><strong>24fps Cinematic:</strong> O padrão da indústria para um aspecto profissional "filme".</li>
+                <li><strong>No jumping frames:</strong> Comando negativo para evitar glitches entre os quadros.</li>
+            </ul>
+
+            <h2>Duração Estratégica</h2>
+            <p>Nossos testes indicam que anúncios com <strong>6 a 8 segundos</strong> têm a melhor performance de CPA
+                (Custo por Aquisição). Use nosso gerador para focar em uma única ação poderosa, em vez de tentar contar
+                uma história longa.</p>
+
+            <div class="note-box" style="border-color: #a78bfa; background-color: rgba(139, 92, 246, 0.05);">
+                <strong>Atenção ao Rosto:</strong> Se o vídeo for focado no profissional, garanta que no prompt negativo
+                esteja <code>distorted face, jumping expressions</code> para evitar o efeito "vale da estranheza".
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

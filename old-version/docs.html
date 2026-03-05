@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TS Academy - Central de Conhecimento</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .academy-hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .academy-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .academy-hero p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .academy-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .academy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .category-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .category-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .category-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .article-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .article-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .article-item:last-child {
+            border-bottom: none;
+        }
+
+        .category-card:hover .article-item {
+            color: var(--text-primary);
+        }
+
+        .article-item i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .academy-footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="back-nav">
+        <a href="index.html" class="back-link">
+            <i class="ph ph-arrow-left"></i> Voltar ao Hub
+        </a>
+    </div>
+
+    <header class="academy-hero">
+        <h1>TS TOOLS Academy</h1>
+        <p>Do básico ao avançado — tudo que você precisa para criar criativos de alta performance para Home Services
+            EUA.</p>
+    </header>
+
+    <main class="academy-container">
+        <div class="academy-grid">
+            <!-- Categoria 0: Manual dos Nichos -->
+            <a href="docs/nichos.html" class="category-card" style="border-color: rgba(245,158,11,0.3);">
+                <i class="ph ph-buildings category-icon"></i>
+                <div>
+                    <h2 class="category-title">Manual dos Nichos EUA</h2>
+                    <p class="category-desc">Conheça em profundidade os serviços que você vende. Vocabulário técnico,
+                        fluxo de trabalho e dicas de criativo por nicho.</p>
+                </div>
+                <div class="article-list">
+                    <div class="article-item"><i class="ph ph-paint-roller"></i> Painting — Interior, Exterior & Cabinet
+                    </div>
+                    <div class="article-item"><i class="ph ph-buildings"></i> Construction — Das fundações ao finish
+                    </div>
+                    <div class="article-item"><i class="ph ph-stack"></i> Flooring — Hardwood, LVP, Epoxy e mais</div>
+                    <div class="article-item"><i class="ph ph-plus-square" style="color: var(--primary-color);"></i> +12
+                        nichos documentados</div>
+                </div>
+            </a>
+
+            <!-- Categoria 1: Primeiros Passos -->
+            <a href="docs/inicio-rapido.html" class="category-card">
+                <i class="ph ph-rocket-launch category-icon"></i>
+                <div>
+                    <h2 class="category-title">Primeiros Passos</h2>
+                    <p class="category-desc">O guia inicial para começar a produzir com as IAs do Google do jeito certo.
+                    </p>
+                </div>
+                <div class="article-list">
+                    <div class="article-item"><i class="ph ph-file-text"></i> O que é Gemini & Flow AI?</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Configurando seu Workspace</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> O Fluxo de Trabalho TSS</div>
+                </div>
+            </a>
+
+            <!-- Categoria 2: Engenharia de Prompt -->
+            <a href="docs/anatomia-prompt.html" class="category-card">
+                <i class="ph ph-brain category-icon"></i>
+                <div>
+                    <h2 class="category-title">Engenharia de Prompt</h2>
+                    <p class="category-desc">A técnica por trás dos prompts que geram criativos profissionais e vendem.
+                    </p>
+                </div>
+                <div class="article-list">
+                    <div class="article-item"><i class="ph ph-file-text"></i> Anatomia do Prompt Perfeito</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Especificidade de Nicho (EUA)</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> O Uso de Adjetivos Técnicos</div>
+                </div>
+            </a>
+
+            <!-- Categoria 3: Parâmetros Flow AI -->
+            <a href="docs/parametros-flow.html" class="category-card">
+                <i class="ph ph-sliders category-icon"></i>
+                <div>
+                    <h2 class="category-title">Parâmetros Flow AI</h2>
+                    <p class="category-desc">Controle técnico de tamanho, estilo e qualidade para imagens profissionais.
+                    </p>
+                </div>
+                <div class="article-list">
+                    <div class="article-item"><i class="ph ph-file-text"></i> Aspect Ratio e Resolução</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Prompts Negativos Avançados</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Estilização e Variedade</div>
+                </div>
+            </a>
+
+            <!-- Categoria 4: Direção de Vídeo -->
+            <a href="docs/video-expert.html" class="category-card">
+                <i class="ph ph-video-camera category-icon"></i>
+                <div>
+                    <h2 class="category-title">Expert em Vídeo</h2>
+                    <p class="category-desc">Direções de câmera cinematográficas para Veo e Kling que capturam atenção.
+                    </p>
+                </div>
+                <div class="article-list">
+                    <div class="article-item"><i class="ph ph-file-text"></i> Movimentos de Câmera Táticos</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Framerates e Relação de Ritmo</div>
+                    <div class="article-item"><i class="ph ph-file-text"></i> Consistência em Vídeos Curtos</div>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <footer class="academy-footer">
+        <p>TS TOOLS Academy &copy; 2026. Documentação Interna para o Grupo TS.</p>
+    </footer>
+</body>
+
+</html>

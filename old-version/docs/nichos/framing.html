@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framing - Nichos EUA | TS Academy</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.45rem 0.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nicho-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 3rem 0 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .article-content p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content strong {
+            color: var(--text-primary);
+        }
+
+        .article-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .info-box strong {
+            color: var(--primary-color);
+        }
+
+        .pro-tip {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 4px solid #22c55e;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .pro-tip strong {
+            color: #22c55e;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            margin: 1.5rem 0;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .workflow-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-content strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content span {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .col-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .col-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .col-card ul {
+            padding-left: 1rem;
+            margin: 0;
+        }
+
+        .col-card li {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .keywords-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../nichos.html" class="back-link"><i class="ph ph-arrow-left"></i> Manual dos Nichos</a>
+        <div class="nav-group">
+            <div class="nav-group-title">Construção</div>
+            <a href="construction.html" class="nav-link">Construction</a>
+            <a href="remodeling.html" class="nav-link">Remodeling</a>
+            <a href="carpentry.html" class="nav-link">Carpentry</a>
+            <a href="framing.html" class="nav-link active">Framing</a>
+            <a href="additions.html" class="nav-link">Additions</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Acabamentos</div>
+            <a href="painting.html" class="nav-link">Painting</a>
+            <a href="roofing.html" class="nav-link">Roofing</a>
+            <a href="siding.html" class="nav-link">Siding</a>
+            <a href="insulation.html" class="nav-link">Insulation</a>
+            <a href="countertops.html" class="nav-link">Countertops</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Pisos</div>
+            <a href="flooring.html" class="nav-link">Flooring (Geral)</a>
+            <a href="hardwood-flooring.html" class="nav-link">Hardwood</a>
+            <a href="luxury-vinyl-plank.html" class="nav-link">LVP</a>
+            <a href="epoxy-flooring.html" class="nav-link">Epoxy</a>
+            <a href="sand-and-refinish.html" class="nav-link">Sand & Refinish</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Exterior & Serviços</div>
+            <a href="landscaping.html" class="nav-link">Landscaping</a>
+            <a href="cleaning.html" class="nav-link">Cleaning</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <div class="nicho-badge"><i class="ph ph-grid-four"></i> Framing</div>
+            <h1 class="article-title">Framing</h1>
+            <p class="article-subtitle">Framing é a espinha dorsal de qualquer construção americana. É o momento em que
+                a estrutura surge do chão — visualmente impactante e tecnicamente crítico. <strong>Criativos de framing
+                    comunicam escala, capacidade e profissionalismo.</strong></p>
+            <div class="article-meta">
+                <span><i class="ph ph-clock"></i> 5 min de leitura</span>
+                <span><i class="ph ph-buildings"></i> Construção Residencial</span>
+                <span><i class="ph ph-hammer"></i> Estrutura Técnica</span>
+            </div>
+        </header>
+
+        <section class="article-content">
+            <h2><i class="ph ph-list-checks"></i> Wood Framing vs. Steel Framing</h2>
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>🪵 Wood Framing (mais comum)</h3>
+                    <ul>
+                        <li>Usado em 90%+ das casas residenciais nos EUA</li>
+                        <li>Studs de 2x4 ou 2x6 a cada 16" ou 24"</li>
+                        <li>Mais fácil de modificar e cortar em obra</li>
+                        <li>Susceptível a umidade, insetos e fogo sem tratamento</li>
+                        <li>Custo mais baixo e mão de obra mais disponível</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3>🔩 Steel Framing (comercial/premium)</h3>
+                    <ul>
+                        <li>Perfis metálicos — mais resistente e durável</li>
+                        <li>Imune a cupins, mofo e apodrecimento</li>
+                        <li>Obrigatório em muitas construções comerciais</li>
+                        <li>Maior custo inicial, menor manutenção a longo prazo</li>
+                        <li>Requer ferramentas e especialização específicas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2><i class="ph ph-arrows-down-up"></i> Sequência de Framing Residencial</h2>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content"><strong>Floor Framing (Piso)</strong><span>Vigas de piso (floor joists)
+                            sobre a fundação. A base horizontal que suporta toda a estrutura acima.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content"><strong>Wall Framing (Paredes)</strong><span>Bottom plate, studs verticais
+                            e top plate formam os painéis de parede que são erguidos e fixados à laje. É a foto mais
+                            icônica do nicho.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content"><strong>Roof Framing (Telhado)</strong><span>Rafters ou trusses formam a
+                            estrutura inclinada do telhado. Vista de dentro mostra a geometria impressionante das
+                            vigas.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content"><strong>Sheathing (Fechamento)</strong><span>Painéis OSB (Oriented Strand
+                            Board) fecham paredes e telhado, criando a superfície para os próximos materiais.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Por que Framing converte bem em anúncios:</strong> O momento em que as paredes são erguidas é
+                universal e aspiracional — toda pessoa que já viu uma casa sendo construída se lembra desse momento.
+                Criativos de wall raising geram engajamento emocional imediato.
+            </div>
+
+            <h2><i class="ph ph-star"></i> O que Mostrar em Criativos de Framing</h2>
+            <ul>
+                <li><strong>Wall raising:</strong> A equipe erguendo um painel de parede inteiro — captura de ação e
+                    trabalho em equipe.</li>
+                <li><strong>Vista interna do telhado:</strong> Olhando de baixo para cima, os rafters criam padrões
+                    geométricos fotogênicos únicos.</li>
+                <li><strong>Detalhe do canteiro organizado:</strong> Madeira empilhada e cortada com precisão —
+                    autoridade técnica.</li>
+                <li><strong>Equipe com EPIs:</strong> Capacetes, botas, cinto de ferramentas — profissionalismo e
+                    segurança.</li>
+            </ul>
+
+            <h2><i class="ph ph-translate"></i> Vocabulário para Prompts</h2>
+            <div class="keywords-box">
+                <span class="keyword">wood framing</span>
+                <span class="keyword">wall studs</span>
+                <span class="keyword">roof trusses</span>
+                <span class="keyword">OSB sheathing</span>
+                <span class="keyword">floor joists</span>
+                <span class="keyword">residential framing</span>
+                <span class="keyword">construction crew</span>
+                <span class="keyword">wall raising</span>
+                <span class="keyword">beam installation</span>
+                <span class="keyword">skeleton frame</span>
+                <span class="keyword">lumber yard</span>
+            </div>
+
+            <div class="pro-tip">
+                <strong>✅ Pro Tip:</strong> Para framing, use <em>Wide Angle + Construction Site + Golden Hour</em>. A
+                luz lateral do fim do dia realça a profundidade dos studs e rafters, criando sombras dramáticas que
+                fazem a estrutura parecer monumental. É o tipo de criativo que para o scroll.
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

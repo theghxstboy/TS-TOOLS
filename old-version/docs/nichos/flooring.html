@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flooring - Nichos EUA | TS Academy</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.45rem 0.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nicho-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 3rem 0 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .article-content p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content strong {
+            color: var(--text-primary);
+        }
+
+        .article-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .info-box strong {
+            color: var(--primary-color);
+        }
+
+        .pro-tip {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 4px solid #22c55e;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .pro-tip strong {
+            color: #22c55e;
+        }
+
+        .flooring-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .flooring-table th {
+            background: var(--bg-card);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .flooring-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .flooring-table tr:hover td {
+            background: rgba(245, 158, 11, 0.03);
+        }
+
+        .keywords-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../nichos.html" class="back-link"><i class="ph ph-arrow-left"></i> Manual dos Nichos</a>
+        <div class="nav-group">
+            <div class="nav-group-title">Construção</div>
+            <a href="construction.html" class="nav-link">Construction</a>
+            <a href="remodeling.html" class="nav-link">Remodeling</a>
+            <a href="carpentry.html" class="nav-link">Carpentry</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Acabamentos</div>
+            <a href="painting.html" class="nav-link">Painting</a>
+            <a href="roofing.html" class="nav-link">Roofing</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Pisos</div>
+            <a href="flooring.html" class="nav-link active">Flooring (Geral)</a>
+            <a href="hardwood-flooring.html" class="nav-link">Hardwood</a>
+            <a href="luxury-vinyl-plank.html" class="nav-link">LVP</a>
+            <a href="epoxy-flooring.html" class="nav-link">Epoxy</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Exterior & Serviços</div>
+            <a href="landscaping.html" class="nav-link">Landscaping</a>
+            <a href="cleaning.html" class="nav-link">Cleaning</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <div class="nicho-badge"><i class="ph ph-stack"></i> Flooring</div>
+            <h1 class="article-title">Flooring</h1>
+            <p class="article-subtitle">O mercado de pisos nos EUA é dominado por preferências regionais e climáticas.
+                <strong>Escolher o material certo para o contexto certo</strong> é o que diferencia um instalador amador
+                de um consultor especialista.</p>
+            <div class="article-meta">
+                <span><i class="ph ph-clock"></i> 7 min de leitura</span>
+                <span><i class="ph ph-map-pin"></i> Regional EUA</span>
+                <span><i class="ph ph-stack"></i> Múltiplos Sub-nichos</span>
+            </div>
+        </header>
+
+        <section class="article-content">
+            <h2><i class="ph ph-table"></i> Comparativo dos Materiais de Piso</h2>
+            <table class="flooring-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Durabilidade</th>
+                        <th>Umidade</th>
+                        <th>Região Ideal</th>
+                        <th>Ticket</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hardwood Sólido</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>❌ Sensível</td>
+                        <td>Nordeste, Midwest</td>
+                        <td>$$$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Engineered Hardwood</strong></td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⚠️ Moderado</td>
+                        <td>Todo EUA</td>
+                        <td>$$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LVP (Luxury Vinyl)</strong></td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>✅ 100%</td>
+                        <td>Florida, Texas</td>
+                        <td>$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tile (Cerâmica)</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>✅ Ideal</td>
+                        <td>Sul, banheiros</td>
+                        <td>$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Carpet</strong></td>
+                        <td>⭐⭐⭐</td>
+                        <td>❌ Sensível</td>
+                        <td>Quartos, Midwest</td>
+                        <td>$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Epoxy</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>✅ Ideal</td>
+                        <td>Garagens, Comercial</td>
+                        <td>$$$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Laminate</strong></td>
+                        <td>⭐⭐⭐</td>
+                        <td>⚠️ Baixo</td>
+                        <td>Todo EUA (econômico)</td>
+                        <td>$</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>💡 Preferências Regionais:</strong> No Nordeste (New England, NY, NJ), Hardwood é prestígio. Na
+                Flórida e Texas, LVP domina por ser à prova d'água em clima úmido. No Midwest, Carpet ainda é muito
+                popular em quartos e porões.
+            </div>
+
+            <h2><i class="ph ph-star"></i> Criativos que Funcionam em Flooring</h2>
+            <ul>
+                <li><strong>Close-up da textura do piso:</strong> O grain (veio) da madeira, o brilho do epóxi, a cor da
+                    cerâmica — detalhe de material é extremamente aspiracional.</li>
+                <li><strong>Instalação em processo:</strong> Profissional assentando placas, usando ferramenta de corte
+                    — mostra precisão técnica.</li>
+                <li><strong>Sala transformada:</strong> Antes com carpete velho, depois com hardwood — alta conversão
+                    garantida.</li>
+                <li><strong>Garagem epóxi:</strong> O contraste do concreto cinza com o epóxi metálico brilhante é um
+                    dos criativos mais virais do nicho.</li>
+            </ul>
+
+            <h2><i class="ph ph-translate"></i> Vocabulário por Sub-nicho</h2>
+            <div class="keywords-box">
+                <span class="keyword">hardwood grain</span>
+                <span class="keyword">luxury vinyl plank</span>
+                <span class="keyword">click-lock installation</span>
+                <span class="keyword">tile setting</span>
+                <span class="keyword">grout lines</span>
+                <span class="keyword">epoxy coating</span>
+                <span class="keyword">carpet padding</span>
+                <span class="keyword">subfloor prep</span>
+                <span class="keyword">flooring installer</span>
+                <span class="keyword">waterproof flooring</span>
+                <span class="keyword">wide plank</span>
+                <span class="keyword">refinished floors</span>
+            </div>
+
+            <div class="pro-tip">
+                <strong>✅ Pro Tip:</strong> Para pisos em geral, combine <em>Natural Daylight + Residential Home</em>
+                para mostrar como a luz real interage com o material. Luz entrando por uma janela num piso de hardwood
+                recém instalado é um dos criativos mais compartilhados do nicho.
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carpentry - Nichos EUA | TS Academy</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.45rem 0.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nicho-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 3rem 0 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .article-content p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content strong {
+            color: var(--text-primary);
+        }
+
+        .article-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .info-box strong {
+            color: var(--primary-color);
+        }
+
+        .pro-tip {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 4px solid #22c55e;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .pro-tip strong {
+            color: #22c55e;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .col-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .col-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .col-card ul {
+            padding-left: 1rem;
+            margin: 0;
+        }
+
+        .col-card li {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+        }
+
+        .keywords-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../nichos.html" class="back-link"><i class="ph ph-arrow-left"></i> Manual dos Nichos</a>
+        <div class="nav-group">
+            <div class="nav-group-title">Construção</div>
+            <a href="construction.html" class="nav-link">Construction</a>
+            <a href="remodeling.html" class="nav-link">Remodeling</a>
+            <a href="carpentry.html" class="nav-link active">Carpentry</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Acabamentos</div>
+            <a href="painting.html" class="nav-link">Painting</a>
+            <a href="roofing.html" class="nav-link">Roofing</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Pisos</div>
+            <a href="flooring.html" class="nav-link">Flooring (Geral)</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Exterior & Serviços</div>
+            <a href="landscaping.html" class="nav-link">Landscaping</a>
+            <a href="cleaning.html" class="nav-link">Cleaning</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <div class="nicho-badge"><i class="ph ph-tree"></i> Carpentry</div>
+            <h1 class="article-title">Carpentry</h1>
+            <p class="article-subtitle">Carpentry é um nicho de <strong>artesanato e precisão</strong>. Os criativos que
+                mais convertem mostram o detalhe impecável do trabalho — a moldura perfeita, o gabinete personalizado, a
+                escada sob medida.</p>
+            <div class="article-meta">
+                <span><i class="ph ph-clock"></i> 5 min de leitura</span>
+                <span><i class="ph ph-pencil-ruler"></i> Artesanato Premium</span>
+                <span><i class="ph ph-currency-dollar"></i> Alto Ticket</span>
+            </div>
+        </header>
+
+        <section class="article-content">
+            <h2><i class="ph ph-list-checks"></i> Rough vs. Finish Carpentry</h2>
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>🔨 Rough Carpentry</h3>
+                    <ul>
+                        <li>Framing de paredes e telhados</li>
+                        <li>Estrutura de decks e varandas</li>
+                        <li>Suporte para drywall</li>
+                        <li>Construção de escadas brutas</li>
+                        <li>Instalação de vigas</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3>✨ Finish Carpentry</h3>
+                    <ul>
+                        <li>Trim e molduras internas</li>
+                        <li>Portas e janelas com acabamento</li>
+                        <li>Cabinets personalizados</li>
+                        <li>Escadas com corrimão em madeira nobre</li>
+                        <li>Wainscoting e painéis decorativos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2><i class="ph ph-star"></i> Especialidades de Alto Valor</h2>
+            <ul>
+                <li><strong>Custom Millwork:</strong> Marcenaria arquitetônica sob medida — o ápice do nicho em termos
+                    de ticket e prestígio.</li>
+                <li><strong>Wood Rot Repair:</strong> Substituição de madeira apodrecida em decks, janelas e fachadas —
+                    serviço de urgência com alta margem.</li>
+                <li><strong>Built-ins:</strong> Estantes e móveis embutidos na parede — transforma qualquer cômodo em
+                    algo sofisticado.</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 O que vende em Carpentry:</strong> No mercado americano, "craftsmanship" (artesanato com
+                precisão) é um valor cultural forte. Mostrar o cuidado com os detalhes — close-up da junta perfeita, da
+                madeira lixada, do verniz aplicado — comunica qualidade antes de qualquer palavra.
+            </div>
+
+            <h2><i class="ph ph-translate"></i> Vocabulário para Prompts</h2>
+            <div class="keywords-box">
+                <span class="keyword">finish carpentry</span>
+                <span class="keyword">custom cabinets</span>
+                <span class="keyword">wood trim</span>
+                <span class="keyword">craftsman style</span>
+                <span class="keyword">hardwood staircase</span>
+                <span class="keyword">built-in bookshelf</span>
+                <span class="keyword">wainscoting</span>
+                <span class="keyword">millwork</span>
+                <span class="keyword">wood grain detail</span>
+                <span class="keyword">precision cut</span>
+                <span class="keyword">carpenter at work</span>
+            </div>
+
+            <div class="pro-tip">
+                <strong>✅ Pro Tip:</strong> Para carpentry, close-ups com <em>Studio Lighting ou Natural Daylight</em>
+                revelam a textura natural da madeira de forma magistral. Um detalhe de junta de canto perfeito ou a
+                curva de um corrimão sob medida é o criativo que faz o cliente dizer "quero exatamente isso".
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

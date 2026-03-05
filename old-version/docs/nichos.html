@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nichos EUA - TS Academy</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nichos-hero {
+            padding: 5rem 2rem 3rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--primary-color);
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+        }
+
+        .nichos-hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .nichos-hero p {
+            color: var(--text-secondary);
+            max-width: 620px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .nichos-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .nichos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .nicho-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nicho-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .nicho-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-color);
+            box-shadow: 0 12px 32px -8px rgba(245, 158, 11, 0.12);
+        }
+
+        .nicho-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .nicho-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nicho-icon i {
+            color: var(--primary-color);
+            font-size: 1.6rem;
+        }
+
+        .nicho-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .nicho-title span {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .nicho-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .nicho-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .nicho-cta {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .nicho-card:hover .nicho-cta {
+            opacity: 1;
+        }
+
+        .nichos-footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .search-bar-wrapper {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+        }
+
+        .search-bar-inner {
+            max-width: 680px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-bar-inner i {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            pointer-events: none;
+        }
+
+        #nicho-search {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem 0.75rem 2.75rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        #nicho-search::placeholder {
+            color: var(--text-secondary);
+        }
+
+        #nicho-search:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+        }
+
+        #search-count {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .nicho-card.hidden {
+            display: none;
+        }
+
+        .section-group.empty-group .section-label,
+        .section-group.empty-group .nichos-grid {
+            display: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nichos-hero">
+        <div class="back-nav">
+            <a href="../docs.html" class="back-link">
+                <i class="ph ph-arrow-left"></i> Voltar à Academy
+            </a>
+        </div>
+        <div class="hero-badge">
+            <i class="ph ph-buildings"></i> Home Services EUA
+        </div>
+        <h1>Manual dos <span class="highlight-text">Nichos</span></h1>
+        <p>Conheça em profundidade os serviços que você vai vender. Entender o nicho é o que separa um criativo genérico
+            de um anúncio que converte de verdade.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar-wrapper">
+        <div class="search-bar-inner">
+            <i class="ph ph-magnifying-glass"></i>
+            <input type="text" id="nicho-search" placeholder="Pesquisar nicho — ex: painting, flooring, roofing..."
+                autocomplete="off">
+            <span id="search-count">15 nichos</span>
+        </div>
+    </div>
+
+    <main class="nichos-container">
+        <div class="section-label">Construção & Reformas</div>
+        <div class="nichos-grid">
+            <a href="nichos/construction.html" class="nicho-card">
+                <div class="nicho-icon"><i class="ph ph-buildings"></i></div>
+                <div>
+                    <div class="nicho-title">Construction
+                        <span>Construção Residencial & Comercial</span>
+                    </div>
+                </div>
+                <div class="nicho-tags">
+                    <span class="nicho-tag">Fundação</span>
+                    <span class="nicho-tag">Framing</span>
+                    <span class="nicho-tag">Drywall</span>
+                    <span class="nicho-tag">Inspeções</span>
+                </div>
+                <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+            </a>
+
+            <a href="nichos/remodeling.html" class="nicho-card">
+                <div class="nicho-icon"><i class="ph ph-wrench"></i></div>
+                <div>
+                    <div class="nicho-title">Remodeling
+                        <span>Reformas & Renovações Internas</span>
+                    </div>
+                </div>
+                <div class="nicho-tags">
+                    <span class="nicho-tag">Kitchen</span>
+                    <span class="nicho-tag">Bathroom</span>
+                    <span class="nicho-tag">Basement</span>
+                    <span class="nicho-tag">Drywall</span>
+                </div>
+                <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+            </a>
+
+            <a href="nichos/carpentry.html" class="nicho-card">
+                <div class="nicho-icon"><i class="ph ph-tree"></i></div>
+                <div>
+                    <div class="nicho-title">Carpentry
+                        <span>Marcenaria & Acabamentos em Madeira</span>
+                    </div>
+                </div>
+                <div class="nicho-tags">
+                    <span class="nicho-tag">Trim</span>
+                    <span class="nicho-tag">Cabinets</span>
+                    <span class="nicho-tag">Stairs</span>
+                    <span class="nicho-tag">Wood Rot</span>
+                </div>
+                <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+            </a>
+
+            <a href="nichos/framing.html" class="nicho-card">
+                <div class="nicho-icon"><i class="ph ph-grid-four"></i></div>
+                <div>
+                    <div class="nicho-title">Framing
+                        <span>Estrutura & Enquadramento</span>
+                    </div>
+                </div>
+                <div class="nicho-tags">
+                    <span class="nicho-tag">Paredes</span>
+                    <span class="nicho-tag">Telhado</span>
+                    <span class="nicho-tag">Steel Framing</span>
+                </div>
+                <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+            </a>
+
+            <a href="nichos/additions.html" class="nicho-card">
+                <div class="nicho-icon"><i class="ph ph-plus-square"></i></div>
+                <div>
+                    <div class="nicho-title">Additions
+                        <span>Ampliações & Room Additions</span>
+                    </div>
+                </div>
+                <div class="nicho-tags">
+                    <span class="nicho-tag">Room Addition</span>
+                    <span class="nicho-tag">Alvarás</span>
+                    <span class="nicho-tag">Expansão</span>
+                </div>
+                <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+            </a>
+        </div>
+        </div><!-- /group-construcao -->
+
+        <div class="section-group" id="group-acabamentos">
+            <div class="section-label">Acabamentos & Superfícies</div>
+            <div class="nichos-grid">
+                <a href="nichos/painting.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-paint-roller"></i></div>
+                    <div>
+                        <div class="nicho-title">Painting
+                            <span>Pintura Interior, Exterior & Armários</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Interior</span>
+                        <span class="nicho-tag">Exterior</span>
+                        <span class="nicho-tag">Cabinet</span>
+                        <span class="nicho-tag">Primer</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/roofing.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-house-line"></i></div>
+                    <div>
+                        <div class="nicho-title">Roofing
+                            <span>Telhados, Telhas & Impermeabilização</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Shingles</span>
+                        <span class="nicho-tag">Metal</span>
+                        <span class="nicho-tag">Flat Roof</span>
+                        <span class="nicho-tag">Flashing</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/siding.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-squares-four"></i></div>
+                    <div>
+                        <div class="nicho-title">Siding
+                            <span>Revestimento Externo de Fachadas</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Vinyl</span>
+                        <span class="nicho-tag">Fiber Cement</span>
+                        <span class="nicho-tag">Wood</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/insulation.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-thermometer"></i></div>
+                    <div>
+                        <div class="nicho-title">Insulation
+                            <span>Isolamento Térmico & Acústico</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Attic</span>
+                        <span class="nicho-tag">Spray Foam</span>
+                        <span class="nicho-tag">Fiberglass</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/countertops.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-table"></i></div>
+                    <div>
+                        <div class="nicho-title">Countertops
+                            <span>Bancadas em Granito, Quartzo & Mármore</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Granite</span>
+                        <span class="nicho-tag">Quartz</span>
+                        <span class="nicho-tag">Marble</span>
+                        <span class="nicho-tag">Instalação</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+            </div>
+        </div><!-- /group-acabamentos -->
+
+        <div class="section-group" id="group-pisos">
+            <div class="section-label">Pisos</div>
+            <div class="nichos-grid">
+                <a href="nichos/flooring.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-stack"></i></div>
+                    <div>
+                        <div class="nicho-title">Flooring (Geral)
+                            <span>Visão geral de todos os tipos de piso</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Hardwood</span>
+                        <span class="nicho-tag">LVP</span>
+                        <span class="nicho-tag">Tile</span>
+                        <span class="nicho-tag">Epoxy</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/hardwood-flooring.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-tree-evergreen"></i></div>
+                    <div>
+                        <div class="nicho-title">Hardwood Flooring
+                            <span>Madeira Sólida & Engenheirada</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Solid</span>
+                        <span class="nicho-tag">Engineered</span>
+                        <span class="nicho-tag">Oak</span>
+                        <span class="nicho-tag">Refinish</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/luxury-vinyl-plank.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-shield-check"></i></div>
+                    <div>
+                        <div class="nicho-title">Luxury Vinyl Plank
+                            <span>LVP — O Piso que Domina o Mercado</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Waterproof</span>
+                        <span class="nicho-tag">Click-Lock</span>
+                        <span class="nicho-tag">Durabilidade</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/epoxy-flooring.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-paint-bucket"></i></div>
+                    <div>
+                        <div class="nicho-title">Epoxy Flooring
+                            <span>Revestimento Epóxi para Garagens & Comercial</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Garage</span>
+                        <span class="nicho-tag">Metallic</span>
+                        <span class="nicho-tag">Anti-slip</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+
+                <a href="nichos/sand-and-refinish.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-recycle"></i></div>
+                    <div>
+                        <div class="nicho-title">Sand & Refinish
+                            <span>Restauração de Pisos de Madeira</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Lixamento</span>
+                        <span class="nicho-tag">Stain</span>
+                        <span class="nicho-tag">Verniz</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+            </div>
+        </div><!-- /group-pisos -->
+
+        <div class="section-group" id="group-exterior">
+            <div class="section-label">Exterior & Jardim</div>
+            <div class="nichos-grid">
+                <a href="nichos/landscaping.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-plant"></i></div>
+                    <div>
+                        <div class="nicho-title">Landscaping
+                            <span>Paisagismo, Jardins & Hardscaping</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Patio</span>
+                        <span class="nicho-tag">Lawn Care</span>
+                        <span class="nicho-tag">Irrigation</span>
+                        <span class="nicho-tag">Pavers</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+            </div>
+        </div><!-- /group-exterior -->
+
+        <div class="section-group" id="group-servicos">
+            <div class="section-label">Serviços & Limpeza</div>
+            <div class="nichos-grid">
+                <a href="nichos/cleaning.html" class="nicho-card">
+                    <div class="nicho-icon"><i class="ph ph-broom"></i></div>
+                    <div>
+                        <div class="nicho-title">Cleaning
+                            <span>Residencial, Comercial & Especializado</span>
+                        </div>
+                    </div>
+                    <div class="nicho-tags">
+                        <span class="nicho-tag">Deep Clean</span>
+                        <span class="nicho-tag">Move-In/Out</span>
+                        <span class="nicho-tag">Janitorial</span>
+                    </div>
+                    <div class="nicho-cta">Ler guia <i class="ph ph-arrow-right"></i></div>
+                </a>
+            </div>
+        </div><!-- /group-servicos -->
+
+        <div class="no-results" id="no-results">
+            <i class="ph ph-magnifying-glass"></i>
+            <strong>Nenhum nicho encontrado</strong>
+            <p>Tente buscar por termos como "painting", "flooring" ou "roofing".</p>
+        </div>
+    </main>
+
+    <footer class="nichos-footer">
+        <p>TS TOOLS Academy &copy; 2026. Documentação Interna para o Grupo TS.</p>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById('nicho-search');
+        const countEl = document.getElementById('search-count');
+        const noResults = document.getElementById('no-results');
+        const allCards = document.querySelectorAll('.nicho-card');
+        const allGroups = document.querySelectorAll('.section-group');
+
+        function updateSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            let visible = 0;
+
+            allCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (!query || text.includes(query)) {
+                    card.classList.remove('hidden');
+                    visible++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Hide empty section groups
+            allGroups.forEach(group => {
+                const visibleInGroup = group.querySelectorAll('.nicho-card:not(.hidden)').length;
+                group.classList.toggle('empty-group', visibleInGroup === 0);
+            });
+
+            countEl.textContent = visible + (visible === 1 ? ' nicho' : ' nichos');
+            noResults.style.display = visible === 0 ? 'block' : 'none';
+        }
+
+        searchInput.addEventListener('input', updateSearch);
+        updateSearch();
+    </script>
+</body>
+
+</html>

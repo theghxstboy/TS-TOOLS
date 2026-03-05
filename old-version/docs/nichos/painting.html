@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painting - Nichos EUA | TS Academy</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .article-sidebar {
+            width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+        }
+
+        .article-main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 4rem;
+            max-width: 900px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.45rem 0.6rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+            background: rgba(245, 158, 11, 0.06);
+        }
+
+        .article-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nicho-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 3rem 0 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .article-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        .article-content p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content strong {
+            color: var(--text-primary);
+        }
+
+        .article-content ul,
+        .article-content ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .info-box strong {
+            color: var(--primary-color);
+        }
+
+        .pro-tip {
+            background: rgba(34, 197, 94, 0.05);
+            border-left: 4px solid #22c55e;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .pro-tip strong {
+            color: #22c55e;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+        }
+
+        .service-card h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .service-card h4 i {
+            color: var(--primary-color);
+        }
+
+        .service-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 1.5rem 0;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .workflow-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .step-content strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content span {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .keywords-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .article-sidebar {
+                display: none;
+            }
+
+            .article-main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="article-sidebar">
+        <a href="../nichos.html" class="back-link"><i class="ph ph-arrow-left"></i> Manual dos Nichos</a>
+        <div class="nav-group">
+            <div class="nav-group-title">Construção</div>
+            <a href="construction.html" class="nav-link">Construction</a>
+            <a href="remodeling.html" class="nav-link">Remodeling</a>
+            <a href="carpentry.html" class="nav-link">Carpentry</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Acabamentos</div>
+            <a href="painting.html" class="nav-link active">Painting</a>
+            <a href="roofing.html" class="nav-link">Roofing</a>
+            <a href="siding.html" class="nav-link">Siding</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Pisos</div>
+            <a href="flooring.html" class="nav-link">Flooring (Geral)</a>
+            <a href="hardwood-flooring.html" class="nav-link">Hardwood</a>
+            <a href="luxury-vinyl-plank.html" class="nav-link">LVP</a>
+            <a href="epoxy-flooring.html" class="nav-link">Epoxy</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-group-title">Exterior & Serviços</div>
+            <a href="landscaping.html" class="nav-link">Landscaping</a>
+            <a href="cleaning.html" class="nav-link">Cleaning</a>
+        </div>
+    </aside>
+
+    <main class="article-main">
+        <header class="article-header">
+            <div class="nicho-badge"><i class="ph ph-paint-roller"></i> Painting</div>
+            <h1 class="article-title">Painting</h1>
+            <p class="article-subtitle">O nicho de pintura residencial é um dos mais competitivos e lucrativos dos EUA.
+                Um anúncio de painting que converte mostra <strong>antes e depois impecável</strong>, profissionais com
+                uniforme e uma execução que passa confiança.</p>
+            <div class="article-meta">
+                <span><i class="ph ph-clock"></i> 5 min de leitura</span>
+                <span><i class="ph ph-buildings"></i> Home Services EUA</span>
+                <span><i class="ph ph-chart-line-up"></i> Alta Demanda</span>
+            </div>
+        </header>
+
+        <section class="article-content">
+            <h2><i class="ph ph-list-checks"></i> Os 3 Sub-Nichos de Painting</h2>
+            <div class="service-grid">
+                <div class="service-card">
+                    <h4><i class="ph ph-house-line"></i> Interior Painting</h4>
+                    <p>Quarto, sala, cozinha. Foco em precisão no corte (cutting-in) e rolagem uniforme. Cliente quer
+                        ver ambiente transformado.</p>
+                </div>
+                <div class="service-card">
+                    <h4><i class="ph ph-sun"></i> Exterior Painting</h4>
+                    <p>Fachada, deck, cercas. Resistência a intempéries é o argumento de venda. Mostrar preparação de
+                        superfície converte mais.</p>
+                </div>
+                <div class="service-card">
+                    <h4><i class="ph ph-armchair"></i> Cabinet Painting</h4>
+                    <p>Reformar armários sem trocar é a alternativa mais barata ao remodeling. Acabamento de alta
+                        qualidade é o diferencial.</p>
+                </div>
+            </div>
+
+            <h2><i class="ph ph-arrows-down-up"></i> Fluxo de Trabalho no Canteiro</h2>
+            <p>Entender o processo técnico ajuda a criar criativos que <strong>geram autoridade e confiança</strong>. No
+                mercado americano, o cliente quer ver profissionalismo em cada etapa.</p>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content"><strong>Preparação da Superfície</strong><span>Remoção de tinta antiga,
+                            lixamento, reparos em furos e trincas com massa corrida (spackle). Esta etapa é onde os
+                            amadores se diferenciam dos profissionais.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content"><strong>Proteção (Masking & Drop Cloths)</strong><span>Fita crepe
+                            (painter's tape), lonas plásticas cobrindo móveis e pisos. Mostra organização e cuidado —
+                            isso é fotogênico e converte em anúncios.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content"><strong>Primer</strong><span>Camada de base que garante aderência e
+                            cobertura uniforme. Etapa obrigatória em superfícies novas ou reformadas.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content"><strong>Pintura (2 demãos)</strong><span>Primeira demão de cobertura,
+                            segunda de acabamento. Rolo para áreas planas, pincel para cortes e molduras.</span></div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-num">5</div>
+                    <div class="step-content"><strong>Touch-ups & Limpeza</strong><span>Retirada cuidadosa das lonas e
+                            fitas, inspeção final, pequenos retoques. O profissional sai e o ambiente está
+                            impecável.</span></div>
+                </div>
+            </div>
+
+            <h2><i class="ph ph-magic-wand"></i> O que Funciona em Criativos de Painting</h2>
+            <div class="info-box">
+                <strong>💡 Regra de Ouro:</strong> O antes e depois de pintura é um dos criativos de mais alta conversão
+                em Home Services. O cliente sente que está tomando uma decisão de compra de baixo risco com alto impacto
+                visual.
+            </div>
+            <ul>
+                <li><strong>Mostrar o contraste:</strong> Parede velha/descascada/desbotada ao lado da parede
+                    recém-pintada é o combo perfeito.</li>
+                <li><strong>Uniforme e ferramentas:</strong> Profissional com uniforme branco, cinto de ferramentas,
+                    rolo de qualidade — passa autoridade imediata.</li>
+                <li><strong>Ambiente detalhe:</strong> Close-up no corte perfeito na moldura, borda impecável — mostra
+                    precisão técnica.</li>
+                <li><strong>Exterior com contexto americano:</strong> Casa com jardim, calçada, mailbox — o cliente
+                    americano quer se ver naquele ambiente.</li>
+            </ul>
+
+            <h2><i class="ph ph-translate"></i> Vocabulário Técnico para Prompts</h2>
+            <p>Use esses termos em inglês para criar prompts mais precisos e autorais:</p>
+            <div class="keywords-box">
+                <span class="keyword">cutting-in</span>
+                <span class="keyword">roller application</span>
+                <span class="keyword">painter's tape</span>
+                <span class="keyword">drop cloth</span>
+                <span class="keyword">primer coat</span>
+                <span class="keyword">spackle repair</span>
+                <span class="keyword">exterior latex paint</span>
+                <span class="keyword">trim work</span>
+                <span class="keyword">cabinet refinishing</span>
+                <span class="keyword">sheen level</span>
+                <span class="keyword">eggshell finish</span>
+                <span class="keyword">two-coat system</span>
+            </div>
+
+            <div class="pro-tip">
+                <strong>✅ Pro Tip para Gerador:</strong> Ao usar o Gerador de Imagens para painting, combine
+                <em>Exterior Painting + Suburban Neighborhood + Golden Hour + Cinematic</em> para o criativo de mais
+                alta performance. A luz do entardecer numa fachada recém-pintada é extremamente aspiracional.
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
