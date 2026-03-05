@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import {
     ArrowLeft,
@@ -14,7 +14,10 @@ import {
     MagicWand,
     Question
 } from "@phosphor-icons/react"
-import { TutorialDialog } from "@/components/TutorialDialog"
+import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { FloatingHelpButton } from "@/components/FloatingHelpButton"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,15 +34,13 @@ import {
 import { cn } from "@/lib/utils"
 import { PRESETS_GERADOR } from "@/constants/presets"
 
-export default function GeradorPage() {
+function GeradorContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
-    const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
     useEffect(() => {
-        const hasSeenTutorial = localStorage.getItem("ts-tools-hide-tutorial")
-        if (!hasSeenTutorial) {
-            setIsTutorialOpen(true)
-        }
+        // We can keep the local logic if wanted, but the FloatingHelpButton will handle its own.
+        // If we want to auto-open sometimes, we can still do it.
+        // For now let's just clean up.
     }, [])
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
 
@@ -71,6 +72,56 @@ export default function GeradorPage() {
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
+
+    // History Hook
+    const { history, saveHistory } = useGenerationHistory("gerador")
+    const searchParams = useSearchParams()
+
+    // Handle Restore Effect
+    useEffect(() => {
+        const restoreId = searchParams.get('restore_id')
+        if (restoreId && history.length > 0) {
+            const itemToRestore = history.find((item: HistoryItem) => item.id === restoreId)
+            if (itemToRestore) {
+                handleRestore(itemToRestore)
+            }
+        }
+    }, [searchParams, history])
+
+    const handleRestore = (item: HistoryItem) => {
+        const p = item.payload;
+        if (!p) return;
+
+        setMode(p.mode || "simple")
+
+        // Simple
+        setNiche(p.niche || "")
+        setNicheOther(p.nicheOther || "")
+        setStyle(p.style || "photorealistic")
+        setStyleOther(p.styleOther || "")
+        setEnvironment(p.environment || "residential")
+        setEnvironmentOther(p.environmentOther || "")
+        setLighting(p.lighting || "natural-daylight")
+        setLightingOther(p.lightingOther || "")
+        setLocation(p.location || "florida")
+        setLocationOther(p.locationOther || "")
+        setObjective(p.objective || "service")
+        setObjectiveOther(p.objectiveOther || "")
+
+        // Advanced
+        setNicheAdv(p.nicheAdv || "")
+        setStyleAdv(p.styleAdv || "")
+        setEnvironmentAdv(p.environmentAdv || "")
+        setLightingAdv(p.lightingAdv || "")
+        setLocationAdv(p.locationAdv || "")
+        setObjectiveAdv(p.objectiveAdv || "")
+        setNegativeAdv(p.negativeAdv || "")
+
+        // Global
+        setSubject(p.subject || "")
+        setGeneratedPrompt(item.prompt || "")
+        setSelectedPreset("")
+    }
 
     const handlePresetClick = (id: string) => {
         setSelectedPreset(id);
@@ -224,7 +275,23 @@ export default function GeradorPage() {
             if (finalStyle && styleModifiers[finalStyle]) promptParts.push(styleModifiers[finalStyle])
             else if (finalStyle) promptParts.push(finalStyle)
 
-            setGeneratedPrompt(promptParts.join(', ') + '.')
+            const promptStr = promptParts.join(', ') + '.';
+            setGeneratedPrompt(promptStr);
+
+            setTimeout(() => {
+                setIsGenerating(false)
+                saveHistory({
+                    mode,
+                    niche, nicheOther,
+                    style, styleOther,
+                    environment, environmentOther,
+                    lighting, lightingOther,
+                    location, locationOther,
+                    objective, objectiveOther,
+                    nicheAdv, styleAdv, environmentAdv, lightingAdv, locationAdv, objectiveAdv, negativeAdv,
+                    subject
+                }, promptStr)
+            }, 800)
         } else {
             if (subject) promptParts.push(subject)
             if (nicheAdv) promptParts.push(nicheAdv)
@@ -239,9 +306,21 @@ export default function GeradorPage() {
                 finalPrompt += `\n\n[NEGATIVE PROMPT]: ${negativeAdv}`
             }
             setGeneratedPrompt(finalPrompt)
+            setTimeout(() => {
+                setIsGenerating(false)
+                saveHistory({
+                    mode,
+                    niche, nicheOther,
+                    style, styleOther,
+                    environment, environmentOther,
+                    lighting, lightingOther,
+                    location, locationOther,
+                    objective, objectiveOther,
+                    nicheAdv, styleAdv, environmentAdv, lightingAdv, locationAdv, objectiveAdv, negativeAdv,
+                    subject
+                }, finalPrompt)
+            }, 800)
         }
-
-        setTimeout(() => setIsGenerating(false), 800)
     }
 
     const handleClear = () => {
@@ -336,25 +415,12 @@ export default function GeradorPage() {
                         <div className="flex items-center gap-4">
                             <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
                                 <MagicWand size={28} weight="fill" />
-                                <button
-                                    onClick={() => setIsTutorialOpen(true)}
-                                    className="absolute -top-1 -right-1 size-5 bg-white text-black rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity border border-black/10"
-                                    title="Ajuda"
-                                >
-                                    <Question size={12} weight="bold" />
-                                </button>
                             </div>
                             <div>
                                 <div className="flex items-center gap-3">
-                                    <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
+                                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
                                         Gerador <span className="text-primary">PRO</span>
                                     </h1>
-                                    <button
-                                        onClick={() => setIsTutorialOpen(true)}
-                                        className="size-6 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all ml-1"
-                                    >
-                                        <Question size={14} weight="bold" />
-                                    </button>
                                 </div>
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">ADVANCED PROMPT SYSTEM</p>
                             </div>
@@ -709,15 +775,27 @@ export default function GeradorPage() {
                             </div>
                         </div>
                     </div>
+                </div>
 
+                {/* History Section - Full Width */}
+                <div className="mt-6">
+                    <GenerationHistory
+                        history={history}
+                        onRestore={handleRestore}
+                        generatorName="gerador"
+                    />
                 </div>
             </div>
 
-            <TutorialDialog
-                isOpen={isTutorialOpen}
-                onOpenChange={setIsTutorialOpen}
-                pageTitle="Gerador PRO"
-            />
-        </div>
+            <FloatingHelpButton pageTitle="Gerador PRO" />
+        </div >
+    )
+}
+
+export default function GeradorPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+            <GeradorContent />
+        </Suspense>
     )
 }

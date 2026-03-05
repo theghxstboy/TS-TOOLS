@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import {
     Image as ImageIcon,
     VideoCamera,
@@ -16,6 +16,9 @@ import {
     Question
 } from "@phosphor-icons/react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { FloatingHelpButton } from "@/components/FloatingHelpButton"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -31,7 +34,7 @@ import { cn } from "@/lib/utils"
 import { PRESETS, CHECKBOX_COMMANDS, TABS, TabKey, OutputMode, GeneratorMode } from "@/constants/gerador-humano"
 import { usePromptGenerator } from "@/hooks/usePromptGenerator"
 
-export default function GeradorHumanoPage() {
+function GeradorHumanoContent() {
     const {
         mode, setMode,
         genMode, setGenMode,
@@ -44,17 +47,22 @@ export default function GeradorHumanoPage() {
         negativePrompt, setNegativePrompt,
         userDetails, setUserDetails,
         finalPrompt,
-        handleClear
+        handleClear,
+        history, handleRestore
     } = usePromptGenerator();
 
-    const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+    const searchParams = useSearchParams()
 
+    // Handle Restore Effect
     useEffect(() => {
-        const hasSeenTutorial = localStorage.getItem("ts-tools-hide-tutorial");
-        if (!hasSeenTutorial) {
-            setIsTutorialOpen(true);
+        const restoreId = searchParams.get('restore_id')
+        if (restoreId && history.length > 0) {
+            const itemToRestore = history.find(item => item.id === restoreId)
+            if (itemToRestore) {
+                handleRestore(itemToRestore)
+            }
         }
-    }, []);
+    }, [searchParams, history])
 
     return (
         <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 pb-20 font-sans">
@@ -63,25 +71,12 @@ export default function GeradorHumanoPage() {
                 <div className="flex items-center gap-4">
                     <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
                         <TerminalWindow size={28} weight="fill" />
-                        <button
-                            onClick={() => setIsTutorialOpen(true)}
-                            className="absolute -top-1 -right-1 size-5 bg-white text-black rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity border border-black/10"
-                            title="Ajuda"
-                        >
-                            <Question size={12} weight="bold" />
-                        </button>
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
                             <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
                                 Gerador <span className="text-primary text-xl">↓</span>
                             </h1>
-                            <button
-                                onClick={() => setIsTutorialOpen(true)}
-                                className="size-6 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all ml-1"
-                            >
-                                <Question size={14} weight="bold" />
-                            </button>
                         </div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">REALISM OVERRIDE SYSTEM</p>
                     </div>
@@ -453,16 +448,28 @@ export default function GeradorHumanoPage() {
                                 </p>
                             </div>
                         </div>
-
                     </div>
+                </div>
+
+                {/* History Section - Full Width */}
+                <div className="mt-6">
+                    <GenerationHistory
+                        history={history}
+                        onRestore={handleRestore}
+                        generatorName="gerador-humano"
+                    />
                 </div>
             </div>
 
-            <TutorialDialog
-                isOpen={isTutorialOpen}
-                onOpenChange={setIsTutorialOpen}
-                pageTitle="Gerador Humano"
-            />
+            <FloatingHelpButton pageTitle="Gerador Humano" />
         </div>
+    )
+}
+
+export default function GeradorHumanoPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+            <GeradorHumanoContent />
+        </Suspense>
     )
 }

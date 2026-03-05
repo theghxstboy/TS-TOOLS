@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PRESETS, CHECKBOX_COMMANDS, OutputMode, GeneratorMode, TabKey } from "@/constants/gerador-humano";
+import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory";
 
 export function usePromptGenerator() {
     const [mode, setMode] = useState<OutputMode>("imagem");
@@ -12,6 +13,8 @@ export function usePromptGenerator() {
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<Set<string>>(new Set(["cabelo_natural", "pele_imperfeita", "roupa_amassada", "rua_movimentada", "iluminacao_natural"]));
     const [sliderPos, setSliderPos] = useState(25);
     const [isCopied, setIsCopied] = useState(false);
+
+    const { history, saveHistory } = useGenerationHistory("gerador-humano");
 
     const [customAction, setCustomAction] = useState("");
     const [negativePrompt, setNegativePrompt] = useState("");
@@ -119,9 +122,36 @@ export function usePromptGenerator() {
                 document.body.removeChild(textArea);
             }
             setIsCopied(true);
+
+            saveHistory({
+                mode, genMode, selectedPreset,
+                selectedCheckboxes: Array.from(selectedCheckboxes),
+                customAction, negativePrompt, userDetails
+            }, finalPrompt);
+
             setTimeout(() => setIsCopied(false), 2000);
         } catch (error) {
             console.error("Erro ao copiar:", error);
+        }
+    };
+
+    const handleRestore = (item: HistoryItem) => {
+        const p = item.payload;
+        if (!p) return;
+
+        setMode(p.mode || "imagem");
+        setGenMode(p.genMode || "simple");
+        setSelectedPreset(p.selectedPreset || "");
+
+        if (p.selectedCheckboxes) {
+            setSelectedCheckboxes(new Set(p.selectedCheckboxes));
+        }
+
+        setCustomAction(p.customAction || "");
+        setNegativePrompt(p.negativePrompt || "");
+
+        if (p.userDetails) {
+            setUserDetails(p.userDetails);
         }
     };
 
@@ -138,6 +168,7 @@ export function usePromptGenerator() {
         negativePrompt, setNegativePrompt,
         userDetails, setUserDetails,
         finalPrompt,
-        handleClear
+        handleClear,
+        history, handleRestore
     };
 }

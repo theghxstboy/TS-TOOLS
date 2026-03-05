@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import {
     CheckCircle,
     VideoCamera,
@@ -14,6 +14,10 @@ import {
     Question
 } from "@phosphor-icons/react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { FloatingHelpButton } from "@/components/FloatingHelpButton"
+import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -21,14 +25,10 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { PRESETS_VIDEO } from "@/constants/presets"
 
-export default function GeradorVideoPage() {
+function GeradorVideoContent() {
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
     useEffect(() => {
-        const hasSeenTutorial = localStorage.getItem("ts-tools-hide-tutorial")
-        if (!hasSeenTutorial) {
-            setIsTutorialOpen(true)
-        }
     }, [])
     const [selectedPreset, setSelectedPreset] = useState<string>("")
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
@@ -52,6 +52,39 @@ export default function GeradorVideoPage() {
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
+
+    const { history, saveHistory } = useGenerationHistory("gerador-video")
+    const searchParams = useSearchParams()
+
+    const handleRestore = (item: HistoryItem) => {
+        const p = item.payload;
+        if (!p) return;
+
+        setMode(p.mode || "simple");
+        setNiche(p.niche || "residential interior");
+        setNicheOther(p.nicheOther || "");
+        setMotion(p.motion || "Slow Dolly Push-in");
+        setMotionOther(p.motionOther || "");
+        setAngle(p.angle || "Eye-level Angle");
+        setAngleOther(p.angleOther || "");
+        setLens(p.lens || "Cinematic 35mm lens, beautiful shallow depth of field, sharp focus");
+        setLensOther(p.lensOther || "");
+        setSpeed(p.speed || "Real-time default speed");
+        setSpeedOther(p.speedOther || "");
+        setAction(p.action || "");
+        setNegative(p.negative || "");
+    };
+
+    // Handle Restore Effect
+    useEffect(() => {
+        const restoreId = searchParams.get('restore_id')
+        if (restoreId && history.length > 0) {
+            const itemToRestore = history.find(item => item.id === restoreId)
+            if (itemToRestore) {
+                handleRestore(itemToRestore)
+            }
+        }
+    }, [searchParams, history])
 
     const handlePresetClick = (id: string) => {
         setSelectedPreset(id);
@@ -107,10 +140,38 @@ export default function GeradorVideoPage() {
 
             setGeneratedPrompt(promptParts.join(' '))
         } else {
-            setGeneratedPrompt(action + (negative ? `\n\n[NEGATIVE]: ${negative}` : ""))
+            const finalPromptObj = action + (negative ? `\n\n[NEGATIVE]: ${negative}` : "")
+            setGeneratedPrompt(finalPromptObj)
         }
 
-        setTimeout(() => setIsGenerating(false), 800)
+        setTimeout(() => {
+            setIsGenerating(false)
+            // Determine final prompt since state update might not have applied yet
+            let finalStr = ""
+            if (mode === 'simple') {
+                const finalNiche = niche === 'other' ? nicheOther : niche
+                const finalMotion = motion === 'other' ? motionOther : motion
+                const finalAngle = angle === 'other' ? angleOther : angle
+                const finalLens = lens === 'other' ? lensOther : lens
+                const finalSpeed = speed === 'other' ? speedOther : speed
+
+                let promptParts: string[] = []
+                if (finalMotion || finalAngle) promptParts.push(`${[finalMotion, finalAngle].filter(Boolean).join(', ')}.`)
+                promptParts.push(`A cinematic video showing ${action}`)
+                if (finalNiche) promptParts.push(`in a ${finalNiche}.`)
+                else promptParts.push(`.`)
+                if (finalLens || finalSpeed) promptParts.push(`Shot styling: ${[finalLens, finalSpeed].filter(Boolean).join(', ')}.`)
+
+                finalStr = promptParts.join(' ')
+            } else {
+                finalStr = action + (negative ? `\n\n[NEGATIVE]: ${negative}` : "")
+            }
+
+            saveHistory({
+                mode, niche, nicheOther, motion, motionOther, angle, angleOther,
+                lens, lensOther, speed, speedOther, action, negative
+            }, finalStr)
+        }, 800)
     }
 
     const handleCopy = async () => {
@@ -169,26 +230,16 @@ export default function GeradorVideoPage() {
                 <div className="text-center mb-12">
                     <div className="flex items-center gap-4 justify-center mb-4">
                         <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                            <VideoCamera size={28} weight="fill" />
-                            <button
-                                onClick={() => setIsTutorialOpen(true)}
-                                className="absolute -top-1 -right-1 size-5 bg-white text-black rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity border border-black/10"
-                                title="Ajuda"
-                            >
-                                <Question size={12} weight="bold" />
-                            </button>
+                            <TerminalWindow size={28} weight="fill" />
                         </div>
-                    </div>
-                    <div className="flex items-center justify-center gap-3">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-                            Diretor de <span className="text-primary italic">Vídeo</span>
-                        </h1>
-                        <button
-                            onClick={() => setIsTutorialOpen(true)}
-                            className="size-8 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all"
-                        >
-                            <Question size={18} weight="bold" />
-                        </button>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
+                                    Gerador de <span className="text-primary text-xl">Vídeo ↓</span>
+                                </h1>
+                            </div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">DIRECTOR MODE SYSTEM</p>
+                        </div>
                     </div>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
                         Gere roteiros técnicos e prompts de cena otimizados para <span className="text-foreground">Luma, Kling e Runway Gen-3</span>.
@@ -503,13 +554,26 @@ export default function GeradorVideoPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* History Section - Full Width */}
+                <div className="mt-6">
+                    <GenerationHistory
+                        history={history}
+                        onRestore={handleRestore}
+                        generatorName="gerador-video"
+                    />
+                </div>
             </div>
 
-            <TutorialDialog
-                isOpen={isTutorialOpen}
-                onOpenChange={setIsTutorialOpen}
-                pageTitle="Diretor de Vídeo"
-            />
+            <FloatingHelpButton pageTitle="Gerador Vídeo" />
         </div>
+    )
+}
+
+export default function GeradorVideoPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+            <GeradorVideoContent />
+        </Suspense>
     )
 }

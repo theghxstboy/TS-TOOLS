@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import {
     ArrowLeft,
@@ -18,6 +18,10 @@ import {
     Question
 } from "@phosphor-icons/react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { FloatingHelpButton } from "@/components/FloatingHelpButton"
+import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,15 +38,47 @@ import {
 import { cn } from "@/lib/utils"
 import { PRESETS_ANTES_DEPOIS } from "@/constants/presets"
 
-export default function AntesEDepoisPage() {
+function AntesEDepoisContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
+    const { history, saveHistory } = useGenerationHistory("antes-depois")
+    const searchParams = useSearchParams()
+
+    const handleRestore = (item: HistoryItem) => {
+        const p = item.payload;
+        if (!p) return;
+
+        setMode(p.mode || "simple");
+        setNiche(p.niche || "");
+        setNicheOther(p.nicheOther || "");
+        setFocus(p.focus || "the entire scene");
+        setFocusOther(p.focusOther || "");
+        setStateBefore(p.stateBefore || "extremely dirty, covered in grime and stains");
+        setStateBeforeOther(p.stateBeforeOther || "");
+        setStateAfter(p.stateAfter || "spotless, shining like new and pristine");
+        setStateAfterOther(p.stateAfterOther || "");
+        setStyle(p.style || "photorealistic, highly detailed, captured with DSLR camera");
+        setStyleOther(p.styleOther || "");
+        setNicheAdv(p.nicheAdv || "");
+        setFocusAdv(p.focusAdv || "");
+        setStateBeforeAdv(p.stateBeforeAdv || "");
+        setStateAfterAdv(p.stateAfterAdv || "");
+        setNegativeAdv(p.negativeAdv || "");
+    };
+
+    // Handle Restore Effect
     useEffect(() => {
-        const hasSeenTutorial = localStorage.getItem("ts-tools-hide-tutorial")
-        if (!hasSeenTutorial) {
-            setIsTutorialOpen(true)
+        const restoreId = searchParams.get('restore_id')
+        if (restoreId && history.length > 0) {
+            const itemToRestore = history.find(item => item.id === restoreId)
+            if (itemToRestore) {
+                handleRestore(itemToRestore)
+            }
         }
+    }, [searchParams, history])
+
+    useEffect(() => {
     }, [])
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
 
@@ -121,7 +157,18 @@ export default function AntesEDepoisPage() {
         }
 
         setGeneratedPrompt(prompt)
-        setTimeout(() => setIsGenerating(false), 800)
+
+        setTimeout(() => {
+            setIsGenerating(false)
+            // Determine final prompt since state update might not have applied yet
+            let finalStr = prompt
+
+            saveHistory({
+                mode, niche, nicheOther, focus, focusOther, stateBefore, stateBeforeOther,
+                stateAfter, stateAfterOther, style, styleOther, nicheAdv, focusAdv,
+                stateBeforeAdv, stateAfterAdv, negativeAdv
+            }, finalStr)
+        }, 800)
     }
 
     const handleClear = () => {
@@ -197,25 +244,12 @@ export default function AntesEDepoisPage() {
                     <div className="flex items-center gap-4 justify-center">
                         <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
                             <Sparkle size={28} weight="fill" />
-                            <button
-                                onClick={() => setIsTutorialOpen(true)}
-                                className="absolute -top-1 -right-1 size-5 bg-white text-black rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity border border-black/10"
-                                title="Ajuda"
-                            >
-                                <Question size={12} weight="bold" />
-                            </button>
                         </div>
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 uppercase tracking-tight">
                                     Antes <span className="text-primary italic">&</span> Depois
                                 </h1>
-                                <button
-                                    onClick={() => setIsTutorialOpen(true)}
-                                    className="size-6 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all ml-1"
-                                >
-                                    <Question size={14} weight="bold" />
-                                </button>
                             </div>
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">COMPARISON GENERATOR</p>
                         </div>
@@ -574,13 +608,26 @@ export default function AntesEDepoisPage() {
                         </div>
                     </div>
                 </div>
-            </div >
 
-            <TutorialDialog
-                isOpen={isTutorialOpen}
-                onOpenChange={setIsTutorialOpen}
-                pageTitle="Antes e Depois"
-            />
-        </div >
+                {/* History Section - Full Width */}
+                <div className="mt-6">
+                    <GenerationHistory
+                        history={history}
+                        onRestore={handleRestore}
+                        generatorName="antes-depois"
+                    />
+                </div>
+            </div>
+
+            <FloatingHelpButton pageTitle="Antes e Depois" />
+        </div>
+    )
+}
+
+export default function AntesEDepoisPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+            <AntesEDepoisContent />
+        </Suspense>
     )
 }
