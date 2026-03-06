@@ -53,6 +53,13 @@ export default async function Header() {
                                 <DropdownMenuItem className="cursor-pointer">
                                     <Link href="/ferramentas" className="w-full">Hub de Ferramentas</Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="cursor-pointer">
+                                    <Link href="/gerador-webdesign" className="w-full flex items-center justify-between">
+                                        Web Design Gen
+                                        <span className="text-[9px] font-bold text-cyan-500 bg-cyan-500/10 px-1.5 py-0.5 rounded uppercase">Dev</span>
+                                    </Link>
+                                </DropdownMenuItem>
                                 {session.user.role === "admin" && (
                                     <>
                                         <DropdownMenuSeparator />

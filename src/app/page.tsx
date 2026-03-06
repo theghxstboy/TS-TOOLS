@@ -14,7 +14,8 @@ import {
   RocketLaunch,
   X,
   Link as LinkIcon,
-  UserFocus
+  UserFocus,
+  Code
 } from "@phosphor-icons/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -117,6 +118,19 @@ export default function Home() {
             </div>
             <h2 className="text-xl font-bold mb-3 text-foreground">Humano</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">Prompts de pessoas extremamente realistas para fotos e vídeos por IA.</p>
+          </Link>
+
+          {/* Tool 5 */}
+          <Link href="/gerador-webdesign"
+            className="group relative flex flex-col items-center justify-center p-8 bg-card border border-border rounded-2xl shadow-sm hover:shadow-xl hover:shadow-cyan-500/10 hover:border-cyan-500 transition-all duration-300 h-full min-h-[280px] text-center">
+            <span className="absolute top-4 right-4 text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-400">
+              Dev
+            </span>
+            <div className="w-16 h-16 rounded-2xl bg-input text-cyan-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all duration-300">
+              <Code size={32} weight="bold" />
+            </div>
+            <h2 className="text-xl font-bold mb-3 text-foreground">Web Design</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">Estrutura páginas web de alta conversão (HTML/Tailwind) prontas para IAs criarem.</p>
           </Link>
         </div>
       </section>
