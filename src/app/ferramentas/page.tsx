@@ -5,7 +5,9 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { SubmitToolModal } from "@/components/SubmitToolModal"
 import { Tool } from "@/lib/tools"
-import { ArrowLeft, ArrowUpRight, Plus, Folder, MagnifyingGlass, ClockCounterClockwise, CheckCircle, Check, X, ShieldCheck } from "@phosphor-icons/react"
+import { ArrowLeft, ArrowUpRight, Plus, Folder, MagnifyingGlass, ClockCounterClockwise, CheckCircle, Check, X, ShieldCheck, Star } from "@phosphor-icons/react"
+
+const FAVORITES_KEY = "ts_tools_community_favorites"
 
 export default function FerramentasHubPage() {
     const { data: session } = useSession();
@@ -15,10 +17,29 @@ export default function FerramentasHubPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         fetchTools();
     }, []);
+
+    useEffect(() => {
+        const stored = localStorage.getItem(FAVORITES_KEY)
+        if (stored) {
+            try { setFavorites(new Set(JSON.parse(stored))) } catch { /* ignore */ }
+        }
+    }, []);
+
+    const toggleFavorite = (e: React.MouseEvent, id: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setFavorites(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) { next.delete(id) } else { next.add(id) }
+            localStorage.setItem(FAVORITES_KEY, JSON.stringify(Array.from(next)));
+            return next;
+        });
+    };
 
     const fetchTools = async () => {
         try {
@@ -41,16 +62,19 @@ export default function FerramentasHubPage() {
 
     const isAdmin = (session?.user as any)?.role === "admin";
 
-    const filteredTools = tools.filter(tool => {
-        const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === "all" || tool.category.toLowerCase() === selectedCategory.toLowerCase();
-
-        // Hide pending tools from the main hub for everyone (admins see them in the dashboard now)
-        // If you still want admins to see them in the hub, we can allow it, but let's only show approved here for a cleaner hub.
-        return matchesSearch && matchesCategory && (tool.status === "approved" || isAdmin);
-    });
+    const filteredTools = tools
+        .filter(tool => {
+            const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                tool.category.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesCategory = selectedCategory === "all" || tool.category.toLowerCase() === selectedCategory.toLowerCase();
+            return matchesSearch && matchesCategory && (tool.status === "approved" || isAdmin);
+        })
+        .sort((a, b) => {
+            const aFav = favorites.has(a.id) ? 0 : 1;
+            const bFav = favorites.has(b.id) ? 0 : 1;
+            return aFav - bFav;
+        });
 
     const handleUpdateStatus = async (id: string, status: 'approved' | 'rejected') => {
         try {
@@ -149,7 +173,10 @@ export default function FerramentasHubPage() {
                         {filteredTools.map(tool => (
                             <div
                                 key={tool.id}
-                                className="group flex flex-col bg-card rounded-2xl border border-border hover:border-primary p-6 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 relative"
+                                className={`group flex flex-col bg-card rounded-2xl border p-6 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 relative ${favorites.has(tool.id)
+                                    ? 'border-yellow-400/40 ring-1 ring-yellow-400/20 hover:border-yellow-400/60'
+                                    : 'border-border hover:border-primary'
+                                    }`}
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex flex-col gap-2">
@@ -163,9 +190,22 @@ export default function FerramentasHubPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <a href={tool.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-input rounded-xl text-muted-foreground hover:text-primary transition-colors">
-                                        <ArrowUpRight size={20} weight="bold" />
-                                    </a>
+                                    <div className="flex items-center gap-2">
+                                        {/* Favorite Button */}
+                                        <button
+                                            onClick={(e) => toggleFavorite(e, tool.id)}
+                                            className={`p-2 rounded-xl transition-all duration-200 ${favorites.has(tool.id)
+                                                ? 'text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20'
+                                                : 'text-muted-foreground/60 bg-input hover:text-yellow-400 hover:bg-yellow-400/10'
+                                                }`}
+                                            title={favorites.has(tool.id) ? 'Remover dos favoritos' : 'Favoritar'}
+                                        >
+                                            <Star size={20} weight={favorites.has(tool.id) ? 'fill' : 'regular'} />
+                                        </button>
+                                        <a href={tool.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-input rounded-xl text-muted-foreground hover:text-primary transition-colors">
+                                            <ArrowUpRight size={20} weight="bold" />
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-1">

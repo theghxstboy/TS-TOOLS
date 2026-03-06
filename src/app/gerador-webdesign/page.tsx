@@ -39,6 +39,9 @@ import { PRESETS_WEBDESIGN } from "@/constants/presets-webdesign"
 function GeradorWebDesignContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
 
+    // States - Mode
+    const [mode, setMode] = useState<"simple" | "expert">("simple")
+
     // States - Simple Mode
     const [pageType, setPageType] = useState("landing-page")
     const [niche, setNiche] = useState("construction")
@@ -59,6 +62,10 @@ function GeradorWebDesignContent() {
     // Global State
     const [productName, setProductName] = useState("")
     const [promise, setPromise] = useState("")
+
+    const [conversionLink, setConversionLink] = useState("https://google.com")
+    const [assetFiles, setAssetFiles] = useState<string[]>([])
+    const [logoFile, setLogoFile] = useState<File | null>(null)
 
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
@@ -83,6 +90,7 @@ function GeradorWebDesignContent() {
         const p = item.payload;
         if (!p) return;
 
+        setMode(p.mode || "simple")
         setPageType(p.pageType || "landing-page")
         setNiche(p.niche || "construction")
         setNicheOther(p.nicheOther || "")
@@ -101,6 +109,8 @@ function GeradorWebDesignContent() {
 
         setProductName(p.productName || "")
         setPromise(p.promise || "")
+        setConversionLink(p.conversionLink || "https://google.com")
+        setAssetFiles(p.assetFiles || [])
 
         setGeneratedPrompt(item.prompt || "")
         setSelectedPreset("")
@@ -129,55 +139,142 @@ function GeradorWebDesignContent() {
         }
     }
 
+    const extractColors = (image: HTMLImageElement) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.drawImage(image, 0, 0);
+
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        const colorCounts: Record<string, number> = {};
+
+        // Simple dominant color detection
+        // Sampling every 10th pixel for performance
+        for (let i = 0; i < data.length; i += 40) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 4];
+
+            if (a < 128) continue; // Skip semi-transparent
+
+            const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+
+            // Skip whites and blacks (approximate)
+            const sum = r + g + b;
+            if (sum > 700 || sum < 50) continue;
+
+            colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+        }
+
+        const sortedColors = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
+
+        if (sortedColors.length > 0) {
+            setPrimaryColor(sortedColors[0][0]);
+            if (sortedColors.length > 1) {
+                setSecondaryColor(sortedColors[1][0]);
+            }
+        }
+    };
+
+    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setLogoFile(file);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => extractColors(img);
+            img.src = event.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleAssetsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+        const names = Array.from(files).map(f => f.name);
+        setAssetFiles(names);
+    };
+
     const handleGenerate = () => {
         setIsGenerating(true)
 
         const finalNiche = niche === 'other' ? nicheOther : niche
         const finalFont = fontFamily === 'other' ? fontOther : fontFamily
 
+        const assetsList = assetFiles.length > 0
+            ? assetFiles.map(name => `- ${name}`).join('\n')
+            : 'Nenhum arquivo anexado ainda.';
+
         let promptTemplate = `Atue como um Engenheiro Front-end Sênior e Especialista em CRO (Otimização de Conversão).
-Sua missão é desenvolver o código de uma ${pageType.replace('-', ' ')} de alta conversão (Mobile-First) focada no nicho de ${finalNiche} para tráfego pago. A arquitetura do código deve ser perfeitamente limpa para futura conversão para WordPress.
+Sua missão é desenvolver o código de uma Landing Page de alta conversão (Mobile-First) focada em tráfego pago para o nicho de ${finalNiche}. A arquitetura do código deve ser perfeitamente limpa para futura conversão para WordPress.
 
-🧠 **REGRA DE OURO DE REFERÊNCIA VISUAL (IMPORTANTE)**
-Se eu anexei imagens a este prompt, considere-as sua **fonte de verdade absoluta** para o design.
-Sua prioridade deve ser:
-1. Analisar visualmente as imagens para replicar a paleta de cores, a tipografia (ou equivalente Google Font), o espaçamento, o raio de borda, as animações implícitas e a estrutura visual geral.
-2. Usar a técnica de OCR para extrair os textos das imagens e colocá-los nas posições correspondentes do código.
+🧠 **REGRA DE OURO DE REFERÊNCIA VISUAL**
+Se eu anexei imagens/prints a este prompt, considere-as sua **fonte de verdade absoluta** para o design. Replique a paleta de cores, tipografia, espaçamento e estrutura visual, extraindo os textos via OCR para as posições corretas. Se não houver prints, use os padrões da seção 🎨 2 e 📑 3.
 
-**SE EU NÃO ANEXEI IMAGENS**, use as configurações padrão definidas nas seções 🎨 1 e 📑 3 abaixo.
+📂 **MODO AVANÇADO DE ASSETS (LEITURA DE ARQUIVOS ANEXADOS)**
+Eu também anexei os arquivos de imagem que serão usados no projeto (ex: logotipos, fotos de fundo, mockups do produto). 
+Lista de arquivos anexados:
+${assetsList}
+
+Sua tarefa OBRIGATÓRIA é:
+1. Ler os **nomes reais dos arquivos** que eu anexei.
+2. Fazer o mapeamento inteligente: deduzir pelo nome ou visual da imagem onde ela deve entrar (Logo, Hero, Depoimentos, etc.).
+3. Usar esses nomes EXATOS nos atributos \`src\` das tags \`<img>\` ou em backgrounds.
+- Exemplo: Se eu anexar um arquivo chamado \`minha-logo-oficial-v2.png\`, a tag no código deve ser exatamente \`<img src="./assets/images/minha-logo-oficial-v2.png" ...>\`.
+
+🔗 **LINK DE CONVERSÃO (GLOBAL)**
+- Link do Formulário/Checkout: ${conversionLink}
+*Regra: Todos os botões de CTA da página devem ser tags \`<a>\` apontando exatamente (href) para este link.*
 
 ⚙️ **1. STACK TECNOLÓGICO OBRIGATÓRIO**
-- Estrutura: HTML5 Semântico (\`<header>\`, \`<section>\`, \`<article>\`, \`<footer>\`).
-- Estilização: Tailwind CSS via CDN. As classes devem usar as variáveis do Design System abaixo (ex: \`bg-primary\`, \`text-secondary\`).
+- Estrutura: HTML5 Semântico (\`<nav>\`, \`<header>\`, \`<section>\`, \`<article>\`, \`<footer>\`). 
+- Estilização: Tailwind CSS via CDN.
 - Interatividade: Apenas Vanilla JS (JavaScript puro). Sem React, Vue ou jQuery.
 
-🎨 **2. DESIGN SYSTEM E IDENTIDADE VISUAL (FALLBACK - Use se não houver imagens)**
-Configure o script do Tailwind no \`<head>\` para incluir as seguintes variáveis de estilo como padrão:
-- Cor Primária: ${primaryColor}
-- Cor Secundária: ${secondaryColor}
-- Cor de Fundo Principal: ${bgColor}
-- Cor do Texto Principal: ${textColor}
-- Fonte Principal: ${finalFont} - via Google Fonts
-- Estilo de Bordas (Border Radius): ${borderRadius}
+🎨 **2. DESIGN SYSTEM E IDENTIDADE VISUAL (FALLBACK)**
+Se não houver print de referência, configure o script do Tailwind no \`<head>\` usando:
+- Cor Primária: ${primaryColor} | Secundária: ${secondaryColor} | Fundo Principal: ${bgColor} | Texto Principal: ${textColor} | Fonte: ${finalFont} | Borda: ${borderRadius}
 
-📑 **3. ESTRUTURA DA PÁGINA E COPY (FALLBACK - Use se não houver imagens)**
-O produto/serviço que estamos vendendo é: "${productName || '[INSERIR NOME DO PRODUTO/SERVIÇO]'}".
-A promessa principal é: "${promise || '[INSERIR PROMESSA AQUI]'}"
-O tom da copy deve ser focado em: ${copyTone}.
+📑 **3. ESTRUTURA DA PÁGINA E COPY (FALLBACK)**
+O produto/serviço: "${productName || '[NOME DO PRODUTO]'}"
+Promessa: "${promise || '[PROMESSA]'}"
 
 Utilize a seguinte estrutura de seções:
-1. Hero: Fundo [Cor]. Headline forte focada na promessa principal. Subheadline explicando o mecanismo. Botão de CTA grande e pulsante.
-2. Problematização/Transformação: 3 blocos mostrando as dores ou benefícios claros. Usar ícones SVG simples (Feather Icons ou Heroicons).
-3. Solução/Benefícios: Z-pattern (texto/imagem alternados). Mostrar detalhes precisos sobre o serviço/produto.
-4. Feature Chave Especial: Implemente obrigatoriamente um(a) ${keyFeature.replace('-', ' ')} com alto nível de design e interatividade fluida via Vanilla JS.
-5. Prova Social: 3 cards de depoimentos de clientes satisfeitos com foto circular de perfil, nome e texto do depoimento focando no resultado obtido.
-6. Oferta e Garantia: Destaque visual forte. Preço ancorado. Selo de garantia de satisfação em SVG. CTA final idêntico ao do Hero com micro-animações de hover.
-7. Rodapé (Compliance Ads): Fundo neutro/escuro. Texto: "[NOME DA EMPRESA] - CNPJ: [00.000.000/0001-00]". Links discretos para "Termos de Uso" e "Políticas de Privacidade". Texto obrigatório de isenção de responsabilidade do Meta/Google.
+0. Navbar: Barra superior com a imagem do Logo alinhada à esquerda.
+1. Hero: Fundo [Cor]. Headline forte: "[INSERIR HEADLINE]". Subheadline: "[INSERIR SUBHEADLINE]". Botão de CTA grande: "[TEXTO DO BOTÃO]".
+2. Problematização: 3 blocos mostrando as dores: "[DOR 1]", "[DOR 2]", "[DOR 3]". Usar ícones SVG simples.
+3. Solução/Benefícios: Z-pattern (texto/imagem alternados). 4 benefícios claros.
+4. Prova Social: 3 cards de depoimentos com foto circular, nome e "[TEXTO DO DEPOIMENTO]".
+5. Oferta e Garantia: Destaque visual forte. Preço ancorado. Selo de garantia em SVG. CTA final.
+6. FAQ: Estrutura de 'Accordion' em Vanilla JS. Perguntas: "[PERGUNTA 1]", "[PERGUNTA 2]".
+7. Rodapé: Fundo neutro/escuro. Texto: "[NOME DA EMPRESA] - CNPJ: [CNPJ]". Links para "Termos de Uso" e "Políticas de Privacidade". Texto de isenção do Meta/Google.
 
 🛠️ **4. REGRAS RIGOROSAS DE EXECUÇÃO**
-1. Responsividade Absoluta: A página deve quebrar perfeitamente para 1 coluna no mobile (telas de 320px a 400px). Elementos clicáveis devem ter no mínimo 48px de altura.
-2. Imagens: Use placeholders do 'placehold.co' com as dimensões exatas em pixels (ex: 800x600) para facilitar a substituição futura.
-3. Entrega: Gere APENAS UM arquivo \`index.html\` completo. O CSS do Tailwind deve ser configurado no \`<script>\` do cabeçalho e o Vanilla JS deve ficar antes do fechamento da tag \`</body>\`. O código deve estar pronto para rodar com 2 cliques.`;
+1. Responsividade Absoluta: A página deve quebrar perfeitamente para 1 coluna no mobile (telas de 320px).
+2. Imagens e Nomenclatura (Atributo SRC): Utilize o "Modo Avançado de Assets" para preencher os \`src\`. Se faltar alguma imagem essencial para o layout que não foi anexada, defina um nome lógico para ela (ex: \`src="./assets/images/beneficio1.webp"\`) para que eu saiba como nomear o arquivo futuro.
+3. Entrega do Código: Gere APENAS UM arquivo \`index.html\` completo. O CSS do Tailwind no \`<head>\` e o JS no final do \`<body>\`.
+4. **CHECKLIST DE ASSETS (OBRIGATÓRIO):** Imediatamente após me entregar o bloco de código HTML, você DEVE gerar uma lista em Markdown confirmando:
+   - Quais arquivos você leu dos meus anexos e injetou no código.
+   - Quais imagens faltaram e quais nomes lógicos você gerou para elas no código.
+
+---
+🖼️ **MAPA LOGICO DE ASSETS PARA ESTE PROJETO:**
+- LOGO: ${assetFiles.find(f => f.toLowerCase().includes('logo')) || 'logo.png'}
+- HERO BG/IMAGE: ${assetFiles.find(f => f.toLowerCase().includes('hero')) || 'hero.webp'}
+- BENEFICIO 1: ${assetFiles.find(f => f.toLowerCase().includes('beneficio1')) || 'beneficio1.webp'}
+- BENEFICIO 2: ${assetFiles.find(f => f.toLowerCase().includes('beneficio2')) || 'beneficio2.webp'}
+- BENEFICIO 3: ${assetFiles.find(f => f.toLowerCase().includes('beneficio3')) || 'beneficio3.webp'}
+- BENEFICIO 4: ${assetFiles.find(f => f.toLowerCase().includes('beneficio4')) || 'beneficio4.webp'}
+- DEPOIMENTO 1: ${assetFiles.find(f => f.toLowerCase().includes('user1')) || 'user1.jpg'}
+- DEPOIMENTO 2: ${assetFiles.find(f => f.toLowerCase().includes('user2')) || 'user2.jpg'}
+- DEPOIMENTO 3: ${assetFiles.find(f => f.toLowerCase().includes('user3')) || 'user3.jpg'}
+- SELO GARANTIA: ${assetFiles.find(f => f.toLowerCase().includes('garantia')) || 'garantia.svg'}`;
 
         setGeneratedPrompt(promptTemplate);
 
@@ -189,12 +286,15 @@ Utilize a seguinte estrutura de seções:
                 primaryColor, secondaryColor, bgColor, textColor,
                 fontFamily, fontOther, borderRadius,
                 copyTone, keyFeature,
-                productName, promise
+                productName, promise,
+                conversionLink, assetFiles,
+                mode
             }, promptTemplate)
         }, 800)
     }
 
     const handleClear = () => {
+        setMode("simple")
         setPageType("landing-page")
         setNiche("construction")
         setNicheOther("")
@@ -209,6 +309,9 @@ Utilize a seguinte estrutura de seções:
         setKeyFeature("faq")
         setProductName("")
         setPromise("")
+        setConversionLink("https://google.com")
+        setAssetFiles([])
+        setLogoFile(null)
         setGeneratedPrompt("")
         setSelectedPreset("")
     }
@@ -337,6 +440,23 @@ Utilize a seguinte estrutura de seções:
                         <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold text-foreground">Configurações Base</h2>
+
+                                <div className="flex items-center bg-muted p-1 rounded-xl">
+                                    <button
+                                        onClick={() => setMode("simple")}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-blue-500 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                    >
+                                        <ListChecks size={18} weight={mode === 'simple' ? 'bold' : 'regular'} />
+                                        Modo Base
+                                    </button>
+                                    <button
+                                        onClick={() => setMode("expert")}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'expert' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                    >
+                                        <TerminalWindow size={18} weight={mode === 'expert' ? 'bold' : 'regular'} />
+                                        Modo Expert
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-6">
@@ -489,8 +609,43 @@ Utilize a seguinte estrutura de seções:
                                             </SelectContent>
                                         </Select>
                                     </div>
-
                                 </div>
+
+                                {mode === 'expert' && (
+                                    <div className="space-y-6 pt-6 border-t border-border">
+                                        <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                                            <Sparkle size={20} className="text-blue-500" />
+                                            Expert: Assets & Extração
+                                        </h3>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label className="font-semibold text-foreground">Escolher Logo (Extrair Cores)</Label>
+                                                <Input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleLogoUpload}
+                                                    className="cursor-pointer"
+                                                />
+                                                <p className="text-[10px] text-muted-foreground">Extrai automaticamente a paleta de cores da sua logo.</p>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="font-semibold text-foreground">Anexar Assets p/ Mapeamento (Imagens)</Label>
+                                                <Input
+                                                    type="file"
+                                                    multiple
+                                                    accept="image/*"
+                                                    onChange={handleAssetsUpload}
+                                                    className="cursor-pointer"
+                                                />
+                                                <p className="text-[10px] text-muted-foreground">
+                                                    Arquivos lidos: {assetFiles.length > 0 ? assetFiles.join(", ") : "Nenhum arquivo lido."}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Custom Copy Infos */}
                                 <div className="space-y-4 pt-4 border-t border-border">
@@ -518,7 +673,17 @@ Utilize a seguinte estrutura de seções:
                                             value={promise}
                                             onChange={(e) => setPromise(e.target.value)}
                                         />
-                                        <p className="text-xs text-muted-foreground">A IA preencherá automaticamente os textos baseada nessas informações e na imagem anexada.</p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="conversionLink" className="font-semibold text-foreground">Link de Conversão (Checkout/Form)</Label>
+                                        <Input
+                                            id="conversionLink"
+                                            placeholder="https://google.com/forms/..."
+                                            value={conversionLink}
+                                            onChange={e => setConversionLink(e.target.value)}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">Todos os botões de CTA usarão este link.</p>
                                     </div>
                                 </div>
 
