@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Tool } from "@/lib/tools"
-import { ShieldCheck, Check, X, CircleDashed, Link as LinkIcon } from "@phosphor-icons/react"
+import { ShieldCheck, Check, X, Loader2 as CircleDashed, Link2 as LinkIcon } from "lucide-react"
 
 export default function AdminFerramentasPage() {
     const { data: session, status } = useSession();
@@ -86,7 +86,7 @@ export default function AdminFerramentasPage() {
             <div className="max-w-5xl mx-auto px-6 pt-16 md:pt-24">
                 <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-                        <ShieldCheck size={28} weight="duotone" />
+                        <ShieldCheck size={28} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
@@ -99,7 +99,7 @@ export default function AdminFerramentasPage() {
                 {pendingTools.length === 0 ? (
                     <div className="text-center py-20 bg-card rounded-3xl border border-border border-dashed">
                         <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto mb-4">
-                            <Check size={32} weight="bold" />
+                            <Check size={32} />
                         </div>
                         <h3 className="text-lg font-bold text-foreground">Tudo limpo!</h3>
                         <p className="text-muted-foreground mt-2">
@@ -138,7 +138,7 @@ export default function AdminFerramentasPage() {
                                         disabled={processingId === tool.id}
                                         className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 font-bold transition-colors disabled:opacity-50"
                                     >
-                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <Check weight="bold" />}
+                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <Check />}
                                         Aprovar
                                     </button>
                                     <button
@@ -146,7 +146,7 @@ export default function AdminFerramentasPage() {
                                         disabled={processingId === tool.id}
                                         className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 font-bold transition-colors disabled:opacity-50"
                                     >
-                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <X weight="bold" />}
+                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <X />}
                                         Rejeitar
                                     </button>
                                 </div>

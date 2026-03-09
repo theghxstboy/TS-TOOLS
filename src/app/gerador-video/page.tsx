@@ -2,28 +2,48 @@
 
 import { useState, useEffect, Suspense } from "react"
 import {
-    CheckCircle,
-    VideoCamera,
+    CheckCircle2 as CheckCircle,
+    Video,
     Info,
     Play,
     Check,
-    TerminalWindow,
-    FilmStrip,
-    MagicWand,
+    Terminal as TerminalWindow,
+    Film as FilmStrip,
+    Wand2 as MagicWand,
     Copy,
-    Question
-} from "@phosphor-icons/react"
+    HelpCircle as Question,
+    Star
+} from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
-import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { HistoryItem } from "@/types/generator"
 import { useSearchParams } from "next/navigation"
+import { useClipboard } from "@/hooks/useClipboard"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { PRESETS_VIDEO } from "@/constants/presets"
+
+interface VideoPayload {
+    mode: "simple" | "advanced";
+    niche?: string;
+    nicheOther?: string;
+    motion?: string;
+    motionOther?: string;
+    angle?: string;
+    angleOther?: string;
+    lens?: string;
+    lensOther?: string;
+    speed?: string;
+    speedOther?: string;
+    action?: string;
+    negative?: string;
+}
 
 function GeradorVideoContent() {
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
@@ -51,12 +71,13 @@ function GeradorVideoContent() {
     // Global State
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
+    const { isCopied, copy } = useClipboard()
 
-    const { history, saveHistory } = useGenerationHistory("gerador-video")
+    const { history, saveHistory } = useGenerationHistory<VideoPayload>("gerador-video")
+    const { isFavorited, toggleFavorite } = useFavorites()
     const searchParams = useSearchParams()
 
-    const handleRestore = (item: HistoryItem) => {
+    const handleRestore = (item: HistoryItem<VideoPayload>) => {
         const p = item.payload;
         if (!p) return;
 
@@ -79,7 +100,7 @@ function GeradorVideoContent() {
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
-            const itemToRestore = history.find(item => item.id === restoreId)
+            const itemToRestore = history.find((item: HistoryItem<VideoPayload>) => item.id === restoreId)
             if (itemToRestore) {
                 handleRestore(itemToRestore)
             }
@@ -174,37 +195,7 @@ function GeradorVideoContent() {
         }, 800)
     }
 
-    const handleCopy = async () => {
-        if (!generatedPrompt) return
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(generatedPrompt)
-                setIsCopied(true)
-                setTimeout(() => setIsCopied(false), 2000)
-            } else {
-                const textArea = document.createElement("textarea")
-                textArea.value = generatedPrompt
-                textArea.style.position = "fixed"
-                textArea.style.left = "-9999px"
-                textArea.style.top = "0"
-                document.body.appendChild(textArea)
-                textArea.focus()
-                textArea.select()
-                try {
-                    const successful = document.execCommand('copy')
-                    if (successful) {
-                        setIsCopied(true)
-                        setTimeout(() => setIsCopied(false), 2000)
-                    }
-                } catch (err) {
-                    console.error('Fallback copy failed', err)
-                }
-                document.body.removeChild(textArea)
-            }
-        } catch (err) {
-            console.error('Failed to copy', err)
-        }
-    }
+    const handleCopy = () => copy(generatedPrompt)
 
     const handleClear = () => {
         setNiche("residential interior")
@@ -230,7 +221,7 @@ function GeradorVideoContent() {
                 <div className="text-center mb-12">
                     <div className="flex items-center gap-4 justify-center mb-4">
                         <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                            <TerminalWindow size={28} weight="fill" />
+                            <TerminalWindow size={28} />
                         </div>
                         <div>
                             <div className="flex items-center gap-3">
@@ -282,7 +273,7 @@ function GeradorVideoContent() {
                                             "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
                                             selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                         )}>
-                                            {selectedPreset === preset.id && <Check size={14} weight="bold" />}
+                                            {selectedPreset === preset.id && <Check size={14} />}
                                         </div>
 
                                         <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
@@ -296,13 +287,13 @@ function GeradorVideoContent() {
                         {/* Direction Board */}
                         <div className="bg-card border border-border rounded-[2rem] p-6 md:p-10 shadow-2xl overflow-hidden relative">
                             <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <VideoCamera size={120} weight="fill" />
+                                <Video size={120} />
                             </div>
 
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 relative z-10">
                                 <div className="flex items-center gap-4">
                                     <div className="size-12 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg shadow-primary/20">
-                                        <FilmStrip size={28} weight="bold" />
+                                        <FilmStrip size={28} />
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-black tracking-tight leading-none uppercase">Storyboarding</h2>
@@ -329,7 +320,7 @@ function GeradorVideoContent() {
                             <div className="space-y-10 relative z-10">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2">
-                                        <Play size={18} className="text-primary" weight="fill" />
+                                        <Play size={18} className="text-primary" fill="currentColor" />
                                         <h3 className="text-sm font-black text-foreground uppercase tracking-widest">O que acontece na cena? (Ação)</h3>
                                     </div>
                                     <Textarea
@@ -490,7 +481,7 @@ function GeradorVideoContent() {
                                     onClick={handleGenerate}
                                     className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
                                 >
-                                    {isGenerating ? <CheckCircle size={28} weight="fill" /> : "Gravar Prompt Técnica"}
+                                    {isGenerating ? <CheckCircle size={28} /> : "Gravar Prompt Técnica"}
                                 </Button>
                             </div>
                         </div>
@@ -521,23 +512,29 @@ function GeradorVideoContent() {
                                         <div className="grid grid-cols-2 gap-3 mt-6">
                                             <Button
                                                 variant="secondary"
-                                                onClick={handleClear}
-                                                className="bg-input hover:bg-gray-700 text-muted-foreground border-none"
+                                                onClick={() => toggleFavorite("gerador-video", {
+                                                    mode, niche, nicheOther, motion, motionOther, angle, angleOther, lens, lensOther, speed, speedOther, action, negative
+                                                }, generatedPrompt, `Vídeo ${action.substring(0, 20)}`)}
+                                                className={cn(
+                                                    "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
+                                                    isFavorited(generatedPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
+                                                )}
                                             >
-                                                Limpar
+                                                {isFavorited(generatedPrompt) ? <Star size={20} fill="currentColor" className="mr-2" /> : <Star size={20} className="mr-2" />}
+                                                {isFavorited(generatedPrompt) ? 'Favoritado' : 'Favoritar'}
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
-                                                {isCopied ? <Check size={20} weight="bold" className="mr-2" /> : <Copy size={20} weight="bold" className="mr-2" />}
+                                                {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar Direção'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 min-h-[200px]">
-                                        <FilmStrip size={48} weight="duotone" className="text-blue-500 mb-4" />
+                                        <FilmStrip size={48} className="text-blue-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Preencha os campos e grave a prompt técnica para visualizar sua direção aqui.
                                         </p>

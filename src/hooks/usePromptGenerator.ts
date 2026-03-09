@@ -2,7 +2,24 @@
 
 import { useState } from "react";
 import { PRESETS, CHECKBOX_COMMANDS, OutputMode, GeneratorMode, TabKey } from "@/constants/gerador-humano";
-import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory";
+import { useGenerationHistory } from "@/hooks/useGenerationHistory";
+import { HistoryItem } from "@/types/generator";
+import { useClipboard } from "@/hooks/useClipboard";
+
+export interface HumanoPayload {
+    mode: OutputMode;
+    genMode: GeneratorMode;
+    selectedPreset: string;
+    selectedCheckboxes: string[];
+    customAction: string;
+    negativePrompt: string;
+    userDetails: {
+        genero: string;
+        etnia: string;
+        cabelo: string;
+        idade: string;
+    };
+}
 
 export function usePromptGenerator() {
     const [mode, setMode] = useState<OutputMode>("imagem");
@@ -12,9 +29,9 @@ export function usePromptGenerator() {
 
     const [selectedCheckboxes, setSelectedCheckboxes] = useState<Set<string>>(new Set(["cabelo_natural", "pele_imperfeita", "roupa_amassada", "rua_movimentada", "iluminacao_natural"]));
     const [sliderPos, setSliderPos] = useState(25);
-    const [isCopied, setIsCopied] = useState(false);
+    const { isCopied, copy } = useClipboard();
 
-    const { history, saveHistory } = useGenerationHistory("gerador-humano");
+    const { history, saveHistory } = useGenerationHistory<HumanoPayload>("gerador-humano");
 
     const [customAction, setCustomAction] = useState("");
     const [negativePrompt, setNegativePrompt] = useState("");
@@ -105,37 +122,16 @@ export function usePromptGenerator() {
 
     const finalPrompt = generatePrompt();
 
-    const handleCopy = async () => {
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(finalPrompt);
-            } else {
-                const textArea = document.createElement("textarea");
-                textArea.value = finalPrompt;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
-                textArea.style.top = "0";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-            setIsCopied(true);
-
-            saveHistory({
-                mode, genMode, selectedPreset,
-                selectedCheckboxes: Array.from(selectedCheckboxes),
-                customAction, negativePrompt, userDetails
-            }, finalPrompt);
-
-            setTimeout(() => setIsCopied(false), 2000);
-        } catch (error) {
-            console.error("Erro ao copiar:", error);
-        }
+    const handleCopy = () => {
+        copy(finalPrompt);
+        saveHistory({
+            mode, genMode, selectedPreset,
+            selectedCheckboxes: Array.from(selectedCheckboxes),
+            customAction, negativePrompt, userDetails
+        }, finalPrompt);
     };
 
-    const handleRestore = (item: HistoryItem) => {
+    const handleRestore = (item: HistoryItem<HumanoPayload>) => {
         const p = item.payload;
         if (!p) return;
 

@@ -4,15 +4,15 @@ import Link from "next/link"
 import {
     ArrowLeft,
     Target,
-    Blueprint,
+    FileCode2 as Blueprint,
     PencilLine,
     Lightbulb,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     ArrowRight,
-    Eyedropper,
+    Pipette as Eyedropper,
     Sun,
-    BoundingBox
-} from "@phosphor-icons/react"
+    Box as BoundingBox
+} from "lucide-react"
 
 export default function AnatomiaPromptPage() {
     return (
@@ -21,13 +21,13 @@ export default function AnatomiaPromptPage() {
             <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
                 <div className="max-w-4xl mx-auto">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar para Academy
                     </Link>
 
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                            <Target size={32} weight="duotone" />
+                            <Target size={32} />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                             Anatomia do Prompt
@@ -54,7 +54,7 @@ export default function AnatomiaPromptPage() {
                         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 blur-[100px] rounded-full"></div>
 
                         <h2 className="text-2xl font-extrabold text-foreground mb-10 flex items-center gap-3">
-                            <Blueprint size={32} weight="duotone" className="text-primary" />
+                            <Blueprint size={32} className="text-primary" />
                             A Fórmula TSS
                         </h2>
 
@@ -112,7 +112,7 @@ export default function AnatomiaPromptPage() {
                     {/* Tip: Negative Prompt */}
                     <div className="p-8 rounded-3xl bg-purple-500/5 border border-purple-500/20">
                         <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
-                            <BoundingBox size={24} weight="duotone" />
+                            <BoundingBox size={24} />
                             O Poder do Prompt Negativo
                         </h3>
                         <p className="text-muted-foreground leading-relaxed mb-6">
@@ -131,7 +131,7 @@ export default function AnatomiaPromptPage() {
                         </div>
                         <Link href="/docs/tecnicas-avancadas" className="bg-primary hover:bg-primary/90 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
                             Ver Técnicas Avançadas
-                            <ArrowRight size={20} weight="bold" />
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
                 </div>

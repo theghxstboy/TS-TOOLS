@@ -1,24 +1,24 @@
 import {
-    Buildings,
+    Building2 as Buildings,
     Wrench,
-    Tree,
-    GridFour,
+    TreeDeciduous as Tree,
+    Grid as GridFour,
     PlusSquare,
     PaintRoller,
-    HouseLine,
-    SquaresFour,
+    Home as HouseLine,
+    LayoutGrid as SquaresFour,
     Thermometer,
     Table,
-    Stack,
-    TreeEvergreen,
+    Layers as Stack,
+    TreePine as TreeEvergreen,
     ShieldCheck,
     PaintBucket,
-    Recycle,
-    Plant,
-    Broom,
-} from "@phosphor-icons/react"
-import { ForwardRefExoticComponent, RefAttributes } from "react"
-import { IconProps } from "@phosphor-icons/react"
+    RotateCcw as Recycle,
+    Sprout as Plant,
+    Brush as Broom,
+    Sparkles,
+    LucideIcon
+} from "lucide-react"
 
 export type NicheId = string
 
@@ -38,7 +38,7 @@ export interface NicheData {
     id: NicheId
     title: string
     subtitle: string
-    icon: ForwardRefExoticComponent<IconProps & RefAttributes<SVGSVGElement>>
+    icon: LucideIcon
     tags: string[]
     group: string
 
@@ -59,6 +59,10 @@ export interface NicheData {
 
     keywords: string[]
     proTip: string
+
+    // Professional Assets from TS Explore
+    bannerImage?: string
+    processImages?: string[]
 }
 
 export const nichesData: NicheData[] = [
@@ -98,7 +102,11 @@ export const nichesData: NicheData[] = [
             "cutting-in", "roller application", "painter's tape", "drop cloth", "primer coat", "spackle repair",
             "exterior latex paint", "trim work", "cabinet refinishing", "sheen level", "eggshell finish", "two-coat system"
         ],
-        proTip: "Ao usar o Gerador de Imagens para painting, combine Exterior Painting + Suburban Neighborhood + Golden Hour + Cinematic para o criativo de mais alta performance. A luz do entardecer numa fachada recém-pintada é extremamente aspiracional."
+        proTip: "Ao usar o Gerador de Imagens para painting, combine Exterior Painting + Suburban Neighborhood + Golden Hour + Cinematic para o criativo de mais alta performance. A luz do entardecer numa fachada recém-pintada é extremamente aspiracional.",
+        bannerImage: "/images/niches/painting/banner-painting.webp",
+        processImages: [
+            "/images/niches/painting/img-painting-prep-interior.webp"
+        ]
     },
     {
         id: "remodeling",
@@ -131,7 +139,12 @@ export const nichesData: NicheData[] = [
             "**Close-ups:** Detalhes de materiais premium aumentam a percepção de valor."
         ],
         keywords: ["kitchen remodel", "bathroom renovation", "quartz countertop", "subway tile backsplash", "custom cabinets", "walk-in shower"],
-        proTip: "Para remodeling, use Studio Lighting + Luxury Home + Commercial Photography para valorizar os materiais premium."
+        proTip: "Para remodeling, use Studio Lighting + Luxury Home + Commercial Photography para valorizar os materiais premium.",
+        bannerImage: "/images/niches/remodeling/banner-remodeling.webp",
+        processImages: [
+            "/images/niches/remodeling/img-remodeling-design.webp",
+            "/images/niches/remodeling/img-remodeling-demolition.webp"
+        ]
     },
     {
         id: "roofing",
@@ -163,7 +176,12 @@ export const nichesData: NicheData[] = [
             "**Manta Protetora:** Mostrar a camada invisível de proteção gera autoridade técnica."
         ],
         keywords: ["asphalt shingles", "metal roofing", "roof inspection", "safety harness", "flashing", "underlayment"],
-        proTip: "Use Drone View + Bright Sunny Day + Suburban Neighborhood para criar criativos aspiracionais de segurança."
+        proTip: "Use Drone View + Bright Sunny Day + Suburban Neighborhood para criar criativos aspiracionais de segurança.",
+        bannerImage: "/images/niches/roofing/banner-roofing.webp",
+        processImages: [
+            "/images/niches/roofing/img-roofing-preparacao.webp",
+            "/images/niches/roofing/img-roofing-reparo-deck.webp"
+        ]
     },
     {
         id: "cleaning",
@@ -195,7 +213,11 @@ export const nichesData: NicheData[] = [
             "**Banheiro:** Um antes e depois de banheiro é um dos criativos de maior alcance."
         ],
         keywords: ["deep cleaning", "sparkling clean", "microfiber cloth", "steam cleaning", "pristine bathroom", "shining surfaces"],
-        proTip: "Use Studio Lighting + Commercial Photography para criar aquele brilho intenso que faz o ambiente parecer impecável."
+        proTip: "Use Studio Lighting + Commercial Photography para criar aquele brilho intenso que faz o ambiente parecer impecável.",
+        bannerImage: "/images/niches/cleaning/banner-cleaning.webp",
+        processImages: [
+            "/images/niches/cleaning/img-cleaning-deep-cleaning.webp"
+        ]
     },
     {
         id: "construction",
@@ -225,7 +247,13 @@ export const nichesData: NicheData[] = [
             "**Segurança:** Foco em capacetes e coletes mostra conformidade (compliance)."
         ],
         keywords: ["foundation", "framing", "concrete", "structural design", "blueprints", "building permit"],
-        proTip: "Use ângulos baixos (hero angle) para mostrar a estrutura sendo erguida contra o céu azul."
+        proTip: "Use ângulos baixos (hero angle) para mostrar a estrutura sendo erguida contra o céu azul.",
+        bannerImage: "/images/niches/construction/banner-construction.webp",
+        processImages: [
+            "/images/niches/construction/img-construction-grading.webp",
+            "/images/niches/construction/img-construction-excavation.webp",
+            "/images/niches/construction/img-construction-framing.webp"
+        ]
     },
     {
         id: "landscaping",
@@ -250,7 +278,16 @@ export const nichesData: NicheData[] = [
             "**Antes e Depois:** Gramado descuidado vs. perfeito — simples e efetivo."
         ],
         keywords: ["manicured lawn", "curb appeal", "paver patio", "retaining wall", "mulch bed", "outdoor kitchen"],
-        proTip: "Combine Golden Hour + Drone View para criar a imagem que vende o sonho do homeowner americano."
+        proTip: "Combine Golden Hour + Drone View para criar a imagem que vende o sonho do homeowner americano.",
+        bannerImage: "/images/niches/landscaping/banner-new-landscape.webp",
+        processImages: [
+            "/images/niches/landscaping/img-landscaping-handscaping.webp",
+            "/images/niches/landscaping/img-landscaping-softscaping.webp",
+            "/images/niches/landscaping/img-landscaping-cuidado-gramado.webp",
+            "/images/niches/landscaping/img-landscaping-irrigacao.webp",
+            "/images/niches/landscaping/img-landscaping-iluminacao.webp",
+            "/images/niches/landscaping/img-landscaping-parede-contencao.webp"
+        ]
     },
     {
         id: "carpentry",
@@ -275,7 +312,11 @@ export const nichesData: NicheData[] = [
             "**Built-ins:** Estantes embutidas que transformam o cômodo."
         ],
         keywords: ["finish carpentry", "custom cabinets", "wood trim", "craftsman style", "wainscoting", "millwork"],
-        proTip: "Use close-ups com Studio Lighting para revelar a textura natural da madeira de forma magistral."
+        proTip: "Use close-ups com Studio Lighting para revelar a textura natural da madeira de forma magistral.",
+        bannerImage: "/images/niches/carpentry/banner-carpentry-.webp",
+        processImages: [
+            "/images/niches/carpentry/img-carpentry-trim-molding.webp"
+        ]
     },
     {
         id: "framing",
@@ -306,7 +347,18 @@ export const nichesData: NicheData[] = [
             "**Escala:** Wide shots mostrando a casa inteira em esqueleto."
         ],
         keywords: ["wood framing", "wall studs", "roof trusses", "OSB sheathing", "floor joists", "wall raising"],
-        proTip: "Use Wide Angle + Golden Hour para criar sombras dramáticas que fazem a estrutura parecer monumental."
+        proTip: "Use Wide Angle + Golden Hour para criar sombras dramáticas que fazem a estrutura parecer monumental.",
+        bannerImage: "/images/niches/framing/banner-framing.webp",
+        processImages: [
+            "/images/niches/framing/img-framing-foundation-walls.webp",
+            "/images/niches/framing/img-framing-lumber.webp",
+            "/images/niches/framing/img-framing-framing-piso.webp",
+            "/images/niches/framing/img-framing-steel-frame.webp",
+            "/images/niches/framing/img-framing-framing-paredes.webp",
+            "/images/niches/framing/img-framing-framing-telhado.webp",
+            "/images/niches/framing/img-framing-wraping.webp",
+            "/images/niches/framing/img-framing-inspecao.webp"
+        ]
     },
     {
         id: "additions",
@@ -332,7 +384,16 @@ export const nichesData: NicheData[] = [
             "**Impacto:** O antes e depois com ângulo idêntico mostrando a nova área."
         ],
         keywords: ["home addition", "room addition", "second story", "sunroom", "open concept", "structural extension"],
-        proTip: "Faça antes-e-depois com ângulo idêntico para que o cliente sinta a escala da transformação."
+        proTip: "Faça antes-e-depois com ângulo idêntico para que o cliente sinta a escala da transformação.",
+        bannerImage: "/images/niches/additions/banner-new-addition.webp",
+        processImages: [
+            "/images/niches/additions/img-additions-fundacao.webp",
+            "/images/niches/additions/img-additions-framing.webp",
+            "/images/niches/additions/img-additions-plumbing.webp",
+            "/images/niches/additions/img-additions-acabamento-exteriior.webp",
+            "/images/niches/additions/img-additions-acabamento-interior.webp",
+            "/images/niches/additions/img-additions-toques-finais.webp"
+        ]
     },
     {
         id: "siding",
@@ -358,7 +419,12 @@ export const nichesData: NicheData[] = [
             "**Detalhe:** Close-up do alinhamento perfeito dos painéis instalados."
         ],
         keywords: ["vinyl siding", "fiber cement", "James Hardie", "exterior cladding", "siding installation", "curb appeal"],
-        proTip: "Use Wide Shot + Suburban Neighborhood para mostrar como a casa se destaca no bairro."
+        proTip: "Use Wide Shot + Suburban Neighborhood para mostrar como a casa se destaca no bairro.",
+        bannerImage: "/images/niches/siding/banner-siding-desk.webp",
+        processImages: [
+            "/images/niches/siding/img-remocao-siding.webp",
+            "/images/niches/siding/img-flashing-tape.webp"
+        ]
     },
     {
         id: "insulation",
@@ -384,7 +450,20 @@ export const nichesData: NicheData[] = [
             "**Conforto:** Família aquecida dentro de casa com gelo no exterior."
         ],
         keywords: ["spray foam insulation", "attic insulation", "blown-in insulation", "fiberglass batts", "energy efficient"],
-        proTip: "Close-up do spray foam expandindo com Studio Lighting cria uma textura visual poderosa."
+        proTip: "Close-up do spray foam expandindo com Studio Lighting cria uma textura visual poderosa.",
+        bannerImage: "/images/niches/insulation/banner-new-insulation.webp",
+        processImages: [
+            "/images/niches/insulation/img-insulation-florida-2.webp",
+            "/images/niches/insulation/img-insulation-cleaning.webp",
+            "/images/niches/insulation/img-insulation-material.webp",
+            "/images/niches/insulation/img-insulation-mantas.webp",
+            "/images/niches/insulation/img-insulation-ventilacao.webp",
+            "/images/niches/insulation/img-insulation-fiberglass.webp",
+            "/images/niches/insulation/img-insulation-cellulose.webp",
+            "/images/niches/insulation/img-insulation-mineral-wool.webp",
+            "/images/niches/insulation/img-insulation-spray-foam.webp",
+            "/images/niches/insulation/img-insulation-rigid-foam.webp"
+        ]
     },
     {
         id: "countertops",
@@ -410,7 +489,14 @@ export const nichesData: NicheData[] = [
             "**Slab placement:** A placa enorme sendo instalada — transmite escala."
         ],
         keywords: ["quartz countertop", "granite slab", "marble veining", "kitchen island", "waterfall edge", "stone texture"],
-        proTip: "Use Studio Lighting para criar reflexos na superfície polida que fazem o material 'saltar' da tela."
+        proTip: "Use Studio Lighting para criar reflexos na superfície polida que fazem o material 'saltar' da tela.",
+        bannerImage: "/images/niches/countertops/banner-countertop.webp",
+        processImages: [
+            "/images/niches/countertops/img-card-medidas.webp",
+            "/images/niches/countertops/img-countertop-remocao.webp",
+            "/images/niches/countertops/img-countertop-preparacao.webp",
+            "/images/niches/countertops/img-countertop-fabricacao.webp"
+        ]
     },
     {
         id: "flooring",
@@ -428,7 +514,48 @@ export const nichesData: NicheData[] = [
         goldenRule: "A transição perfeita é o que vende pisos.",
         whatWorksList: ["Fotos de piso brilhando.", "Detalhes de encaixe perfeito."],
         keywords: ["click-lock", "seamless", "underlayment"],
-        proTip: "Para Hardwood mostre o antes e depois do lixamento."
+        proTip: "Para Hardwood mostre o antes e depois do lixamento.",
+        bannerImage: "/images/niches/flooring/banner-flooring-ts-explore.webp",
+        processImages: [
+            "/images/niches/flooring/img-flooring-geral-1.webp"
+        ]
+    },
+    {
+        id: "estetica",
+        title: "Estética",
+        subtitle: "Clínicas, Skincare & Beleza nos EUA",
+        icon: Sparkles,
+        tags: ["Beauty", "Skincare", "Wellness", "Precision"],
+        group: "Saúde & Beleza",
+        description: "O nicho de estética nos EUA é marcado por alta fidelidade e ticket médio elevado. Criativos focados em higiene, precisão e o 'glow' pós-procedimento são fundamentais.",
+        readingTimeMin: 5,
+        demandLevel: "Alta Demanda",
+        subNichesTitle: "Segmentos de Estética",
+        subNiches: [
+            { id: "skincare", title: "Medical Skincare", description: "Peelings, lasers e tratamentos faciais avançados.", icon: "Sparkles" },
+            { id: "hair", title: "Hair Styling", description: "Cortes, coloração e extensões de alto padrão.", icon: "User" },
+            { id: "nail", title: "Nail Care", description: "Manicure, pedicure e extensões de gel modernas.", icon: "Hand" }
+        ],
+        workflowSteps: [
+            { title: "Consulta & Diagnóstico", description: "Avaliação da pele e definição de protocolos personalizados." },
+            { title: "Preparação", description: "Higienização profunda e assepsia do ambiente." },
+            { title: "Procedimento", description: "Execução técnica com foco total no conforto do cliente." },
+            { title: "Pós-Tratamento", description: "Orientações de home care e manutenção dos resultados." }
+        ],
+        goldenRule: "Limpeza extrema e resultados visíveis são os fatores que decidem a contratação.",
+        whatWorksList: [
+            "**The Glow:** Close-ups de pele saudável e iluminada pós-procedimento.",
+            "**Biosafety:** Profissionais com luvas, máscaras e ambiente esterilizado.",
+            "**Macro-shots:** Detalhes de produtos sendo aplicados na pele."
+        ],
+        keywords: ["medical aesthetic", "skincare clinic", "facial treatment", "beauty wellness", "aesthetic specialist"],
+        proTip: "Use iluminação de estúdio difusa (Softbox) para evitar sombras duras e realçar a textura da pele.",
+        bannerImage: "/images/niches/estetica/banner-estetica.webp",
+        processImages: [
+            "/images/niches/estetica/img-estetica-skincare.webp",
+            "/images/niches/estetica/img-estetica-hair.webp",
+            "/images/niches/estetica/img-estetica-nail.webp"
+        ]
     },
     {
         id: "hardwood-flooring",

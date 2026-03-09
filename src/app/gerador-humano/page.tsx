@@ -3,20 +3,24 @@
 import { useState, useEffect, Suspense } from "react"
 import {
     Image as ImageIcon,
-    VideoCamera,
+    Video,
     Check,
     Info,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     ListChecks,
-    TerminalWindow,
-    Broom,
+    Terminal as TerminalWindow,
+    Eraser as Broom,
     Terminal,
-    MagicWand,
+    Wand2 as MagicWand,
     Copy,
-    Question
-} from "@phosphor-icons/react"
+    HelpCircle as Question,
+    Star
+} from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
+import { HistoryItem } from "@/types/generator"
+import { HumanoPayload } from "@/hooks/usePromptGenerator"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -51,18 +55,20 @@ function GeradorHumanoContent() {
         history, handleRestore
     } = usePromptGenerator();
 
+    const { isFavorited, toggleFavorite } = useFavorites();
+
     const searchParams = useSearchParams()
 
     // Handle Restore Effect
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
-            const itemToRestore = history.find(item => item.id === restoreId)
+            const itemToRestore = history.find((item: HistoryItem<HumanoPayload>) => item.id === restoreId)
             if (itemToRestore) {
                 handleRestore(itemToRestore)
             }
         }
-    }, [searchParams, history])
+    }, [searchParams, history, handleRestore])
 
     return (
         <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 pb-20 font-sans">
@@ -70,7 +76,7 @@ function GeradorHumanoContent() {
             <div className="max-w-[1400px] mx-auto px-6 py-8 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                        <TerminalWindow size={28} weight="fill" />
+                        <TerminalWindow size={28} />
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
@@ -92,7 +98,7 @@ function GeradorHumanoContent() {
                                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                         )}
                     >
-                        <ImageIcon size={18} weight={mode === "imagem" ? "fill" : "regular"} /> Imagem
+                        <ImageIcon size={18} /> Imagem
                     </button>
                     <button
                         onClick={() => setMode("video")}
@@ -103,7 +109,7 @@ function GeradorHumanoContent() {
                                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                         )}
                     >
-                        <VideoCamera size={18} weight={mode === "video" ? "fill" : "regular"} /> Vídeo
+                        <Video size={18} /> Vídeo
                     </button>
                 </div>
             </div>
@@ -204,7 +210,7 @@ function GeradorHumanoContent() {
                                             "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
                                             selectedPreset === preset.id ? "bg-primary border-primary text-black" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                         )}>
-                                            {selectedPreset === preset.id && <Check size={14} weight="bold" />}
+                                            {selectedPreset === preset.id && <Check size={14} />}
                                         </div>
 
                                         <p className="text-[11px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
@@ -323,7 +329,7 @@ function GeradorHumanoContent() {
                                                     "w-6 h-6 shrink-0 rounded-[6px] border-[2.5px] flex items-center justify-center transition-all mt-0.5",
                                                     isSelected ? "bg-primary border-primary text-black" : "border-muted-foreground/30 group-hover:border-primary/50 bg-background"
                                                 )}>
-                                                    {isSelected && <Check size={14} weight="bold" />}
+                                                    {isSelected && <Check size={14} />}
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors pr-2">
@@ -348,14 +354,14 @@ function GeradorHumanoContent() {
                                             onClick={() => setGenMode("simple")}
                                             className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", genMode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                         >
-                                            <ListChecks size={18} weight={genMode === 'simple' ? 'bold' : 'regular'} />
+                                            <ListChecks size={18} />
                                             Básico
                                         </button>
                                         <button
                                             onClick={() => setGenMode("advanced")}
                                             className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", genMode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                         >
-                                            <TerminalWindow size={18} weight={genMode === 'advanced' ? 'bold' : 'regular'} />
+                                            <TerminalWindow size={18} />
                                             Avançado
                                         </button>
                                     </div>
@@ -417,23 +423,29 @@ function GeradorHumanoContent() {
                                         <div className="grid grid-cols-2 gap-3 mt-6">
                                             <Button
                                                 variant="secondary"
-                                                onClick={handleClear}
-                                                className="bg-input hover:bg-gray-700 text-muted-foreground border-none"
+                                                onClick={() => toggleFavorite("gerador-humano", {
+                                                    mode, genMode, selectedPreset, selectedCheckboxes: Array.from(selectedCheckboxes), customAction, negativePrompt, userDetails
+                                                }, finalPrompt, `Humano ${userDetails.genero || selectedPreset}`)}
+                                                className={cn(
+                                                    "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
+                                                    isFavorited(finalPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
+                                                )}
                                             >
-                                                Limpar
+                                                {isFavorited(finalPrompt) ? <Star size={20} fill="currentColor" className="mr-2" /> : <Star size={20} className="mr-2" />}
+                                                {isFavorited(finalPrompt) ? 'Favoritado' : 'Favoritar'}
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
-                                                {isCopied ? <Check size={20} weight="bold" className="mr-2" /> : <Copy size={20} weight="bold" className="mr-2" />}
+                                                {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 min-h-[200px]">
-                                        <MagicWand size={48} weight="duotone" className="text-primary mb-4" />
+                                        <MagicWand size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Configure as características para ver o prompt realista aqui.
                                         </p>

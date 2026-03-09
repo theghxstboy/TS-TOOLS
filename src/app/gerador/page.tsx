@@ -6,18 +6,22 @@ import {
     ArrowLeft,
     BookOpen,
     ListChecks,
-    TerminalWindow,
-    Sparkle,
+    Terminal as TerminalWindow,
+    Sparkles as Sparkle,
     Copy,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     Check,
-    MagicWand,
-    Question
-} from "@phosphor-icons/react"
-import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+    Wand2 as MagicWand,
+    HelpCircle as Question,
+    Star
+} from "lucide-react"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { HistoryItem } from "@/types/generator"
+import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
 import { useSearchParams } from "next/navigation"
+import { useClipboard } from "@/hooks/useClipboard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -33,6 +37,31 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_GERADOR } from "@/constants/presets"
+
+interface GeradorPayload {
+    mode: "simple" | "advanced";
+    niche?: string;
+    nicheOther?: string;
+    style?: string;
+    styleOther?: string;
+    environment?: string;
+    environmentOther?: string;
+    lighting?: string;
+    lightingOther?: string;
+    location?: string;
+    locationOther?: string;
+    objective?: string;
+    objectiveOther?: string;
+    targetAI?: string;
+    nicheAdv?: string;
+    styleAdv?: string;
+    environmentAdv?: string;
+    lightingAdv?: string;
+    locationAdv?: string;
+    objectiveAdv?: string;
+    negativeAdv?: string;
+    subject?: string;
+}
 
 function GeradorContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
@@ -57,6 +86,7 @@ function GeradorContent() {
     const [locationOther, setLocationOther] = useState("")
     const [objective, setObjective] = useState("service")
     const [objectiveOther, setObjectiveOther] = useState("")
+    const [targetAI, setTargetAI] = useState("standard")
 
     // States - Advanced Mode
     const [nicheAdv, setNicheAdv] = useState("")
@@ -71,24 +101,24 @@ function GeradorContent() {
     const [subject, setSubject] = useState("")
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
+    const { isCopied, copy } = useClipboard()
 
-    // History Hook
-    const { history, saveHistory } = useGenerationHistory("gerador")
+    // History & Favorites Hooks
+    const { history, saveHistory } = useGenerationHistory<GeradorPayload>("gerador")
+    const { isFavorited, toggleFavorite } = useFavorites()
     const searchParams = useSearchParams()
 
-    // Handle Restore Effect
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
-            const itemToRestore = history.find((item: HistoryItem) => item.id === restoreId)
+            const itemToRestore = history.find((item: HistoryItem<GeradorPayload>) => item.id === restoreId)
             if (itemToRestore) {
                 handleRestore(itemToRestore)
             }
         }
     }, [searchParams, history])
 
-    const handleRestore = (item: HistoryItem) => {
+    const handleRestore = (item: HistoryItem<GeradorPayload>) => {
         const p = item.payload;
         if (!p) return;
 
@@ -107,6 +137,7 @@ function GeradorContent() {
         setLocationOther(p.locationOther || "")
         setObjective(p.objective || "service")
         setObjectiveOther(p.objectiveOther || "")
+        setTargetAI(p.targetAI || "standard")
 
         // Advanced
         setNicheAdv(p.nicheAdv || "")
@@ -275,7 +306,13 @@ function GeradorContent() {
             if (finalStyle && styleModifiers[finalStyle]) promptParts.push(styleModifiers[finalStyle])
             else if (finalStyle) promptParts.push(finalStyle)
 
-            const promptStr = promptParts.join(', ') + '.';
+            let promptStr = promptParts.join(', ') + '.';
+
+            // AI Specific Optimizations
+            if (targetAI === 'midjourney') promptStr += " --v 6.0 --stylize 250";
+            if (targetAI === 'dalle') promptStr = "A high-quality professional photograph: " + promptStr;
+            if (targetAI === 'imagefx') promptStr += " shot on professional mirrorless camera, highly detailed.";
+
             setGeneratedPrompt(promptStr);
 
             setTimeout(() => {
@@ -317,7 +354,7 @@ function GeradorContent() {
                     location, locationOther,
                     objective, objectiveOther,
                     nicheAdv, styleAdv, environmentAdv, lightingAdv, locationAdv, objectiveAdv, negativeAdv,
-                    subject
+                    subject, targetAI
                 }, finalPrompt)
             }, 800)
         }
@@ -353,39 +390,7 @@ function GeradorContent() {
         setSelectedPreset("")
     }
 
-    const handleCopy = async () => {
-        if (!generatedPrompt) return
-        try {
-            // Priority: Modern Clipboard API
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(generatedPrompt)
-                setIsCopied(true)
-                setTimeout(() => setIsCopied(false), 2000)
-            } else {
-                // Fallback: execCommand('copy') for non-secure contexts (IP access, older browsers)
-                const textArea = document.createElement("textarea")
-                textArea.value = generatedPrompt
-                textArea.style.position = "fixed"
-                textArea.style.left = "-9999px"
-                textArea.style.top = "0"
-                document.body.appendChild(textArea)
-                textArea.focus()
-                textArea.select()
-                try {
-                    const successful = document.execCommand('copy')
-                    if (successful) {
-                        setIsCopied(true)
-                        setTimeout(() => setIsCopied(false), 2000)
-                    }
-                } catch (err) {
-                    console.error('Fallback copy failed', err)
-                }
-                document.body.removeChild(textArea)
-            }
-        } catch (err) {
-            console.error('Failed to copy', err)
-        }
-    }
+    const handleCopy = () => copy(generatedPrompt)
 
     return (
         <div className="flex-1 w-full relative font-sans">
@@ -393,7 +398,7 @@ function GeradorContent() {
                 {/* Navigation Top */}
                 <div className="flex items-center justify-end mb-8">
                     <Link href="/docs/nichos" className="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-orange-500 transition-colors shadow-sm">
-                        <BookOpen size={20} weight="fill" />
+                        <BookOpen size={20} />
                         DOCS
                     </Link>
                 </div>
@@ -414,7 +419,7 @@ function GeradorContent() {
 
                         <div className="flex items-center gap-4">
                             <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                                <MagicWand size={28} weight="fill" />
+                                <MagicWand size={28} />
                             </div>
                             <div>
                                 <div className="flex items-center gap-3">
@@ -457,7 +462,7 @@ function GeradorContent() {
                                             "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
                                             selectedPreset === preset.id ? "bg-primary border-primary text-black" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                         )}>
-                                            {selectedPreset === preset.id && <Check size={14} weight="bold" />}
+                                            {selectedPreset === preset.id && <Check size={14} />}
                                         </div>
 
                                         <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
@@ -478,14 +483,14 @@ function GeradorContent() {
                                         onClick={() => setMode("simple")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <ListChecks size={18} weight={mode === 'simple' ? 'bold' : 'regular'} />
+                                        <ListChecks size={18} />
                                         Modo Inteligente
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <TerminalWindow size={18} weight={mode === 'advanced' ? 'bold' : 'regular'} />
+                                        <TerminalWindow size={18} />
                                         Modo Expert
                                     </button>
                                 </div>
@@ -634,6 +639,7 @@ function GeradorContent() {
                                         </div>
 
                                         {/* Objective */}
+                                        {/* Objective */}
                                         <div className="space-y-2">
                                             <Label htmlFor="objective" className="font-semibold text-foreground">Objetivo da Foto</Label>
                                             <Select value={objective} onValueChange={setObjective}>
@@ -650,6 +656,22 @@ function GeradorContent() {
                                             {objective === 'other' && (
                                                 <Input placeholder="Especifique..." value={objectiveOther} onChange={e => setObjectiveOther(e.target.value)} className="mt-2" />
                                             )}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="targetAI" className="font-semibold text-foreground">IA de Destino</Label>
+                                            <Select value={targetAI} onValueChange={setTargetAI}>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Selecione..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="standard">Padrão (Geral)</SelectItem>
+                                                    <SelectItem value="midjourney">Midjourney</SelectItem>
+                                                    <SelectItem value="dalle">DALL-E 3</SelectItem>
+                                                    <SelectItem value="imagefx">Google ImageFX</SelectItem>
+                                                    <SelectItem value="leonardo">Leonardo.ai</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
                                 ) : (
@@ -713,7 +735,7 @@ function GeradorContent() {
                                         onClick={handleGenerate}
                                         className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${isGenerating ? 'bg-orange-600 opacity-90' : 'bg-orange-500 hover:bg-orange-600 hover:-translate-y-1'}`}
                                     >
-                                        {isGenerating ? <CheckCircle size={24} weight="fill" className="mr-2" /> : <Sparkle size={24} weight="fill" className="mr-2" />}
+                                        {isGenerating ? <CheckCircle size={24} className="mr-2" /> : <Sparkle size={24} className="mr-2" />}
                                         {isGenerating ? 'Gerado com Sucesso!' : 'Gerar Prompt'}
                                     </Button>
                                 </div>
@@ -743,23 +765,29 @@ function GeradorContent() {
                                         <div className="grid grid-cols-2 gap-3 mt-6">
                                             <Button
                                                 variant="secondary"
-                                                onClick={handleClear}
-                                                className="bg-input hover:bg-gray-700 text-muted-foreground border-none"
+                                                onClick={() => toggleFavorite("gerador", {
+                                                    mode, niche, nicheOther, style, styleOther, environment, environmentOther, lighting, lightingOther, location, locationOther, objective, objectiveOther, nicheAdv, styleAdv, environmentAdv, lightingAdv, locationAdv, objectiveAdv, negativeAdv, subject
+                                                }, generatedPrompt, `${subject || niche || 'Prompt Pro'}`)}
+                                                className={cn(
+                                                    "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
+                                                    isFavorited(generatedPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
+                                                )}
                                             >
-                                                Limpar
+                                                {isFavorited(generatedPrompt) ? <Star size={20} fill="currentColor" className="mr-2" /> : <Star size={20} className="mr-2" />}
+                                                {isFavorited(generatedPrompt) ? 'Favoritado' : 'Favoritar'}
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
-                                                {isCopied ? <Check size={20} weight="bold" className="mr-2" /> : <Copy size={20} weight="bold" className="mr-2" />}
+                                                {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar Prompt'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <MagicWand size={48} weight="duotone" className="text-primary mb-4" />
+                                        <MagicWand size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Preencha os campos e clique em "Gerar Prompt" para ver o resultado estruturado.
                                         </p>

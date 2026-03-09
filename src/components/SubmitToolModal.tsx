@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, Link as LinkIcon, Briefcase, FileText, MapPinLine, Image as ImageIcon, VideoCamera, Target } from "@phosphor-icons/react"
+import { Plus, X, Link2 as LinkIcon, Briefcase, FileText, MapPin as MapPinLine, Image as ImageIcon, Video as VideoCamera, Target } from "lucide-react"
 import { useSession } from "next-auth/react"
 
 interface SubmitToolModalProps {
@@ -86,7 +86,7 @@ export function SubmitToolModal({ isOpen, onClose, onSuccess }: SubmitToolModalP
             <div className="bg-card w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-border animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between p-6 border-b border-border bg-input/50">
                     <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                        <Plus size={24} className="text-primary" weight="bold" />
+                        <Plus size={24} className="text-primary" />
                         Sugerir Ferramenta
                     </h2>
                     <button
@@ -94,7 +94,7 @@ export function SubmitToolModal({ isOpen, onClose, onSuccess }: SubmitToolModalP
                         className="p-2 rounded-full hover:bg-input text-muted-foreground transition-colors"
                         disabled={isLoading}
                     >
-                        <X size={20} weight="bold" />
+                        <X size={20} />
                     </button>
                 </div>
 

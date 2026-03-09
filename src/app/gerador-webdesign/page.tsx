@@ -6,20 +6,26 @@ import {
     ArrowLeft,
     BookOpen,
     ListChecks,
-    TerminalWindow,
-    Sparkle,
+    Terminal as TerminalWindow,
+    Sparkles as Sparkle,
     Copy,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     Check,
-    MagicWand,
-    Question,
-    PaintBrush,
-    Code
-} from "@phosphor-icons/react"
-import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+    Wand2 as MagicWand,
+    HelpCircle as Question,
+    Paintbrush as PaintBrush,
+    Code2 as Code,
+    Star,
+    Bot as Robot,
+    Zap as Lightning
+} from "lucide-react"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { HistoryItem } from "@/types/generator"
+import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
 import { useSearchParams } from "next/navigation"
+import { useClipboard } from "@/hooks/useClipboard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,6 +41,27 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_WEBDESIGN } from "@/constants/presets-webdesign"
+
+interface WebDesignPayload {
+    mode: "simple" | "expert";
+    pageType?: string;
+    niche?: string;
+    nicheOther?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    bgColor?: string;
+    textColor?: string;
+    fontFamily?: string;
+    fontOther?: string;
+    borderRadius?: string;
+    copyTone?: string;
+    keyFeature?: string;
+    productName?: string;
+    promise?: string;
+    conversionLink?: string;
+    assetFiles?: string[];
+    targetAI?: string;
+}
 
 function GeradorWebDesignContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
@@ -58,6 +85,7 @@ function GeradorWebDesignContent() {
 
     const [copyTone, setCopyTone] = useState("dor")
     const [keyFeature, setKeyFeature] = useState("faq")
+    const [targetAI, setTargetAI] = useState("v0")
 
     // Global State
     const [productName, setProductName] = useState("")
@@ -69,24 +97,25 @@ function GeradorWebDesignContent() {
 
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
+    const { isCopied, copy } = useClipboard()
 
-    // History Hook
-    const { history, saveHistory } = useGenerationHistory("gerador-webdesign")
+    // History & Favorites Hooks
+    const { history, saveHistory } = useGenerationHistory<WebDesignPayload>("gerador-webdesign")
+    const { isFavorited, toggleFavorite } = useFavorites()
     const searchParams = useSearchParams()
 
     // Handle Restore Effect
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
-            const itemToRestore = history.find((item: HistoryItem) => item.id === restoreId)
+            const itemToRestore = history.find((item: HistoryItem<WebDesignPayload>) => item.id === restoreId)
             if (itemToRestore) {
                 handleRestore(itemToRestore)
             }
         }
     }, [searchParams, history])
 
-    const handleRestore = (item: HistoryItem) => {
+    const handleRestore = (item: HistoryItem<WebDesignPayload>) => {
         const p = item.payload;
         if (!p) return;
 
@@ -111,6 +140,7 @@ function GeradorWebDesignContent() {
         setPromise(p.promise || "")
         setConversionLink(p.conversionLink || "https://google.com")
         setAssetFiles(p.assetFiles || [])
+        setTargetAI(p.targetAI || "v0")
 
         setGeneratedPrompt(item.prompt || "")
         setSelectedPreset("")
@@ -211,8 +241,21 @@ function GeradorWebDesignContent() {
             ? assetFiles.map(name => `- ${name}`).join('\n')
             : 'Nenhum arquivo anexado ainda.';
 
+        let aiInstruction = "";
+        if (targetAI === 'v0') {
+            aiInstruction = "Otimize o código para o v0.dev. Use Shadcn UI (se disponível no ambiente) e garanta que o componente seja exportado corretamente.";
+        } else if (targetAI === 'lovable') {
+            aiInstruction = "Otimize para Lovable (GPT Engineer). Foque em uma estrutura modular pronta para edições rápidas e integração com Supabase se necessário.";
+        } else if (targetAI === 'bolt') {
+            aiInstruction = "Otimize para Bolt.new. Garanta que o projeto inclua todos os arquivos necessários para rodar instantaneamente via WebContainer.";
+        } else if (targetAI === 'claude') {
+            aiInstruction = "Otimize para o Claude (Artifacts). O código deve ser auto-contido e visualmente impressionante no frame lateral.";
+        }
+
         let promptTemplate = `Atue como um Engenheiro Front-end Sênior e Especialista em CRO (Otimização de Conversão).
 Sua missão é desenvolver o código de uma Landing Page de alta conversão (Mobile-First) focada em tráfego pago para o nicho de ${finalNiche}. A arquitetura do código deve ser perfeitamente limpa para futura conversão para WordPress.
+
+${aiInstruction ? `🤖 **MODELO DE IA ALVO: ${targetAI.toUpperCase()}**\n${aiInstruction}\n` : ""}
 
 🧠 **REGRA DE OURO DE REFERÊNCIA VISUAL**
 Se eu anexei imagens/prints a este prompt, considere-as sua **fonte de verdade absoluta** para o design. Replique a paleta de cores, tipografia, espaçamento e estrutura visual, extraindo os textos via OCR para as posições corretas. Se não houver prints, use os padrões da seção 🎨 2 e 📑 3.
@@ -288,7 +331,7 @@ Utilize a seguinte estrutura de seções:
                 copyTone, keyFeature,
                 productName, promise,
                 conversionLink, assetFiles,
-                mode
+                mode, targetAI
             }, promptTemplate)
         }, 800)
     }
@@ -316,37 +359,7 @@ Utilize a seguinte estrutura de seções:
         setSelectedPreset("")
     }
 
-    const handleCopy = async () => {
-        if (!generatedPrompt) return
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(generatedPrompt)
-                setIsCopied(true)
-                setTimeout(() => setIsCopied(false), 2000)
-            } else {
-                const textArea = document.createElement("textarea")
-                textArea.value = generatedPrompt
-                textArea.style.position = "fixed"
-                textArea.style.left = "-9999px"
-                textArea.style.top = "0"
-                document.body.appendChild(textArea)
-                textArea.focus()
-                textArea.select()
-                try {
-                    const successful = document.execCommand('copy')
-                    if (successful) {
-                        setIsCopied(true)
-                        setTimeout(() => setIsCopied(false), 2000)
-                    }
-                } catch (err) {
-                    console.error('Fallback copy failed', err)
-                }
-                document.body.removeChild(textArea)
-            }
-        } catch (err) {
-            console.error('Failed to copy', err)
-        }
-    }
+    const handleCopy = () => copy(generatedPrompt)
 
     return (
         <div className="flex-1 w-full relative font-sans">
@@ -354,7 +367,7 @@ Utilize a seguinte estrutura de seções:
                 {/* Navigation Top */}
                 <div className="flex items-center justify-end mb-8">
                     <Link href="/gerador" className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-secondary/80 transition-colors shadow-sm">
-                        <ArrowLeft size={20} weight="bold" />
+                        <ArrowLeft size={20} />
                         VOLTAR AO GERADOR DE IMAGENS
                     </Link>
                 </div>
@@ -375,7 +388,7 @@ Utilize a seguinte estrutura de seções:
 
                         <div className="flex items-center gap-4">
                             <div className="size-12 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-lg relative group">
-                                <Code size={28} weight="bold" />
+                                <Code size={28} />
                             </div>
                             <div>
                                 <div className="flex items-center gap-3">
@@ -409,7 +422,7 @@ Utilize a seguinte estrutura de seções:
                                         )}
                                     >
                                         <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                                            <PaintBrush size={32} weight="duotone" className="text-muted-foreground opacity-50" />
+                                            <PaintBrush size={32} className="text-muted-foreground opacity-50" />
                                         </div>
                                         {/* Image placeholder for future mapping */}
                                         {preset.image && (
@@ -425,7 +438,7 @@ Utilize a seguinte estrutura de seções:
                                             "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
                                             selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                         )}>
-                                            {selectedPreset === preset.id && <Check size={14} weight="bold" />}
+                                            {selectedPreset === preset.id && <Check size={14} />}
                                         </div>
 
                                         <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
@@ -446,14 +459,14 @@ Utilize a seguinte estrutura de seções:
                                         onClick={() => setMode("simple")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-blue-500 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <ListChecks size={18} weight={mode === 'simple' ? 'bold' : 'regular'} />
+                                        <ListChecks size={18} />
                                         Modo Base
                                     </button>
                                     <button
                                         onClick={() => setMode("expert")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'expert' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <TerminalWindow size={18} weight={mode === 'expert' ? 'bold' : 'regular'} />
+                                        <TerminalWindow size={18} />
                                         Modo Expert
                                     </button>
                                 </div>
@@ -522,6 +535,25 @@ Utilize a seguinte estrutura de seções:
                                                 <SelectItem value="transformacao">Focado na Transformação / Desejos</SelectItem>
                                                 <SelectItem value="autoridade">Alta Autoridade & Prova Social extrema</SelectItem>
                                                 <SelectItem value="logico">Lógico & Direto ao Ponto (Custo-Benefício)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="targetAI" className="font-semibold text-foreground flex items-center gap-2">
+                                            <Robot size={18} className="text-blue-500" />
+                                            IA de Destino (Otimização)
+                                        </Label>
+                                        <Select value={targetAI} onValueChange={setTargetAI}>
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Selecione a IA..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="standard">Padrão (Qualquer LLM)</SelectItem>
+                                                <SelectItem value="v0">v0.dev (Shadcn/Vercel)</SelectItem>
+                                                <SelectItem value="lovable">Lovable.dev (GPT Engineer)</SelectItem>
+                                                <SelectItem value="bolt">Bolt.new (Full-stack)</SelectItem>
+                                                <SelectItem value="claude">Claude Artifacts</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -693,7 +725,7 @@ Utilize a seguinte estrutura de seções:
                                         onClick={handleGenerate}
                                         className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${isGenerating ? 'bg-blue-600 opacity-90' : 'bg-blue-500 hover:bg-blue-600 hover:-translate-y-1'}`}
                                     >
-                                        {isGenerating ? <CheckCircle size={24} weight="fill" className="mr-2" /> : <Code size={24} weight="bold" className="mr-2" />}
+                                        {isGenerating ? <CheckCircle size={24} className="mr-2" /> : <Code size={24} className="mr-2" />}
                                         {isGenerating ? 'Código Pronto!' : 'Gerar Prompt p/ Código'}
                                     </Button>
                                 </div>
@@ -734,23 +766,29 @@ Utilize a seguinte estrutura de seções:
                                         <div className="grid grid-cols-2 gap-3 mt-6">
                                             <Button
                                                 variant="secondary"
-                                                onClick={handleClear}
-                                                className="bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none"
+                                                onClick={() => toggleFavorite("gerador-webdesign", {
+                                                    pageType, niche, nicheOther, primaryColor, secondaryColor, bgColor, textColor, fontFamily, fontOther, borderRadius, copyTone, keyFeature, productName, promise, conversionLink, assetFiles, mode, targetAI
+                                                }, generatedPrompt, `${productName || niche}`)}
+                                                className={cn(
+                                                    "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
+                                                    isFavorited(generatedPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
+                                                )}
                                             >
-                                                Limpar
+                                                {isFavorited(generatedPrompt) ? <Star size={20} fill="currentColor" className="mr-2" /> : <Star size={20} className="mr-2" />}
+                                                {isFavorited(generatedPrompt) ? 'Favoritado' : 'Favoritar'}
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
                                             >
-                                                {isCopied ? <Check size={20} weight="bold" className="mr-2" /> : <Copy size={20} weight="bold" className="mr-2" />}
+                                                {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar p/ IA'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Code size={48} weight="duotone" className="text-blue-500 mb-4" />
+                                        <Code size={48} className="text-blue-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Selecione as cores da paleta, preencha os dados e clique em gerar para ver o prompt estruturado de código HTML/Tailwind.
                                         </p>

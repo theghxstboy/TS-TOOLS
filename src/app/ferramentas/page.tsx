@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { SubmitToolModal } from "@/components/SubmitToolModal"
 import { Tool } from "@/lib/tools"
-import { ArrowLeft, ArrowUpRight, Plus, Folder, MagnifyingGlass, ClockCounterClockwise, CheckCircle, Check, X, ShieldCheck, Star } from "@phosphor-icons/react"
+import { ArrowLeft, ArrowUpRight, Plus, Folder, Search as MagnifyingGlass, History as ClockCounterClockwise, CheckCircle2 as CheckCircle, Check, X, ShieldCheck, Star } from "lucide-react"
 
 const FAVORITES_KEY = "ts_tools_community_favorites"
 
@@ -101,7 +101,7 @@ export default function FerramentasHubPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-border pb-8">
                     <div className="max-w-2xl">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[0.65rem] font-bold uppercase tracking-widest mb-6">
-                            <Folder size={14} weight="fill" />
+                            <Folder size={14} />
                             Comunidade TS
                         </div>
                         <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4 tracking-tight">
@@ -115,7 +115,7 @@ export default function FerramentasHubPage() {
                     <div className="flex flex-col sm:flex-row gap-4 shrink-0">
                         {session && (
                             <Link href="/ferramentas/minhas" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-card border border-border text-foreground font-semibold hover:border-primary/50 transition-colors">
-                                <ClockCounterClockwise size={20} weight="bold" />
+                                <ClockCounterClockwise size={20} />
                                 Minhas Sugestões
                             </Link>
                         )}
@@ -123,7 +123,7 @@ export default function FerramentasHubPage() {
                             onClick={() => setIsModalOpen(true)}
                             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-black font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 active:scale-95"
                         >
-                            <Plus size={20} weight="bold" />
+                            <Plus size={20} />
                             Sugerir Ferramenta
                         </button>
                     </div>
@@ -185,7 +185,7 @@ export default function FerramentasHubPage() {
                                         </span>
                                         {tool.status === 'pending' && isAdmin && (
                                             <span className="flex items-center gap-1 text-[10px] font-black text-amber-500 uppercase tracking-widest">
-                                                <ClockCounterClockwise size={12} weight="bold" />
+                                                <ClockCounterClockwise size={12} />
                                                 Pendente
                                             </span>
                                         )}
@@ -200,10 +200,10 @@ export default function FerramentasHubPage() {
                                                 }`}
                                             title={favorites.has(tool.id) ? 'Remover dos favoritos' : 'Favoritar'}
                                         >
-                                            <Star size={20} weight={favorites.has(tool.id) ? 'fill' : 'regular'} />
+                                            <Star size={20} className={favorites.has(tool.id) ? 'fill-current' : ''} />
                                         </button>
                                         <a href={tool.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-input rounded-xl text-muted-foreground hover:text-primary transition-colors">
-                                            <ArrowUpRight size={20} weight="bold" />
+                                            <ArrowUpRight size={20} />
                                         </a>
                                     </div>
                                 </div>
@@ -240,7 +240,7 @@ export default function FerramentasHubPage() {
             {showSuccessToast && (
                 <div className="fixed bottom-8 right-8 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
                     <div className="bg-card border border-emerald-500/30 shadow-lg shadow-emerald-500/10 rounded-xl p-4 flex items-start gap-3 w-80">
-                        <CheckCircle size={24} weight="fill" className="text-emerald-500 shrink-0" />
+                        <CheckCircle size={24} className="text-emerald-500 shrink-0" />
                         <div>
                             <h4 className="font-bold text-foreground text-sm">Sugestão Enviada!</h4>
                             <p className="text-xs text-muted-foreground mt-1">Sua ferramenta foi enviada para análise. Você pode acompanhar o status na seção "Minhas Sugestões".</p>

@@ -4,16 +4,16 @@ import Link from "next/link"
 import {
     ArrowLeft,
     Brain,
-    Lightning,
-    Sparkle,
-    TreeStructure,
-    GearSix,
-    CheckCircle,
+    Zap as Lightning,
+    Sparkles as Sparkle,
+    Network as TreeStructure,
+    Settings as GearSix,
+    CheckCircle2 as CheckCircle,
     ArrowRight,
-    Code,
-    ChatCircleDots,
-    Flask
-} from "@phosphor-icons/react"
+    Code2 as Code,
+    MessageSquare as ChatCircleDots,
+    FlaskConical as Flask
+} from "lucide-react"
 
 export default function TecnicasAvancadasPage() {
     return (
@@ -22,13 +22,13 @@ export default function TecnicasAvancadasPage() {
             <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
                 <div className="max-w-4xl mx-auto">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar para Academy
                     </Link>
 
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                            <Brain size={32} weight="duotone" />
+                            <Brain size={32} />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                             Técnicas Avançadas
@@ -46,7 +46,7 @@ export default function TecnicasAvancadasPage() {
                     {/* 1. Zero-shot vs Few-shot */}
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <Lightning size={28} className="text-amber-400" weight="fill" />
+                            <Lightning size={28} className="text-amber-400" />
                             1. Zero-shot vs Few-shot Prompting
                         </h2>
                         <p className="text-muted-foreground leading-relaxed">
@@ -77,7 +77,7 @@ export default function TecnicasAvancadasPage() {
                     {/* 2. Chain-of-Thought (CoT) */}
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <Sparkle size={28} className="text-blue-400" weight="fill" />
+                            <Sparkle size={28} className="text-blue-400" />
                             2. Chain-of-Thought (Cadeia de Pensamento)
                         </h2>
                         <p className="text-muted-foreground leading-relaxed">
@@ -92,7 +92,7 @@ export default function TecnicasAvancadasPage() {
                     {/* 3. Generated Knowledge */}
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <ChatCircleDots size={28} className="text-purple-400" weight="fill" />
+                            <ChatCircleDots size={28} className="text-purple-400" />
                             3. Conhecimento Gerado
                         </h2>
                         <p className="text-muted-foreground leading-relaxed">
@@ -115,7 +115,7 @@ export default function TecnicasAvancadasPage() {
                     {/* 4. Tree of Thoughts (ToT) */}
                     <section id="tot" className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <TreeStructure size={28} className="text-amber-500" weight="duotone" />
+                            <TreeStructure size={28} className="text-amber-500" />
                             4. Tree of Thoughts (ToT)
                         </h2>
                         <p className="text-muted-foreground leading-relaxed">
@@ -167,7 +167,7 @@ export default function TecnicasAvancadasPage() {
                         <p className="text-muted-foreground text-sm mb-6">Agora você tem todas as ferramentas para dominar o mercado.</p>
                         <Link href="/" className="inline-flex items-center gap-2 text-primary font-bold hover:underline">
                             Ir para o Hub das Ferramentas
-                            <ArrowRight size={20} weight="bold" />
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
                 </div>

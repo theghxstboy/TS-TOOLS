@@ -3,16 +3,16 @@
 import Link from "next/link"
 import {
     ArrowLeft,
-    VideoCamera,
-    MagnifyingGlassPlus,
-    ArrowsLeftRight,
-    ArrowsOut,
-    CheckCircle,
+    Video as VideoCamera,
+    ZoomIn as MagnifyingGlassPlus,
+    MoveHorizontal as ArrowsLeftRight,
+    Maximize as ArrowsOut,
+    CheckCircle2 as CheckCircle,
     ArrowRight,
     PlayCircle,
     Timer,
-    UserFocus
-} from "@phosphor-icons/react"
+    UserSquare2 as UserFocus
+} from "lucide-react"
 
 export default function VideoExpertPage() {
     return (
@@ -21,13 +21,13 @@ export default function VideoExpertPage() {
             <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
                 <div className="max-w-4xl mx-auto">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar para Academy
                     </Link>
 
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center">
-                            <VideoCamera size={32} weight="duotone" />
+                            <VideoCamera size={32} />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                             Direção de Vídeo
@@ -51,7 +51,7 @@ export default function VideoExpertPage() {
                     {/* Camera Movements */}
                     <section className="space-y-8">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <PlayCircle size={28} className="text-red-500" weight="fill" />
+                            <PlayCircle size={28} className="text-red-500" />
                             Movimentação Tática (Câmera)
                         </h2>
 
@@ -63,7 +63,7 @@ export default function VideoExpertPage() {
                             ].map((item, i) => (
                                 <div key={i} className="bg-card border border-border p-6 rounded-2xl flex flex-col group hover:border-red-500/50 transition-colors">
                                     <div className="w-10 h-10 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <item.icon size={24} weight="bold" />
+                                        <item.icon size={24} />
                                     </div>
                                     <h4 className="font-bold text-foreground mb-2">{item.title}</h4>
                                     <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -77,7 +77,7 @@ export default function VideoExpertPage() {
                         <div className="flex flex-col md:flex-row gap-12 items-start">
                             <div className="flex-1 space-y-4">
                                 <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                                    <Timer size={28} className="text-blue-400" weight="fill" />
+                                    <Timer size={28} className="text-blue-400" />
                                     Ritmo & Duração
                                 </h2>
                                 <p className="text-muted-foreground text-sm leading-relaxed">
@@ -92,7 +92,7 @@ export default function VideoExpertPage() {
 
                             <div className="flex-1 bg-red-500/5 border border-red-500/20 p-8 rounded-3xl space-y-4">
                                 <h3 className="text-xl font-bold text-red-400 flex items-center gap-2">
-                                    <UserFocus size={24} weight="duotone" />
+                                    <UserFocus size={24} />
                                     Atenção ao Rosto
                                 </h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed italic">
@@ -110,7 +110,7 @@ export default function VideoExpertPage() {
                         <p className="text-muted-foreground text-sm mb-6">Agora você dominou todas as ferramentas da TS Academy.</p>
                         <Link href="/" className="bg-primary hover:bg-primary/90 text-black px-8 py-4 rounded-2xl font-bold inline-flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
                             Começar a Produzir Agora
-                            <ArrowRight size={20} weight="bold" />
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
                 </div>

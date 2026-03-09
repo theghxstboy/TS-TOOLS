@@ -3,20 +3,20 @@
 import Link from "next/link"
 import {
     ArrowLeft,
-    Buildings,
-    RocketLaunch,
+    Building2 as Buildings,
+    Rocket as RocketLaunch,
     Brain,
     Sliders,
-    VideoCamera,
+    Video as VideoCamera,
     PaintRoller,
-    Stack,
+    Layers as Stack,
     PlusSquare,
     FileText,
-    Lightning,
+    Zap as Lightning,
     Target,
-    TreeStructure,
-    CheckCircle
-} from "@phosphor-icons/react"
+    Network as TreeStructure,
+    CheckCircle2 as CheckCircle
+} from "lucide-react"
 
 export default function DocsPage() {
     return (
@@ -28,14 +28,14 @@ export default function DocsPage() {
 
                 <div className="absolute top-8 left-8 md:top-12 md:left-12 z-10">
                     <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-semibold text-sm group">
-                        <ArrowLeft size={20} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar ao Hub
                     </Link>
                 </div>
 
                 <div className="relative z-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[0.65rem] font-bold uppercase tracking-widest mb-6">
-                        <Lightning size={14} weight="fill" />
+                        <Lightning size={14} />
                         Intelligence Database
                     </div>
                     <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-6 tracking-tight">
@@ -55,7 +55,7 @@ export default function DocsPage() {
                         <div className="bg-input rounded-[1.4rem] p-8 h-full flex flex-col">
                             <div className="flex items-start justify-between mb-8">
                                 <div className="w-16 h-16 rounded-2xl bg-primary/20 text-primary flex items-center justify-center">
-                                    <Buildings size={32} weight="duotone" />
+                                    <Buildings size={32} />
                                 </div>
                                 <span className="px-3 py-1 rounded-lg bg-primary text-black text-[0.65rem] font-bold uppercase">Mais Acessado</span>
                             </div>
@@ -69,15 +69,15 @@ export default function DocsPage() {
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 <div className="flex flex-col gap-1 p-3 rounded-xl bg-card border border-border">
-                                    <PaintRoller size={20} className="text-primary" weight="duotone" />
+                                    <PaintRoller size={20} className="text-primary" />
                                     <span className="text-xs font-bold text-foreground">Painting</span>
                                 </div>
                                 <div className="flex flex-col gap-1 p-3 rounded-xl bg-card border border-border">
-                                    <Buildings size={20} className="text-primary" weight="duotone" />
+                                    <Buildings size={20} className="text-primary" />
                                     <span className="text-xs font-bold text-foreground">Remodeling</span>
                                 </div>
                                 <div className="flex flex-col gap-1 p-3 rounded-xl bg-card border border-border">
-                                    <Stack size={20} className="text-primary" weight="duotone" />
+                                    <Stack size={20} className="text-primary" />
                                     <span className="text-xs font-bold text-foreground">Flooring</span>
                                 </div>
                                 <div className="flex items-center justify-center p-3 rounded-xl bg-primary/10 border border-primary/20">
@@ -90,7 +90,7 @@ export default function DocsPage() {
                     {/* Primeiros Passos */}
                     <Link href="/docs/inicio-rapido" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-blue-500 p-8 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-6">
-                            <RocketLaunch size={28} weight="duotone" />
+                            <RocketLaunch size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-blue-500 transition-colors">Primeiros Passos</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -98,10 +98,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-blue-500" weight="fill" /> Gemini vs Flow AI
+                                <CheckCircle size={16} className="text-blue-500" /> Gemini vs Flow AI
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-blue-500" weight="fill" /> Workflow de Produção
+                                <CheckCircle size={16} className="text-blue-500" /> Workflow de Produção
                             </li>
                         </ul>
                     </Link>
@@ -109,7 +109,7 @@ export default function DocsPage() {
                     {/* Anatomia do Prompt */}
                     <Link href="/docs/anatomia-prompt" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-purple-500 p-8 shadow-sm hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
-                            <Target size={28} weight="duotone" />
+                            <Target size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-purple-400 transition-colors">Anatomia do Prompt</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -117,10 +117,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-purple-500" weight="fill" /> Instrução & Contexto
+                                <CheckCircle size={16} className="text-purple-500" /> Instrução & Contexto
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-purple-500" weight="fill" /> Indicadores de Saída
+                                <CheckCircle size={16} className="text-purple-500" /> Indicadores de Saída
                             </li>
                         </ul>
                     </Link>
@@ -128,7 +128,7 @@ export default function DocsPage() {
                     {/* Técnicas Avançadas */}
                     <Link href="/docs/tecnicas-avancadas" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-emerald-500 p-8 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6">
-                            <Brain size={28} weight="duotone" />
+                            <Brain size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-emerald-400 transition-colors">Técnicas Avançadas</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -136,10 +136,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-emerald-500" weight="fill" /> Chain of Thought
+                                <CheckCircle size={16} className="text-emerald-500" /> Chain of Thought
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-emerald-500" weight="fill" /> Zero/Few-Shot
+                                <CheckCircle size={16} className="text-emerald-500" /> Zero/Few-Shot
                             </li>
                         </ul>
                     </Link>
@@ -147,7 +147,7 @@ export default function DocsPage() {
                     {/* Estratégia de Pensamento */}
                     <Link href="/docs/tecnicas-avancadas#tot" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-amber-500 p-8 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-6">
-                            <TreeStructure size={28} weight="duotone" />
+                            <TreeStructure size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-amber-400 transition-colors">Estratégia & ToT</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -155,10 +155,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-amber-500" weight="fill" /> Tree of Thoughts (ToT)
+                                <CheckCircle size={16} className="text-amber-500" /> Tree of Thoughts (ToT)
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-amber-500" weight="fill" /> Generated Knowledge
+                                <CheckCircle size={16} className="text-amber-500" /> Generated Knowledge
                             </li>
                         </ul>
                     </Link>
@@ -166,7 +166,7 @@ export default function DocsPage() {
                     {/* Parâmetros Flow AI */}
                     <Link href="/docs/parametros-flow" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-orange-600 p-8 shadow-sm hover:shadow-xl hover:shadow-orange-600/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-orange-600/10 text-orange-500 flex items-center justify-center mb-6">
-                            <Sliders size={28} weight="duotone" />
+                            <Sliders size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-orange-500 transition-colors">Parâmetros Flow AI</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -174,10 +174,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-orange-500" weight="fill" /> Aspect Ratio (16:9, 9:16)
+                                <CheckCircle size={16} className="text-orange-500" /> Aspect Ratio (16:9, 9:16)
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-orange-500" weight="fill" /> Prompts Negativos
+                                <CheckCircle size={16} className="text-orange-500" /> Prompts Negativos
                             </li>
                         </ul>
                     </Link>
@@ -185,7 +185,7 @@ export default function DocsPage() {
                     {/* Direção de Vídeo */}
                     <Link href="/docs/video-expert" className="group flex flex-col bg-card rounded-3xl border border-border hover:border-red-500 p-8 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300">
                         <div className="w-14 h-14 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mb-6">
-                            <VideoCamera size={28} weight="duotone" />
+                            <VideoCamera size={28} />
                         </div>
                         <h2 className="text-xl font-bold text-foreground mb-3 group-hover:text-red-500 transition-colors">Direção de Vídeo</h2>
                         <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
@@ -193,10 +193,10 @@ export default function DocsPage() {
                         </p>
                         <ul className="space-y-3">
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-red-500" weight="fill" /> Movimentos de Câmera
+                                <CheckCircle size={16} className="text-red-500" /> Movimentos de Câmera
                             </li>
                             <li className="flex items-center gap-2 text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
-                                <CheckCircle size={16} className="text-red-500" weight="fill" /> Ritmo & Framerates
+                                <CheckCircle size={16} className="text-red-500" /> Ritmo & Framerates
                             </li>
                         </ul>
                     </Link>
@@ -205,7 +205,7 @@ export default function DocsPage() {
             </main>
 
             <footer className="text-center py-12 border-t border-border text-muted-foreground text-sm mt-auto bg-card">
-                <p className="font-medium">TS TOOLS Academy &copy; {new Date().getFullYear()}. Documentação Interna Grupo TS.</p>
+                <p className="font-medium" suppressHydrationWarning>TS TOOLS Academy &copy; {new Date().getFullYear()}. Documentação Interna Grupo TS.</p>
             </footer>
         </div>
     )

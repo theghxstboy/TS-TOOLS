@@ -1,6 +1,7 @@
 import { auth, signIn, signOut } from "@/auth"
 import Link from "next/link"
 import { BackButton } from "./BackButton"
+import { SearchTrigger } from "./SearchTrigger"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,23 +17,26 @@ export default async function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-card/90 backdrop-blur-md">
-            <div className="container mx-auto flex h-20 max-w-6xl items-center px-4">
-                {/* Left Side (Dynamic Back Button) */}
-                <BackButton />
-
-                {/* Logo Centered */}
-                <div className="flex-shrink-0">
-                    <Link href="/" className="transition-opacity hover:opacity-80">
-                        <img src="/logo.png" alt="TS TOOLS" className="h-[60px] w-auto" />
+            <div className="container mx-auto grid grid-cols-3 h-20 max-w-6xl items-center px-4">
+                {/* Left Side: Logo + Back Button */}
+                <div className="flex items-center gap-4">
+                    <BackButton />
+                    <Link href="/" className="transition-opacity hover:opacity-80 shrink-0">
+                        <img src="/logo.png" alt="TS TOOLS" className="h-[45px] md:h-[55px] w-auto" />
                     </Link>
                 </div>
 
-                {/* User Area */}
-                <div className="flex-1 flex justify-end items-center gap-4">
+                {/* Center: Search Trigger */}
+                <div className="flex justify-center">
+                    <SearchTrigger />
+                </div>
+
+                {/* Right Side: User Area */}
+                <div className="flex justify-end items-center gap-4">
                     {session?.user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger className="outline-none flex items-center gap-2 group">
-                                <span className="hidden sm:inline-block text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors max-w-[120px] truncate">
+                                <span className="hidden lg:inline-block text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors max-w-[120px] truncate">
                                     {session.user.name}
                                 </span>
                                 <Avatar className="h-9 w-9 cursor-pointer border border-border transition-all hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background group-hover:opacity-90">
@@ -91,7 +95,7 @@ export default async function Header() {
                                 await signIn()
                             }}
                         >
-
+                            {/* Sign in button if needed */}
                         </form>
                     )}
                 </div>

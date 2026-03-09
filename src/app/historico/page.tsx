@@ -5,22 +5,24 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
     ArrowLeft,
-    ClockCounterClockwise,
-    Trash,
-    CheckCircle,
+    History as ClockCounterClockwise,
+    Trash2 as Trash,
+    CheckCircle2 as CheckCircle,
     Copy,
     Check,
-    MagnifyingGlass,
-    MagicWand,
-    UserFocus,
-    VideoCamera,
-    Images
-} from "@phosphor-icons/react"
+    Search as MagnifyingGlass,
+    Wand2 as MagicWand,
+    UserSquare2 as UserFocus,
+    Video as VideoCamera,
+    Image as Images
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { HistoryItem } from "@/hooks/useGenerationHistory"
+import { HistoryItem } from "@/types/generator"
 import { formatDistanceToNow, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { useClipboard } from "@/hooks/useClipboard"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
 
 type GeneratorTab = "gerador" | "gerador-humano" | "gerador-video" | "antes-depois";
 
@@ -31,7 +33,7 @@ function HistoricoContent() {
     const [activeTab, setActiveTab] = useState<GeneratorTab>("gerador")
     const [historyItems, setHistoryItems] = useState<HistoryItem[]>([])
     const [searchQuery, setSearchQuery] = useState("")
-    const [isCopied, setIsCopied] = useState<string | null>(null)
+    const { isCopied, copy } = useClipboard()
     const [isLoaded, setIsLoaded] = useState(false)
 
     // Sync tab from URL on mount
@@ -80,28 +82,9 @@ function HistoricoContent() {
         router.push(`${path}?restore_id=${item.id}`)
     }
 
-    const handleCopy = async (prompt: string, id: string, e: React.MouseEvent) => {
+    const handleCopy = (prompt: string, id: string, e: React.MouseEvent) => {
         e.stopPropagation(); // prevent restore action
-        if (!prompt) return
-
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(prompt)
-                setIsCopied(id)
-                setTimeout(() => setIsCopied(null), 2000)
-            } else {
-                const textArea = document.createElement("textarea")
-                textArea.value = prompt
-                document.body.appendChild(textArea)
-                textArea.select()
-                document.execCommand('copy')
-                document.body.removeChild(textArea)
-                setIsCopied(id)
-                setTimeout(() => setIsCopied(null), 2000)
-            }
-        } catch (err) {
-            console.error('Failed to copy', err)
-        }
+        copy(prompt);
     }
 
     const filteredItems = historyItems.filter(item =>
@@ -134,28 +117,28 @@ function HistoricoContent() {
                         onClick={() => setActiveTab("gerador")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                     >
-                        <MagicWand size={18} weight={activeTab === 'gerador' ? 'bold' : 'regular'} />
+                        <MagicWand size={18} />
                         Gerador PRO
                     </button>
                     <button
                         onClick={() => setActiveTab("gerador-humano")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador-humano' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                     >
-                        <UserFocus size={18} weight={activeTab === 'gerador-humano' ? 'bold' : 'regular'} />
+                        <UserFocus size={18} />
                         Gerador Humano
                     </button>
                     <button
                         onClick={() => setActiveTab("gerador-video")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador-video' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                     >
-                        <VideoCamera size={18} weight={activeTab === 'gerador-video' ? 'bold' : 'regular'} />
+                        <VideoCamera size={18} />
                         Gerador Vídeo
                     </button>
                     <button
                         onClick={() => setActiveTab("antes-depois")}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'antes-depois' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
                     >
-                        <Images size={18} weight={activeTab === 'antes-depois' ? 'bold' : 'regular'} />
+                        <Images size={18} />
                         Antes & Depois
                     </button>
                 </div>
@@ -235,18 +218,18 @@ function HistoricoContent() {
                                                     handleRestore(item)
                                                 }}
                                             >
-                                                <ClockCounterClockwise size={16} weight="bold" />
+                                                <ClockCounterClockwise size={16} />
                                                 Restaurar Opções
                                             </Button>
 
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className={`flex-1 md:w-full flex items-center justify-center gap-2 ${isCopied === item.id ? 'bg-green-600/20 text-green-500 border-green-600/30' : 'bg-input border-border text-foreground hover:bg-muted'}`}
+                                                className={`flex-1 md:w-full flex items-center justify-center gap-2 ${isCopied ? 'bg-green-600/20 text-green-500 border-green-600/30' : 'bg-input border-border text-foreground hover:bg-muted'}`}
                                                 onClick={(e) => handleCopy(item.prompt, item.id, e)}
                                             >
-                                                {isCopied === item.id ? (
-                                                    <><Check size={16} weight="bold" /> Copiado</>
+                                                {isCopied ? (
+                                                    <><Check size={16} /> Copiado</>
                                                 ) : (
                                                     <><Copy size={16} /> Copiar Apenas</>
                                                 )}

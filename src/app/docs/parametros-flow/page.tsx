@@ -5,14 +5,14 @@ import {
     ArrowLeft,
     Sliders,
     Monitor,
-    SelectionBackground,
+    Image as SelectionBackground,
     MinusCircle,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     ArrowRight,
-    Images,
-    SelectionAll,
+    Image as Images,
+    Square as SelectionAll,
     Crop
-} from "@phosphor-icons/react"
+} from "lucide-react"
 
 export default function ParametrosFlowPage() {
     return (
@@ -21,13 +21,13 @@ export default function ParametrosFlowPage() {
             <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
                 <div className="max-w-4xl mx-auto">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar para Academy
                     </Link>
 
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-orange-600/10 text-orange-500 flex items-center justify-center">
-                            <Sliders size={32} weight="duotone" />
+                            <Sliders size={32} />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                             Parâmetros Flow AI
@@ -51,7 +51,7 @@ export default function ParametrosFlowPage() {
                     {/* Aspect Ratio */}
                     <section className="space-y-8">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <Crop size={28} className="text-orange-500" weight="fill" />
+                            <Crop size={28} className="text-orange-500" />
                             Aspect Ratio (Formatos)
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -75,7 +75,7 @@ export default function ParametrosFlowPage() {
                     {/* Negative Prompting */}
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <MinusCircle size={28} className="text-red-500" weight="fill" />
+                            <MinusCircle size={28} className="text-red-500" />
                             Prompt Negativo (Limpeza)
                         </h2>
                         <p className="text-muted-foreground leading-relaxed">
@@ -83,7 +83,7 @@ export default function ParametrosFlowPage() {
                         </p>
                         <div className="p-8 rounded-3xl bg-input border border-border relative overflow-hidden group">
                             <div className="absolute top-4 right-4 text-red-500/20 group-hover:text-red-500/40 transition-colors">
-                                <SelectionBackground size={80} weight="fill" />
+                                <SelectionBackground size={80} />
                             </div>
                             <h4 className="font-bold text-foreground mb-4">Copia & Cola Sugerido:</h4>
                             <div className="font-mono text-sm text-orange-400 select-all p-2 rounded bg-card/50">
@@ -95,7 +95,7 @@ export default function ParametrosFlowPage() {
                     {/* MJ vs Flow AI */}
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <Images size={28} className="text-blue-400" weight="fill" />
+                            <Images size={28} className="text-blue-400" />
                             Comparativo Técnico
                         </h2>
                         <p className="text-muted-foreground">Se você já usou IA como Midjourney, aqui está a "tradução" para o ecossistema Flow:</p>
@@ -122,7 +122,7 @@ export default function ParametrosFlowPage() {
                         </div>
                         <Link href="/docs/video-expert" className="bg-primary hover:bg-primary/90 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
                             Ver Direção de Vídeo
-                            <ArrowRight size={20} weight="bold" />
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft } from "lucide-react";
 
 export function BackButton() {
     const pathname = usePathname();
@@ -18,7 +18,7 @@ export function BackButton() {
                 href="/"
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-semibold p-2 rounded-lg hover:bg-primary/10 w-fit"
             >
-                <ArrowLeft size={20} weight="bold" />
+                <ArrowLeft size={20} />
                 <span className="hidden sm:inline">Voltar ao Início</span>
             </Link>
         </div>

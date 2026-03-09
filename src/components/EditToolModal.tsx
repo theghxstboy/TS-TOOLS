@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Tool } from "@/lib/tools"
-import { Check } from "@phosphor-icons/react"
+import { Check } from "lucide-react"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {
@@ -145,7 +145,7 @@ export function EditToolModal({ isOpen, onClose, tool, onSuccess }: EditToolModa
                             <div className="w-5 h-5 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
                         ) : (
                             <>
-                                <Check size={20} weight="bold" />
+                                <Check size={20} />
                                 Salvar Alterações
                             </>
                         )}

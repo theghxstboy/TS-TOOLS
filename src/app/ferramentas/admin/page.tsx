@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Tool } from "@/lib/tools"
-import { ArrowLeft, Check, X, ShieldCheck, ClockCounterClockwise, CheckCircle, XCircle, DotsThree, Trash, PencilSimple } from "@phosphor-icons/react"
+import { ArrowLeft, Check, X, ShieldCheck, History as ClockCounterClockwise, CheckCircle2 as CheckCircle, XCircle, MoreHorizontal as DotsThree, Trash2 as Trash, Pencil } from "lucide-react"
 import { EditToolModal } from "@/components/EditToolModal"
 import {
     DropdownMenu,
@@ -104,13 +104,13 @@ export default function AdminFerramentasPage() {
         <div className="min-h-screen bg-input font-sans text-foreground pb-20">
             <div className="max-w-5xl mx-auto px-6 pt-16 md:pt-24">
                 <Link href="/ferramentas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                    <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                     Voltar para o Hub
                 </Link>
 
                 <div className="flex items-center gap-4 mb-12">
                     <div className="w-12 h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center">
-                        <ShieldCheck size={28} weight="duotone" />
+                        <ShieldCheck size={28} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
@@ -164,28 +164,28 @@ export default function AdminFerramentasPage() {
                                                 onClick={() => handleUpdateStatus(tool.id, 'rejected')}
                                                 className="flex flex-col items-center justify-center p-3 w-20 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all gap-1 group"
                                             >
-                                                <X size={20} weight="bold" className="group-hover:scale-110 transition-transform" />
+                                                <X size={20} className="group-hover:scale-110 transition-transform" />
                                                 <span className="text-[10px] font-bold uppercase tracking-widest">Rejeitar</span>
                                             </button>
                                             <button
                                                 onClick={() => handleUpdateStatus(tool.id, 'approved')}
                                                 className="flex flex-col items-center justify-center p-3 w-20 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all gap-1 group"
                                             >
-                                                <Check size={20} weight="bold" className="group-hover:scale-110 transition-transform" />
+                                                <Check size={20} className="group-hover:scale-110 transition-transform" />
                                                 <span className="text-[10px] font-bold uppercase tracking-widest">Aprovar</span>
                                             </button>
 
                                             {/* Options Dropdown */}
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger className="p-2 ml-2 rounded-xl bg-card border border-border hover:bg-input transition-colors outline-none shrink-0" title="Opções">
-                                                    <DotsThree size={24} weight="bold" className="text-muted-foreground" />
+                                                    <DotsThree size={24} className="text-muted-foreground" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48 font-inter">
                                                     <DropdownMenuItem onSelect={() => openEditModal(tool)} className="cursor-pointer gap-2 py-2.5">
-                                                        <PencilSimple size={18} weight="bold" /> Editar Ferramenta
+                                                        <Pencil size={18} /> Editar Ferramenta
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => handleDeleteTool(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
-                                                        <Trash size={18} weight="bold" /> Excluir Sugestão
+                                                        <Trash size={18} /> Excluir Sugestão
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -217,11 +217,11 @@ export default function AdminFerramentasPage() {
                                     <div className="shrink-0 flex items-center">
                                         {tool.status === 'approved' ? (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/5 text-emerald-500 text-[10px] font-bold border border-emerald-500/10">
-                                                <CheckCircle size={14} weight="bold" /> Aprovada
+                                                <CheckCircle size={14} /> Aprovada
                                             </div>
                                         ) : (
                                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/5 text-red-500 text-[10px] font-bold border border-red-500/10">
-                                                <XCircle size={14} weight="bold" /> Rejeitada
+                                                <XCircle size={14} /> Rejeitada
                                             </div>
                                         )}
 
@@ -229,14 +229,14 @@ export default function AdminFerramentasPage() {
                                         <div className="ml-4 shrink-0 transition-opacity">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-input transition-colors outline-none" title="Opções">
-                                                    <DotsThree size={20} weight="bold" className="text-muted-foreground" />
+                                                    <DotsThree size={20} className="text-muted-foreground" />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48 font-inter">
                                                     <DropdownMenuItem onSelect={() => openEditModal(tool)} className="cursor-pointer gap-2 py-2.5">
-                                                        <PencilSimple size={18} weight="bold" /> Editar
+                                                        <Pencil size={18} /> Editar
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem onSelect={() => handleDeleteTool(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
-                                                        <Trash size={18} weight="bold" /> Excluir
+                                                        <Trash size={18} /> Excluir
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

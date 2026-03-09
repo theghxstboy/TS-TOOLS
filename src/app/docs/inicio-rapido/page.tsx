@@ -3,13 +3,13 @@
 import Link from "next/link"
 import {
     ArrowLeft,
-    RocketLaunch,
+    Rocket as RocketLaunch,
     BookOpen,
     Lightbulb,
-    CheckCircle,
+    CheckCircle2 as CheckCircle,
     Info,
     ArrowRight
-} from "@phosphor-icons/react"
+} from "lucide-react"
 
 export default function InicioRapidoPage() {
     return (
@@ -18,13 +18,13 @@ export default function InicioRapidoPage() {
             <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
                 <div className="max-w-4xl mx-auto">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                         Voltar para Academy
                     </Link>
 
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                            <RocketLaunch size={32} weight="duotone" />
+                            <RocketLaunch size={32} />
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
                             Início Rápido
@@ -43,7 +43,7 @@ export default function InicioRapidoPage() {
                     {/* Section 1 */}
                     <section className="space-y-6">
                         <div className="flex items-center gap-2 text-blue-400 font-bold uppercase tracking-wider text-sm">
-                            <BookOpen size={20} weight="fill" />
+                            <BookOpen size={20} />
                             O que é a TS TOOLS?
                         </div>
                         <div className="bg-card rounded-2xl border border-border p-8 leading-relaxed text-muted-foreground text-lg italic">
@@ -105,7 +105,7 @@ export default function InicioRapidoPage() {
                     {/* Tip Box */}
                     <div className="p-6 rounded-2xl bg-blue-500/5 border border-blue-500/20 flex gap-4">
                         <div className="shrink-0 w-10 h-10 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center">
-                            <Lightbulb size={24} weight="fill" />
+                            <Lightbulb size={24} />
                         </div>
                         <div>
                             <h4 className="font-bold text-blue-400 mb-1">Dica de Especialista</h4>
@@ -123,7 +123,7 @@ export default function InicioRapidoPage() {
                         </div>
                         <Link href="/docs/anatomia-prompt" className="bg-primary hover:bg-primary/90 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
                             Ver Anatomia do Prompt
-                            <ArrowRight size={20} weight="bold" />
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
                 </div>

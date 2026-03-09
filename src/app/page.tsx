@@ -4,20 +4,20 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   Wrench,
-  MagicWand,
+  Wand2 as MagicWand,
   Images,
-  VideoCamera,
+  Video,
   GraduationCap,
-  Buildings,
-  BookOpenText,
-  CaretCircleRight,
-  RocketLaunch,
+  Building2 as Buildings,
+  BookOpen,
+  ArrowRightCircle as CaretCircleRight,
+  Rocket,
   X,
   Link as LinkIcon,
-  UserFocus,
-  Code,
-  DotsSixVertical
-} from "@phosphor-icons/react"
+  UserSquare2 as UserFocus,
+  Code2 as Code,
+  GripVertical as DotsSixVertical
+} from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -83,7 +83,7 @@ const ALL_TOOLS: Tool[] = [
     badgeColor: "bg-blue-500/20 text-blue-400",
     accentColor: "blue",
     description: "Roteiros e direções táticas para geração de vídeo por IA.",
-    icon: <VideoCamera size={32} />,
+    icon: <Video size={32} />,
   },
   {
     id: "gerador-humano",
@@ -103,7 +103,7 @@ const ALL_TOOLS: Tool[] = [
     badgeColor: "bg-cyan-500/20 text-cyan-400",
     accentColor: "cyan",
     description: "Estrutura páginas web de alta conversão (HTML/Tailwind) prontas para IAs criarem.",
-    icon: <Code size={32} weight="bold" />,
+    icon: <Code size={32} />,
   },
 ]
 
@@ -124,7 +124,7 @@ const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     href: "/docs/nichos",
     title: "Manual dos Nichos",
     description: "Aprenda a anatomia, workflow e vocabulário técnico de cada serviço.",
-    icon: <Buildings size={24} weight="fill" />,
+    icon: <Buildings size={24} />,
     accentColor: "primary"
   },
   {
@@ -132,7 +132,7 @@ const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     href: "/docs",
     title: "Prompt Academy",
     description: "Documentação técnica completa sobre a ciência dos prompts comerciais.",
-    icon: <BookOpenText size={24} weight="fill" />,
+    icon: <BookOpen size={24} />,
     accentColor: "primary"
   },
   {
@@ -140,7 +140,7 @@ const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     href: "/ferramentas",
     title: "Hub de Ferramentas",
     description: "O repositório oficial de softwares e recursos validados pela equipe TS.",
-    icon: <LinkIcon size={24} weight="fill" />,
+    icon: <LinkIcon size={24} />,
     badge: "Comunidade",
     badgeColor: "bg-emerald-500/20 text-emerald-500",
     accentColor: "emerald"
@@ -213,7 +213,7 @@ function SortableToolCard({ tool }: { tool: Tool }) {
         {...listeners}
         className="absolute top-3 left-3 p-2 text-muted-foreground/30 hover:text-primary transition-colors cursor-grab active:cursor-grabbing rounded-lg hover:bg-input z-30"
       >
-        <DotsSixVertical size={20} weight="bold" />
+        <DotsSixVertical size={20} />
       </button>
 
       <Link
@@ -282,7 +282,7 @@ function SortableKnowledgeCard({ item }: { item: KnowledgeItem }) {
           className="p-2 text-muted-foreground/40 hover:text-primary transition-colors cursor-grab active:cursor-grabbing rounded-lg hover:bg-input shrink-0"
           onClick={(e) => e.preventDefault()}
         >
-          <DotsSixVertical size={20} weight="bold" />
+          <DotsSixVertical size={20} />
         </button>
 
         <div className={cn(
@@ -323,6 +323,7 @@ export default function Home() {
   const [dontShowAgain, setDontShowAgain] = useState(false)
   const [tools, setTools] = useState<Tool[]>(ALL_TOOLS)
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>(KNOWLEDGE_ITEMS)
+  const [mounted, setMounted] = useState(false)
 
   const MODAL_KEY = 'ts_tools_patch_v2_skip'
 
@@ -338,6 +339,7 @@ export default function Home() {
   )
 
   useEffect(() => {
+    setMounted(true)
     const shouldSkip = localStorage.getItem(MODAL_KEY)
     if (!shouldSkip) {
       const timer = setTimeout(() => setShowModal(true), 800)
@@ -422,7 +424,7 @@ export default function Home() {
       {/* Tools Section */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <Wrench size={24} weight="bold" className="text-primary" />
+          <Wrench size={24} className="text-primary" />
           <h3 className="text-xs font-extrabold uppercase tracking-widest text-primary">
             Ferramentas
           </h3>
@@ -432,29 +434,38 @@ export default function Home() {
           </span>
         </div>
 
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToWindowEdges]}
-        >
-          <SortableContext
-            items={tools.map(t => t.id)}
-            strategy={rectSortingStrategy}
+        {mounted ? (
+          <DndContext
+            id="tools-dnd"
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToWindowEdges]}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {tools.map((tool) => (
-                <SortableToolCard key={tool.id} tool={tool} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={tools.map(t => t.id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {tools.map((tool) => (
+                  <SortableToolCard key={tool.id} tool={tool} />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {tools.map((tool) => (
+              <div key={tool.id} className="h-[280px] bg-card border border-border rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Knowledge Section */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
-          <GraduationCap size={24} weight="bold" className="text-primary" />
+          <GraduationCap size={24} className="text-primary" />
           <h3 className="text-xs font-extrabold uppercase tracking-widest text-primary">
             Conhecimento
           </h3>
@@ -464,28 +475,37 @@ export default function Home() {
           </span>
         </div>
 
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToWindowEdges]}
-        >
-          <SortableContext
-            items={knowledgeItems.map(k => k.id)}
-            strategy={verticalListSortingStrategy}
+        {mounted ? (
+          <DndContext
+            id="knowledge-dnd"
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToWindowEdges]}
           >
-            <div className="flex flex-col gap-4">
-              {knowledgeItems.map((item) => (
-                <SortableKnowledgeCard key={item.id} item={item} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={knowledgeItems.map(k => k.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="flex flex-col gap-4">
+                {knowledgeItems.map((item) => (
+                  <SortableKnowledgeCard key={item.id} item={item} />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {knowledgeItems.map((item) => (
+              <div key={item.id} className="h-24 bg-card border border-border rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Footer */}
       <footer className="py-8 text-center border-t border-border">
-        <p className="text-sm text-muted-foreground font-medium">TSS &copy; {new Date().getFullYear()}. Feito para o Grupo TS.</p>
+        <p className="text-sm text-muted-foreground font-medium">TSS &copy; {mounted ? new Date().getFullYear() : "2024"}. Feito para o Grupo TS.</p>
       </footer>
 
       {/* Patch Notes Modal */}
@@ -494,7 +514,7 @@ export default function Home() {
           <div className="p-6 md:p-8">
             <DialogHeader className="mb-6 text-left">
               <DialogTitle className="flex items-center gap-3 text-2xl font-bold text-foreground">
-                <RocketLaunch size={28} className="text-primary" weight="fill" />
+                <Rocket size={28} className="text-primary" />
                 Patch Notes v2.0
               </DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">Confira as novidades do sistema</p>

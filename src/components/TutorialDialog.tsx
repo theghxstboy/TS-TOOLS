@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MagicWand, ArrowRight, ClipboardText, Robot, X } from "@phosphor-icons/react"
+import { Wand2 as MagicWand, ArrowRight, ClipboardList as ClipboardText, Bot as Robot, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TutorialDialogProps {
@@ -37,7 +37,7 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <MagicWand size={24} weight="fill" />
+                                    <MagicWand size={24} />
                                 </div>
                                 <DialogTitle className="text-2xl font-bold tracking-tight">
                                     Como funciona o <span className="text-primary">{pageTitle}</span>
@@ -57,7 +57,7 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                         {/* Step 1 */}
                         <div className="flex flex-col items-center text-center gap-4 relative z-10">
                             <div className="size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg group-hover:scale-110 transition-transform">
-                                <MagicWand size={32} weight="duotone" className="text-primary" />
+                                <MagicWand size={32} className="text-primary" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">1. Escolha</h4>
@@ -68,7 +68,7 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                         {/* Step 2 */}
                         <div className="flex flex-col items-center text-center gap-4 relative z-10">
                             <div className="size-16 rounded-2xl bg-primary text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.3)]">
-                                <Robot size={32} weight="fill" />
+                                <Robot size={32} />
                             </div>
                             <div>
                                 <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">2. Sistema Gera</h4>
@@ -79,7 +79,7 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                         {/* Step 3 */}
                         <div className="flex flex-col items-center text-center gap-4 relative z-10">
                             <div className="size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg">
-                                <ClipboardText size={32} weight="duotone" className="text-primary" />
+                                <ClipboardText size={32} className="text-primary" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">3. Cole na IA</h4>

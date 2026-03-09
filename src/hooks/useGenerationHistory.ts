@@ -1,32 +1,21 @@
-import { useState, useEffect } from 'react';
+"use client"
 
-export interface HistoryItem<T = any> {
-  id: string;
-  generatorId: string;
-  timestamp: number;
-  payload: T;
-  prompt: string;
-}
+import { useCallback } from 'react';
+import { useLocalStorage } from './useLocalStorage';
+import { HistoryItem, GeneratorId } from '@/types/generator';
 
 const MAX_HISTORY_ITEMS = 50;
 
 export function useGenerationHistory<T>(generatorId: string) {
-  const [history, setHistory] = useState<HistoryItem<T>[]>([]);
-
-  // Load history from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedHistory = localStorage.getItem(`ts-tools-history-${generatorId}`);
-      if (storedHistory) {
-        setHistory(JSON.parse(storedHistory));
-      }
-    } catch (error) {
-      console.error('Failed to load history from localStorage', error);
-    }
-  }, [generatorId]);
+  const key = `ts-tools-history-${generatorId}`;
+  const {
+    value: history,
+    setValue: setHistory,
+    remove: clearHistory
+  } = useLocalStorage<HistoryItem<T>[]>(key, []);
 
   // Save history item
-  const saveHistory = (payload: T, prompt: string) => {
+  const saveHistory = useCallback((payload: T, prompt: string) => {
     const newItem: HistoryItem<T> = {
       id: crypto.randomUUID(),
       generatorId,
@@ -37,26 +26,9 @@ export function useGenerationHistory<T>(generatorId: string) {
 
     setHistory((prevHistory) => {
       const updatedHistory = [newItem, ...prevHistory].slice(0, MAX_HISTORY_ITEMS);
-      
-      try {
-        localStorage.setItem(`ts-tools-history-${generatorId}`, JSON.stringify(updatedHistory));
-      } catch (error) {
-        console.error('Failed to save history to localStorage', error);
-      }
-
       return updatedHistory;
     });
-  };
-
-  // Clear history
-  const clearHistory = () => {
-    setHistory([]);
-    try {
-      localStorage.removeItem(`ts-tools-history-${generatorId}`);
-    } catch (error) {
-      console.error('Failed to clear history from localStorage', error);
-    }
-  };
+  }, [generatorId, setHistory]);
 
   return {
     history,

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Tool } from "@/lib/tools"
-import { ArrowLeft, ClockCounterClockwise, CheckCircle, XCircle, CircleDashed } from "@phosphor-icons/react"
+import { ArrowLeft, History as ClockCounterClockwise, CheckCircle2 as CheckCircle, XCircle, Loader2 as CircleDashed } from "lucide-react"
 
 export default function MinhasFerramentasPage() {
     const { data: session, status } = useSession();
@@ -51,20 +51,20 @@ export default function MinhasFerramentasPage() {
             case "approved":
                 return (
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20">
-                        <CheckCircle size={14} weight="bold" /> Aprovada
+                        <CheckCircle size={14} /> Aprovada
                     </div>
                 );
             case "rejected":
                 return (
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-xs font-bold border border-red-500/20">
-                        <XCircle size={14} weight="bold" /> Rejeitada
+                        <XCircle size={14} /> Rejeitada
                     </div>
                 );
             case "pending":
             default:
                 return (
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold border border-amber-500/20">
-                        <CircleDashed size={14} weight="bold" className="animate-spin-slow" /> Em Análise
+                        <CircleDashed size={14} className="animate-spin" /> Em Análise
                     </div>
                 );
         }
@@ -74,13 +74,13 @@ export default function MinhasFerramentasPage() {
         <div className="min-h-screen bg-input font-sans text-foreground pb-20">
             <div className="max-w-4xl mx-auto px-6 pt-16 md:pt-24">
                 <Link href="/ferramentas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                    <ArrowLeft size={18} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                     Voltar para o Hub
                 </Link>
 
                 <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                        <ClockCounterClockwise size={28} weight="duotone" />
+                        <ClockCounterClockwise size={28} />
                     </div>
                     <div>
                         <h1 className="text-3xl font-extrabold text-foreground tracking-tight">

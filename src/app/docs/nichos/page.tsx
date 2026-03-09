@@ -4,26 +4,27 @@ import { useState } from "react"
 import Link from "next/link"
 import {
     ArrowLeft,
-    Buildings,
+    Building2 as Buildings,
     Wrench,
-    Tree,
-    GridFour,
+    TreeDeciduous as Tree,
+    Grid,
     PlusSquare,
     PaintRoller,
-    HouseLine,
-    SquaresFour,
+    Home as HouseLine,
+    LayoutGrid as SquaresFour,
     Thermometer,
     Table,
-    Stack,
-    TreeEvergreen,
+    Layers as Stack,
+    TreePine as TreeEvergreen,
     ShieldCheck,
     PaintBucket,
-    Recycle,
-    Plant,
-    Broom,
-    MagnifyingGlass,
+    RotateCcw as Recycle,
+    Sprout as Plant,
+    Brush as Broom,
+    Sparkles,
+    Search as MagnifyingGlass,
     ArrowRight
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { Input } from "@/components/ui/input"
 
 // Data structure
@@ -56,7 +57,7 @@ const niches = [
         id: "framing",
         title: "Framing",
         subtitle: "Estrutura & Enquadramento",
-        icon: GridFour,
+        icon: Grid,
         tags: ["Paredes", "Telhado", "Steel Framing"],
         group: "Construção & Reformas"
     },
@@ -163,6 +164,14 @@ const niches = [
         icon: Broom,
         tags: ["Deep Clean", "Move-In/Out", "Janitorial"],
         group: "Serviços & Limpeza"
+    },
+    {
+        id: "estetica",
+        title: "Estética",
+        subtitle: "Clínicas, Skincare & Beleza nos EUA",
+        icon: Sparkles,
+        tags: ["Skincare", "Beauty", "Facial", "Wellness"],
+        group: "Saúde & Beleza"
     }
 ]
 
@@ -189,13 +198,13 @@ export default function NichosPage() {
             <div className="pt-20 pb-12 px-6 text-center border-b border-border bg-gradient-to-b from-amber-500/10 to-transparent relative">
                 <div className="absolute top-8 left-8 md:top-12 md:left-12">
                     <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm">
-                        <ArrowLeft size={20} weight="bold" />
+                        <ArrowLeft size={20} />
                         Voltar para Academy
                     </Link>
                 </div>
 
                 <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-                    <Buildings size={16} weight="fill" />
+                    <Buildings size={16} />
                     Home Services EUA
                 </div>
 
@@ -210,7 +219,7 @@ export default function NichosPage() {
             {/* Sticky Search Bar */}
             <div className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border py-4 px-6 shadow-sm">
                 <div className="max-w-3xl mx-auto flex items-center relative">
-                    <MagnifyingGlass size={20} className="absolute left-4 text-muted-foreground" weight="bold" />
+                    <MagnifyingGlass size={20} className="absolute left-4 text-muted-foreground" />
                     <Input
                         type="text"
                         placeholder="Pesquisar nicho — ex: painting, flooring, roofing..."
@@ -229,7 +238,7 @@ export default function NichosPage() {
 
                 {filteredNiches.length === 0 ? (
                     <div className="text-center py-20">
-                        <MagnifyingGlass size={64} weight="duotone" className="mx-auto text-muted-foreground mb-4" />
+                        <MagnifyingGlass size={64} className="mx-auto text-muted-foreground mb-4" />
                         <h3 className="text-xl font-bold text-foreground mb-2">Nenhum nicho encontrado</h3>
                         <p className="text-muted-foreground">Tente buscar por termos como "painting", "flooring" ou "roofing".</p>
                     </div>
@@ -252,7 +261,7 @@ export default function NichosPage() {
                                                 <div className="absolute top-0 left-0 w-full h-1 bg-orange-500 origin-left transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
 
                                                 <div className="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5 border border-orange-100">
-                                                    <niche.icon size={28} weight="duotone" />
+                                                    <niche.icon size={28} />
                                                 </div>
 
                                                 <div className="mb-4">
@@ -269,7 +278,7 @@ export default function NichosPage() {
                                                 </div>
 
                                                 <div className="flex items-center gap-2 text-sm font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                                                    Ler guia detalhado <ArrowRight size={16} weight="bold" />
+                                                    Ler guia detalhado <ArrowRight size={16} />
                                                 </div>
                                             </Link>
                                         ))}
@@ -283,7 +292,7 @@ export default function NichosPage() {
             </main>
 
             <footer className="text-center py-8 border-t border-border text-muted-foreground text-sm mt-auto">
-                <p>TS TOOLS Academy &copy; {new Date().getFullYear()}. Documentação Interna para o Grupo TS.</p>
+                <p suppressHydrationWarning>TS TOOLS Academy &copy; {new Date().getFullYear()}. Documentação Interna para o Grupo TS.</p>
             </footer>
         </div>
     )

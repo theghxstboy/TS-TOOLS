@@ -6,22 +6,24 @@ import {
     ArrowLeft,
     BookOpen,
     ListChecks,
-    TerminalWindow,
-    Sparkle,
+    Terminal as TerminalWindow,
+    Sparkles as Sparkle,
     Copy,
-    CheckCircle,
-    Warning,
+    CheckCircle2 as CheckCircle,
+    AlertTriangle as Warning,
     Check,
-    Images,
-    WarningCircle,
-    MagicWand,
-    Question
-} from "@phosphor-icons/react"
+    Image as Images,
+    AlertCircle as WarningCircle,
+    Wand2 as MagicWand,
+    HelpCircle as Question
+} from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
-import { useGenerationHistory, HistoryItem } from "@/hooks/useGenerationHistory"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { HistoryItem } from "@/types/generator"
 import { useSearchParams } from "next/navigation"
+import { useClipboard } from "@/hooks/useClipboard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,14 +40,33 @@ import {
 import { cn } from "@/lib/utils"
 import { PRESETS_ANTES_DEPOIS } from "@/constants/presets"
 
+interface AntesDepoisPayload {
+    mode: "simple" | "advanced";
+    niche?: string;
+    nicheOther?: string;
+    focus?: string;
+    focusOther?: string;
+    stateBefore?: string;
+    stateBeforeOther?: string;
+    stateAfter?: string;
+    stateAfterOther?: string;
+    style?: string;
+    styleOther?: string;
+    nicheAdv?: string;
+    focusAdv?: string;
+    stateBeforeAdv?: string;
+    stateAfterAdv?: string;
+    negativeAdv?: string;
+}
+
 function AntesEDepoisContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
-    const { history, saveHistory } = useGenerationHistory("antes-depois")
+    const { history, saveHistory } = useGenerationHistory<AntesDepoisPayload>("antes-depois")
     const searchParams = useSearchParams()
 
-    const handleRestore = (item: HistoryItem) => {
+    const handleRestore = (item: HistoryItem<AntesDepoisPayload>) => {
         const p = item.payload;
         if (!p) return;
 
@@ -71,7 +92,7 @@ function AntesEDepoisContent() {
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
-            const itemToRestore = history.find(item => item.id === restoreId)
+            const itemToRestore = history.find((item: HistoryItem<AntesDepoisPayload>) => item.id === restoreId)
             if (itemToRestore) {
                 handleRestore(itemToRestore)
             }
@@ -104,7 +125,7 @@ function AntesEDepoisContent() {
     // Global State
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
-    const [isCopied, setIsCopied] = useState(false)
+    const { isCopied, copy } = useClipboard()
 
     const handlePresetClick = (id: string) => {
         setSelectedPreset(id);
@@ -196,37 +217,7 @@ function AntesEDepoisContent() {
         setSelectedPreset("")
     }
 
-    const handleCopy = async () => {
-        if (!generatedPrompt) return
-        try {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(generatedPrompt)
-                setIsCopied(true)
-                setTimeout(() => setIsCopied(false), 2000)
-            } else {
-                const textArea = document.createElement("textarea")
-                textArea.value = generatedPrompt
-                textArea.style.position = "fixed"
-                textArea.style.left = "-9999px"
-                textArea.style.top = "0"
-                document.body.appendChild(textArea)
-                textArea.focus()
-                textArea.select()
-                try {
-                    const successful = document.execCommand('copy')
-                    if (successful) {
-                        setIsCopied(true)
-                        setTimeout(() => setIsCopied(false), 2000)
-                    }
-                } catch (err) {
-                    console.error('Fallback copy failed', err)
-                }
-                document.body.removeChild(textArea)
-            }
-        } catch (err) {
-            console.error('Failed to copy', err)
-        }
-    }
+    const handleCopy = () => copy(generatedPrompt)
 
     return (
         <div className="flex-1 w-full relative font-sans">
@@ -234,7 +225,7 @@ function AntesEDepoisContent() {
                 {/* Navigation Top */}
                 <div className="flex items-center justify-end mb-8">
                     <Link href="/docs/nichos" className="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-primary/80 transition-colors shadow-sm">
-                        <BookOpen size={20} weight="fill" />
+                        <BookOpen size={20} />
                         DOCS
                     </Link>
                 </div>
@@ -243,7 +234,7 @@ function AntesEDepoisContent() {
                 <div className="text-center mb-12">
                     <div className="flex items-center gap-4 justify-center">
                         <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                            <Sparkle size={28} weight="fill" />
+                            <Sparkle size={28} />
                         </div>
                         <div>
                             <div className="flex items-center gap-3">
@@ -295,7 +286,7 @@ function AntesEDepoisContent() {
                                             "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
                                             selectedPreset === preset.id ? "bg-purple-500 border-purple-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                         )}>
-                                            {selectedPreset === preset.id && <Check size={14} weight="bold" />}
+                                            {selectedPreset === preset.id && <Check size={14} />}
                                         </div>
 
                                         <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
@@ -321,14 +312,14 @@ function AntesEDepoisContent() {
                                         onClick={() => setMode("simple")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <ListChecks size={18} weight={mode === 'simple' ? 'bold' : 'regular'} />
+                                        <ListChecks size={18} />
                                         Modo Rápido
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
-                                        <TerminalWindow size={18} weight={mode === 'advanced' ? 'bold' : 'regular'} />
+                                        <TerminalWindow size={18} />
                                         Modo Custom
                                         <span className="text-[0.6rem] ml-1 bg-purple-100 text-primary px-1.5 py-0.5 rounded uppercase leading-none">BETA</span>
                                     </button>
@@ -408,7 +399,7 @@ function AntesEDepoisContent() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-xl border border-border bg-background">
                                             <div className="space-y-2">
                                                 <Label className="font-semibold text-red-500 flex items-center gap-1.5">
-                                                    <Warning size={18} weight="bold" />
+                                                    <Warning size={18} />
                                                     Estado "Antes"
                                                 </Label>
                                                 <Select value={stateBefore} onValueChange={setStateBefore}>
@@ -431,7 +422,7 @@ function AntesEDepoisContent() {
 
                                             <div className="space-y-2">
                                                 <Label className="font-semibold text-emerald-500 flex items-center gap-1.5">
-                                                    <CheckCircle size={18} weight="bold" />
+                                                    <CheckCircle size={18} />
                                                     Estado "Depois"
                                                 </Label>
                                                 <Select value={stateAfter} onValueChange={setStateAfter}>
@@ -473,7 +464,7 @@ function AntesEDepoisContent() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-xl border border-border bg-background">
                                             <div className="space-y-2">
                                                 <Label className="font-semibold text-red-500 flex items-center gap-1.5">
-                                                    <Warning size={18} weight="bold" />
+                                                    <Warning size={18} />
                                                     Estado "Antes" (Problema) <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Textarea
@@ -486,7 +477,7 @@ function AntesEDepoisContent() {
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="font-semibold text-emerald-500 flex items-center gap-1.5">
-                                                    <CheckCircle size={18} weight="bold" />
+                                                    <CheckCircle size={18} />
                                                     Estado "Depois" (Solução) <span className="text-red-500">*</span>
                                                 </Label>
                                                 <Textarea
@@ -539,7 +530,7 @@ function AntesEDepoisContent() {
                                         onClick={handleGenerate}
                                         className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${isGenerating ? 'bg-purple-600 opacity-90' : 'bg-purple-600 hover:bg-purple-700 hover:-translate-y-1'}`}
                                     >
-                                        {isGenerating ? <CheckCircle size={24} weight="fill" className="mr-2" /> : <Sparkle size={24} weight="fill" className="mr-2" />}
+                                        {isGenerating ? <CheckCircle size={24} /> : <Sparkle size={24} />}
                                         {isGenerating ? 'Gerado com Sucesso!' : 'Gerar Prompt Antes/Depois'}
                                     </Button>
                                 </div>
@@ -581,14 +572,14 @@ function AntesEDepoisContent() {
                                                 onClick={handleCopy}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
-                                                {isCopied ? <Check size={20} weight="bold" className="mr-2" /> : <Copy size={20} weight="bold" className="mr-2" />}
+                                                {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar Prompt'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Images size={48} weight="duotone" className="text-purple-500 mb-4" />
+                                        <Images size={48} className="text-purple-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Preencha os campos e clique em "Gerar" para ver a estrutura split-screen aqui.
                                         </p>
@@ -598,7 +589,7 @@ function AntesEDepoisContent() {
 
                             <div className="bg-amber-500/10 border-t border-amber-500/20 p-4">
                                 <h3 className="text-amber-500 font-bold text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                    <WarningCircle size={16} weight="bold" />
+                                    <WarningCircle size={16} />
                                     Restrições de Texto na IA
                                 </h3>
                                 <p className="text-muted-foreground text-xs leading-relaxed">
