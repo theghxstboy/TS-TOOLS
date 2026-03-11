@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useRef, useCallback, useEffect, Suspense } from "react"
 import {
     ChevronLeft,
     ChevronRight,
@@ -188,6 +188,14 @@ function ImagePreviewGrid({ files, onRemove }: { files: UploadedFile[]; onRemove
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function WorkflowPage() {
+    return (
+        <Suspense fallback={<div className="flex-1 p-8 rounded-2xl flex items-center justify-center min-h-[50vh] text-muted-foreground font-semibold">Carregando...</div>}>
+            <WorkflowContent />
+        </Suspense>
+    )
+}
+
+function WorkflowContent() {
     // Dados do serviço
     const [service, setService] = useState("")
     const [serviceOther, setServiceOther] = useState("")
