@@ -54,7 +54,7 @@ interface WorkflowPayload {
     serviceOther?: string;
     city?: string;
     state?: string;
-    seal?: string;
+    seals?: string[];
     copyTone?: string;
     cta?: string;
     photoDesc?: string;
@@ -62,8 +62,14 @@ interface WorkflowPayload {
     primaryColor?: string;
     secondaryColor?: string;
     aspectRatio?: string;
+    specificCopy?: string;
+    sealOther?: string;
+    copyToneOther?: string;
+    ctaOther?: string;
+    aspectRatioOther?: string;
     hasPhotos: boolean;
     hasLogo: boolean;
+    hasReferencePhotos: boolean;
 }
 
 interface UploadedFile {
@@ -89,6 +95,7 @@ const SEALS_OPTIONS = [
     { value: "No Hidden Fees", label: "💰 No Hidden Fees" },
     { value: "Same Day Service", label: "⚡ Same Day Service" },
     { value: "Financing Available", label: "💳 Financing Available" },
+    { value: "other", label: "Outro (Personalizado)" },
 ]
 
 const COPY_TONE_OPTIONS = [
@@ -101,6 +108,7 @@ const COPY_TONE_OPTIONS = [
     { value: "Custo-Benefício / Economia (melhor preço, sem taxas escondidas)", label: "💰 Custo-Benefício" },
     { value: "Localidade / Comunidade (empresa local, atende sua região)", label: "📍 Local / Comunidade" },
     { value: "Garantia / Confiança (satisfação garantida, licenciado e segurado)", label: "🛡️ Garantia / Confiança" },
+    { value: "other", label: "Outro (Personalizado)" },
 ]
 
 const CTA_OPTIONS = [
@@ -115,6 +123,7 @@ const CTA_OPTIONS = [
     { value: "See Our Work — Call Now!", label: "👀 See Our Work — Call Now!" },
     { value: "Get Started Today!", label: "🚀 Get Started Today!" },
     { value: "Don't Wait — Call Now!", label: "⏰ Don't Wait — Call Now!" },
+    { value: "other", label: "Outro (Personalizado)" },
 ]
 
 const ASPECT_RATIO_OPTIONS = [
@@ -123,6 +132,7 @@ const ASPECT_RATIO_OPTIONS = [
     { value: "4:5", label: "Vertical (4:5) - Feed Instagram" },
     { value: "9:16", label: "Tela Cheia (9:16) - Stories / Reels" },
     { value: "16:9", label: "Paisagem (16:9) - YouTube / TV" },
+    { value: "other", label: "Outro (Personalizado)" },
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -203,10 +213,19 @@ function WorkflowContent() {
     const [state, setState] = useState("")
 
     // Criativo
-    const [seal, setSeal] = useState("none")
+    const [seals, setSeals] = useState<string[]>([])
+    const [sealOther, setSealOther] = useState("")
     const [copyTone, setCopyTone] = useState("none")
+    const [copyToneOther, setCopyToneOther] = useState("")
     const [cta, setCta] = useState("none")
+    const [ctaOther, setCtaOther] = useState("")
     const [aspectRatio, setAspectRatio] = useState("none")
+    const [aspectRatioOther, setAspectRatioOther] = useState("")
+
+    // Avançado
+    const [isAdvancedMode, setIsAdvancedMode] = useState(false)
+    const [specificCopy, setSpecificCopy] = useState("")
+    const [referencePhotos, setReferencePhotos] = useState<UploadedFile[]>([])
 
     // Fotos e logo
     const [photos, setPhotos] = useState<UploadedFile[]>([])
@@ -245,10 +264,19 @@ function WorkflowContent() {
         setServiceOther(p.serviceOther || "")
         setCity(p.city || "")
         setState(p.state || "")
-        setSeal(p.seal || "none")
+        setSeals(p.seals || [])
         setCopyTone(p.copyTone || "none")
         setCta(p.cta || "none")
         setAspectRatio(p.aspectRatio || "none")
+        setSealOther(p.sealOther || "")
+        setCopyToneOther(p.copyToneOther || "")
+        setCtaOther(p.ctaOther || "")
+        setAspectRatioOther(p.aspectRatioOther || "")
+        setSpecificCopy(p.specificCopy || "")
+        // If we restore a payload with advanced configurations, auto-enable advanced mode
+        if (p.specificCopy || p.hasReferencePhotos) {
+            setIsAdvancedMode(true)
+        }
         setPhotoDesc(p.photoDesc || "")
         setExtraNotes(p.extraNotes || "")
         setPrimaryColor(p.primaryColor || "#FF6B00")
@@ -262,11 +290,13 @@ function WorkflowContent() {
     // Popup de imagens
     const [showImagePopup, setShowImagePopup] = useState(false)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
-    const [isImageCopied, setIsImageCopied] = useState(false)
+    const [currentRefIndex, setCurrentRefIndex] = useState(0)
+    const [copiedType, setCopiedType] = useState<"prompt" | "photo" | "logo" | "ref" | null>(null)
 
     const allImages = [
         ...(logoFile ? [{ ...logoFile, type: "Logo" }] : []),
-        ...photos.map((p, i) => ({ ...p, type: `Foto ${i + 1}` }))
+        ...photos.map((p, i) => ({ ...p, type: `Foto ${i + 1}` })),
+        ...(isAdvancedMode ? referencePhotos.map((p, i) => ({ ...p, type: `Ref ${i + 1}` })) : [])
     ]
 
     const { isCopied, copy } = useClipboard()
@@ -319,7 +349,7 @@ function WorkflowContent() {
         if (logoInputRef.current) logoInputRef.current.value = ""
     }
 
-    const copyImageToClipboard = async (dataUrl: string) => {
+    const copyImageToClipboard = async (dataUrl: string, type: "photo" | "logo" | "ref") => {
         try {
             // Criar imagem temporária para desenhar no Canvas (resolve suporte a JPEG)
             const img = new Image()
@@ -342,13 +372,17 @@ function WorkflowContent() {
             const item = new ClipboardItem({ "image/png": blob })
             await navigator.clipboard.write([item])
             
-            setIsImageCopied(true)
-            setTimeout(() => setIsImageCopied(false), 2000)
+            setCopiedType(type)
+            setTimeout(() => setCopiedType(null), 2000)
 
-            // Avançar para a próxima imagem automaticamente após 1 segundo (feedback visual primeiro)
-            if (allImages.length > 1) {
+            // Avançar para a próxima imagem automaticamente se for galeria
+            if (type === "photo" && photos.length > 1) {
                 setTimeout(() => {
-                    setCurrentImageIndex((prev) => (prev + 1) % allImages.length)
+                    setCurrentImageIndex((prev) => (prev + 1) % photos.length)
+                }, 800)
+            } else if (type === "ref" && referencePhotos.length > 1) {
+                setTimeout(() => {
+                    setCurrentRefIndex((prev) => (prev + 1) % referencePhotos.length)
                 }, 800)
             }
         } catch (err) {
@@ -373,14 +407,34 @@ function WorkflowContent() {
 • Primária: ${primaryColor}  |  Secundária: ${secondaryColor}
 → Use essas cores exatas nos elementos de marca, botões e destaques do criativo.`
 
-        const sealSection = seal !== "none" ? `\n🛡️ SELO DE CREDIBILIDADE:\n→ Incluir destaque visual com: "${seal}"` : ""
-        const copySection = copyTone !== "none" ? `\n✍️ TOM DA COPY:\n→ ${copyTone}` : ""
-        const ctaSection = cta !== "none" ? `\n🖱️ BOTÃO CTA:\n→ Texto do botão: "${cta}"` : ""
-        const aspectRatioSection = aspectRatio !== "none" ? `\n📐 PROPORÇÃO/FORMATO:\n→ O criativo deve seguir a proporção ${aspectRatio} exata.` : ""
+        const finalCopyTone = copyTone === "other" ? copyToneOther : copyTone
+        const finalCta = cta === "other" ? ctaOther : cta
+        const finalAspectRatio = aspectRatio === "other" ? aspectRatioOther : aspectRatio
+
+        const activeSeals = seals
+            .filter(s => s !== "none")
+            .map(s => s === "other" ? sealOther : s)
+            .filter(Boolean);
+
+        const sealSection = activeSeals.length > 0 ? `\n🛡️ SELO(S) DE CREDIBILIDADE:\n→ Incluir destaque visual com: ${activeSeals.map(s => `"${s}"`).join(", ")}` : ""
+        
+        let copySection = ""
+        if (specificCopy && isAdvancedMode) {
+            copySection = `\n✍️ COPY EXATA (APLICAR EXATAMENTE ESTE TEXTO):\n"${specificCopy}"`
+        } else if (finalCopyTone !== "none" && finalCopyTone !== "") {
+            copySection = `\n✍️ TOM DA COPY:\n→ ${finalCopyTone}`
+        }
+
+        const ctaSection = finalCta !== "none" && finalCta !== "" ? `\n🖱️ BOTÃO CTA:\n→ Texto do botão: "${finalCta}"` : ""
+        const aspectRatioSection = finalAspectRatio !== "none" && finalAspectRatio !== "" ? `\n📐 PROPORÇÃO/FORMATO:\n→ O criativo deve seguir a proporção ${finalAspectRatio} exata.` : ""
 
         const photosSection = photos.length > 0
             ? photos.map((p, i) => `  • Foto ${i + 1}: ${p.name}`).join("\n")
             : "  • Nenhuma foto anexada"
+
+        const refPhotosSection = referencePhotos.length > 0 && isAdvancedMode
+            ? `\n🖼️ FOTOS DE REFERÊNCIA/INSPIRAÇÃO:\n${referencePhotos.map((p, i) => `  • Ref ${i + 1}: ${p.name}`).join("\n")}\n  ⚠️ (Use estas imagens APENAS como estilo de inspiração, NÃO AS INSIRA DIRETAMENTE NO CRIATIVO)`
+            : ""
 
         const prompt = `🔧 WORKFLOW CRIATIVO — HOME SERVICES USA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -390,7 +444,7 @@ function WorkflowContent() {
 • Região: ${location}
 
 📸 FOTOS DO CLIENTE:
-${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}
+${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}${refPhotosSection}
 
 🏷️ LOGO DO CLIENTE: ${logoInfo}
 
@@ -414,9 +468,9 @@ Analise as fotos e a logo do cliente e crie um criativo profissional para tráfe
    → Headline poderosa que conecta com o problema do cliente
 
 3. ELEMENTOS VISUAIS:
-   → ⚠️ IMPORTANTE: NÃO ALTERE NADA NA LOGO FORNECIDA. Mantenha a integridade total da marca e cores.${seal !== "none" ? `
-   → Incluir selo: "${seal}" em posição de destaque` : ""}${cta !== "none" ? `
-   → Botão CTA com texto: "${cta}"` : `
+   → ⚠️ IMPORTANTE: NÃO ALTERE NADA NA LOGO FORNECIDA. Mantenha a integridade total da marca e cores.${activeSeals.length > 0 ? `
+   → Incluir selos: ${activeSeals.map(s => `"${s}"`).join(", ")} em posição de destaque` : ""}${finalCta !== "none" && finalCta !== "" ? `
+   → Botão CTA com texto: "${finalCta}"` : `
    → CTA forte e visível`}
    → Layout Mobile-First (maioria vê em celular)
 ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
@@ -431,19 +485,37 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 serviceOther,
                 city,
                 state,
-                seal,
+                seals,
                 copyTone,
                 cta,
+                aspectRatio,
+                sealOther,
+                copyToneOther,
+                ctaOther,
+                aspectRatioOther,
+                specificCopy: isAdvancedMode ? specificCopy : undefined,
                 photoDesc,
                 extraNotes,
                 primaryColor,
                 secondaryColor,
-                aspectRatio,
                 hasPhotos: photos.length > 0,
+                hasReferencePhotos: isAdvancedMode ? referencePhotos.length > 0 : false,
                 hasLogo: !!logoFile
             }, prompt)
         }, 700)
     }
+
+    // Handlers adicionais do avançado
+    const handleRefPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files) return
+        const newFiles: UploadedFile[] = await Promise.all(
+            Array.from(files).map(async (file) => ({ file, previewUrl: await toBase64(file), name: file.name }))
+        )
+        setReferencePhotos((prev) => [...prev, ...newFiles])
+    }
+
+    const refPhotoInputRef = useRef<HTMLInputElement>(null)
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -572,14 +644,34 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                 {/* Selos */}
                                 <div className="space-y-2">
                                     <Label className="font-semibold text-foreground flex items-center gap-1.5">
-                                        <Shield size={14} className="text-emerald-400" /> Selo de Credibilidade
+                                        <Shield size={14} className="text-emerald-400" /> Selos de Credibilidade <span className="text-muted-foreground font-normal text-xs ml-auto">(Opcional, selecione vários)</span>
                                     </Label>
-                                    <Select value={seal} onValueChange={setSeal}>
-                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue /></SelectTrigger>
+                                    <Select value="none" onValueChange={(val) => {
+                                        if (val === "none") return;
+                                        if (!seals.includes(val)) setSeals([...seals, val]);
+                                    }}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue placeholder="Adicionar selo..." /></SelectTrigger>
                                         <SelectContent>
                                             {SEALS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    
+                                    {seals.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-3 p-3 bg-input/20 border border-border rounded-lg">
+                                            {seals.map(s => (
+                                                <div key={s} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 px-2.5 py-1.5 rounded-full border border-emerald-500/20">
+                                                    {s === "other" ? (sealOther || "Outro Selo") : SEALS_OPTIONS.find(o => o.value === s)?.label}
+                                                    <button onClick={() => setSeals(seals.filter(x => x !== s))} className="hover:bg-emerald-500/20 rounded-full p-0.5 transition-colors">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {seals.includes("other") && (
+                                        <Input placeholder="Especifique o(s) selo(s)..." value={sealOther} onChange={(e) => setSealOther(e.target.value)} className="mt-2" />
+                                    )}
                                 </div>
 
                                 {/* Tom da Copy */}
@@ -593,6 +685,9 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             {COPY_TONE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    {copyTone === "other" && (
+                                        <Input placeholder="Especifique o tom (ex: Divertido, Urgente para Black Friday)..." value={copyToneOther} onChange={(e) => setCopyToneOther(e.target.value)} className="mt-2" />
+                                    )}
                                 </div>
 
                                 {/* CTA */}
@@ -606,6 +701,9 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             {CTA_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    {cta === "other" && (
+                                        <Input placeholder="Especifique o botão CTA (ex: Solicite Orçamento)..." value={ctaOther} onChange={(e) => setCtaOther(e.target.value)} className="mt-2" />
+                                    )}
                                 </div>
 
                                 {/* Aspect Ratio */}
@@ -619,16 +717,18 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             {ASPECT_RATIO_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
+                                    {aspectRatio === "other" && (
+                                        <Input placeholder="Especifique o formato (ex: 2:1 panorâmico)..." value={aspectRatioOther} onChange={(e) => setAspectRatioOther(e.target.value)} className="mt-2" />
+                                    )}
                                 </div>
                             </div>
 
                             {/* Preview chips */}
-                            {(seal !== "none" || copyTone !== "none" || cta !== "none" || aspectRatio !== "none") && (
+                            {(copyTone !== "none" || cta !== "none" || aspectRatio !== "none") && (
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    {aspectRatio !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-full border border-purple-500/20">{ASPECT_RATIO_OPTIONS.find(o => o.value === aspectRatio)?.label}</span>}
-                                    {seal !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">{SEALS_OPTIONS.find(o => o.value === seal)?.label}</span>}
-                                    {copyTone !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/20">{COPY_TONE_OPTIONS.find(o => o.value === copyTone)?.label}</span>}
-                                    {cta !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20">{CTA_OPTIONS.find(o => o.value === cta)?.label}</span>}
+                                    {aspectRatio !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-full border border-purple-500/20">{aspectRatio === "other" ? (aspectRatioOther || "Outro Formato") : ASPECT_RATIO_OPTIONS.find(o => o.value === aspectRatio)?.label}</span>}
+                                    {copyTone !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/20">{copyTone === "other" ? (copyToneOther || "Outro Tom") : COPY_TONE_OPTIONS.find(o => o.value === copyTone)?.label}</span>}
+                                    {cta !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20">{cta === "other" ? (ctaOther || "Outro CTA") : CTA_OPTIONS.find(o => o.value === cta)?.label}</span>}
                                 </div>
                             )}
                         </div>
@@ -739,6 +839,69 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                 rows={3} className="resize-none"
                                 value={extraNotes} onChange={(e) => setExtraNotes(e.target.value)}
                             />
+                        </div>
+
+                        {/* Card 6: Avançado */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8 overflow-hidden transition-all duration-300">
+                            <div className="flex items-center justify-between cursor-pointer" onClick={() => setIsAdvancedMode(!isAdvancedMode)}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${isAdvancedMode ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                                        <Sparkles size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-lg font-bold text-foreground">Modo Avançado</h2>
+                                        <p className="text-xs text-muted-foreground">Force uma copy específica e adicione fotos de referência</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${isAdvancedMode ? 'bg-primary' : 'bg-input'}`}
+                                >
+                                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${isAdvancedMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {isAdvancedMode && (
+                                <div className="mt-8 pt-6 border-t border-border space-y-8 animate-in slide-in-from-top-4 fade-in duration-300">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label className="font-semibold text-foreground flex items-center gap-1.5 text-base">
+                                                <MessageSquare size={16} className="text-primary" /> Copy Específica
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground mt-1 mb-3">
+                                                Deseja forçar um texto exato no criativo? Cole a copy final aqui. Isso substituirá as instruções de "Tom da Copy".
+                                            </p>
+                                            <Textarea
+                                                placeholder="Cole a copy exata que deve aparecer no design..."
+                                                rows={4} className="resize-none"
+                                                value={specificCopy} onChange={(e) => setSpecificCopy(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <Label className="font-semibold text-foreground flex items-center gap-1.5 text-base">
+                                                <ImagePlus size={16} className="text-blue-400" /> Fotos de Referência (Inspiração)
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground mt-1 mb-3">
+                                                Anexe criativos ou designs que você gostou. A IA usará apenas como inspiração visual, sem misturar com as fotos originais do cliente.
+                                            </p>
+                                            
+                                            <div
+                                                onClick={() => refPhotoInputRef.current?.click()}
+                                                className="border-2 border-dashed border-border hover:border-primary/50 rounded-xl p-5 text-center cursor-pointer transition-all group hover:bg-primary/5"
+                                            >
+                                                <Upload size={24} className="mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                <p className="text-sm font-semibold text-muted-foreground group-hover:text-foreground">
+                                                    Arraste referências ou <span className="text-primary">clique para anexar</span>
+                                                </p>
+                                                <input ref={refPhotoInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleRefPhotosUpload} />
+                                            </div>
+                                            
+                                            <ImagePreviewGrid files={referencePhotos} onRemove={(i) => setReferencePhotos(prev => prev.filter((_, idx) => idx !== i))} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Botão Gerar */}
@@ -898,7 +1061,10 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
-                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-800 h-full min-h-[400px]">
+                        <div className={cn(
+                            "grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-zinc-800 h-full min-h-[400px]",
+                            (referencePhotos.length > 0 && isAdvancedMode) ? "md:grid-cols-4" : "md:grid-cols-3"
+                        )}>
                             
                             {/* PASSO 1: TEXTO */}
                             <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950 min-h-[400px]">
@@ -916,13 +1082,18 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                 </div>
 
                                 <Button
-                                    onClick={() => copy(generatedPrompt)}
+                                    onClick={() => {
+                                        copy(generatedPrompt);
+                                        setCopiedType("prompt");
+                                        setTimeout(() => setCopiedType(null), 2000);
+                                    }}
                                     className={cn(
-                                        "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
-                                        isCopied ? "bg-green-600 text-white hover:bg-green-700" : "bg-primary hover:bg-orange-500 text-black"
+                                        "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
+                                        copiedType === "prompt" ? "bg-green-600 text-white hover:bg-green-700" : "bg-primary hover:bg-orange-500 text-black"
                                     )}
                                 >
-                                    {isCopied ? <><Check size={20} className="mr-2" /> Copiado com Sucesso!</> : <><Copy size={20} className="mr-2" /> Copiar para o Clipboard</>}
+                                    {copiedType === "prompt" ? <Check size={20} /> : <Copy size={20} />}
+                                    <span>{copiedType === "prompt" ? "Copiado com Sucesso!" : "Copiar para o Clipboard"}</span>
                                 </Button>
                             </div>
 
@@ -965,13 +1136,14 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             </div>
 
                                             <Button 
-                                                onClick={() => copyImageToClipboard(photos[currentImageIndex]?.previewUrl)}
+                                                onClick={() => copyImageToClipboard(photos[currentImageIndex]?.previewUrl, "photo")}
                                                 className={cn(
-                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
-                                                    isImageCopied ? "bg-green-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
+                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
+                                                    copiedType === "photo" ? "bg-green-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
                                                 )}
                                             >
-                                                {isImageCopied ? <><Check size={20} className="mr-2" /> Foto Copiada!</> : <><Copy size={20} className="mr-2" /> Copiar Esta Foto</>}
+                                                {copiedType === "photo" ? <Check size={20} /> : <Copy size={20} />}
+                                                <span>{copiedType === "photo" ? "Foto Copiada!" : "Copiar Esta Foto"}</span>
                                             </Button>
                                         </>
                                     ) : (
@@ -1005,13 +1177,14 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             </div>
 
                                             <Button 
-                                                onClick={() => copyImageToClipboard(logoFile.previewUrl)}
+                                                onClick={() => copyImageToClipboard(logoFile.previewUrl, "logo")}
                                                 className={cn(
-                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
-                                                    isImageCopied ? "bg-green-600 text-white" : "bg-purple-500 hover:bg-purple-600 text-white"
+                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
+                                                    copiedType === "logo" ? "bg-green-600 text-white" : "bg-purple-500 hover:bg-purple-600 text-white"
                                                 )}
                                             >
-                                                {isImageCopied ? <><Check size={20} className="mr-2" /> Logo Copiada!</> : <><Copy size={20} className="mr-2" /> Copiar Logo</>}
+                                                {copiedType === "logo" ? <Check size={20} /> : <Copy size={20} />}
+                                                <span>{copiedType === "logo" ? "Logo Copiada!" : "Copiar Logo"}</span>
                                             </Button>
                                         </>
                                     ) : (
@@ -1022,6 +1195,56 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     )}
                                 </div>
                             </div>
+
+                            {/* PASSO 4: REFERÊNCIAS (OPCIONAL) */}
+                            {referencePhotos.length > 0 && isAdvancedMode && (
+                                <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-900/40">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-500/20 shrink-0">4</div>
+                                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Referências</h3>
+                                    </div>
+                                    <div className="flex-1 flex flex-col gap-6">
+                                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 flex items-center justify-center p-3 shadow-xl">
+                                            <img 
+                                                src={referencePhotos[currentRefIndex]?.previewUrl} 
+                                                alt="Referência" 
+                                                className="max-w-full max-h-full object-contain rounded-lg"
+                                            />
+                                            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                                                Ref {currentRefIndex + 1} / {referencePhotos.length}
+                                            </div>
+                                            
+                                            {referencePhotos.length > 1 && (
+                                                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); setCurrentRefIndex(p => (p === 0 ? referencePhotos.length - 1 : p - 1)) }} 
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                    >
+                                                        <ChevronLeft size={20} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); setCurrentRefIndex(p => (p === referencePhotos.length - 1 ? 0 : p + 1)) }} 
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Button 
+                                            onClick={() => copyImageToClipboard(referencePhotos[currentRefIndex]?.previewUrl, "ref")}
+                                            className={cn(
+                                                "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
+                                                copiedType === "ref" ? "bg-green-600 text-white" : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                            )}
+                                        >
+                                            {copiedType === "ref" ? <Check size={20} /> : <Copy size={20} />}
+                                            <span>{copiedType === "ref" ? "Ref Copiada!" : "Copiar Referência"}</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
