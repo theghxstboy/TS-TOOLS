@@ -24,7 +24,7 @@ import { ptBR } from "date-fns/locale"
 import { useClipboard } from "@/hooks/useClipboard"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 
-type GeneratorTab = "gerador" | "gerador-humano" | "gerador-video" | "antes-depois";
+type GeneratorTab = "gerador" | "gerador-humano" | "gerador-video" | "antes-depois" | "workflow";
 
 function HistoricoContent() {
     const router = useRouter()
@@ -39,7 +39,7 @@ function HistoricoContent() {
     // Sync tab from URL on mount
     useEffect(() => {
         const tabParam = searchParams.get('gerador') as GeneratorTab
-        if (tabParam && ["gerador", "gerador-humano", "gerador-video", "antes-depois"].includes(tabParam)) {
+        if (tabParam && ["gerador", "gerador-humano", "gerador-video", "antes-depois", "workflow"].includes(tabParam)) {
             setActiveTab(tabParam)
         }
     }, [searchParams])
@@ -77,6 +77,7 @@ function HistoricoContent() {
             case "gerador-humano": path = "/gerador-humano"; break;
             case "gerador-video": path = "/gerador-video"; break;
             case "antes-depois": path = "/antes-depois"; break;
+            case "workflow": path = "/workflow"; break;
         }
 
         router.push(`${path}?restore_id=${item.id}`)
@@ -140,6 +141,13 @@ function HistoricoContent() {
                     >
                         <Images size={18} />
                         Antes & Depois
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("workflow")}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'workflow' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
+                    >
+                        <MagicWand size={18} />
+                        Workflow
                     </button>
                 </div>
 

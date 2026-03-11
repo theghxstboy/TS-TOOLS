@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import Header from "@/components/Header"
 import { Providers } from "@/components/Providers"
-import { CommandPalette } from "@/components/CommandPalette"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,11 +19,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body className={`${inter.className} min-h-screen bg-background flex flex-col font-sans transition-colors`}>
         <Providers>
-          <Header />
-          <CommandPalette />
-          <main className="flex-1 flex flex-col">
-            {children}
-          </main>
+          {children}
         </Providers>
       </body>
     </html>

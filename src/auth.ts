@@ -29,10 +29,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return { id: "1", name: "Administrador", email: adminEmail, role: "admin" }
                 }
 
-                if (credentials.email === "test@test.com" && credentials.password === "123456") {
-                    // Retorna um teste padrão
-                    return { id: "2", name: "Test User", email: "test@test.com", role: "user" }
-                }
 
                 // Return null if user data could not be retrieved
                 return null;

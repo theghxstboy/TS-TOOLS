@@ -16,7 +16,8 @@ import {
   Link as LinkIcon,
   UserSquare2 as UserFocus,
   Code2 as Code,
-  GripVertical as DotsSixVertical
+  GripVertical as DotsSixVertical,
+  Workflow as WorkflowIcon,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -105,6 +106,16 @@ const ALL_TOOLS: Tool[] = [
     description: "Estrutura páginas web de alta conversão (HTML/Tailwind) prontas para IAs criarem.",
     icon: <Code size={32} />,
   },
+  {
+    id: "workflow",
+    href: "/workflow",
+    label: "Workflow",
+    badge: "Novo",
+    badgeColor: "bg-emerald-500/20 text-emerald-400",
+    accentColor: "emerald",
+    description: "Briefing completo com serviço, região, fotos e logo — gera o prompt perfeito.",
+    icon: <WorkflowIcon size={32} />,
+  },
 ]
 
 type KnowledgeItem = {
@@ -171,6 +182,11 @@ const ACCENT_CLASSES: Record<string, { hover: string; icon: string; glow: string
   cyan: {
     hover: "hover:border-cyan-500 hover:shadow-cyan-500/10",
     icon: "text-cyan-400 group-hover:bg-cyan-500/20",
+    glow: "",
+  },
+  emerald: {
+    hover: "hover:border-emerald-500 hover:shadow-emerald-500/10",
+    icon: "text-emerald-400 group-hover:bg-emerald-500/20",
     glow: "",
   },
 }

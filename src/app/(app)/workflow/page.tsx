@@ -1,0 +1,1033 @@
+"use client"
+
+import { useState, useRef, useCallback, useEffect } from "react"
+import {
+    ChevronLeft,
+    ChevronRight,
+    Sparkles,
+    Copy,
+    Check,
+    ImagePlus,
+    X,
+    Palette,
+    MapPin,
+    Briefcase,
+    Upload,
+    FileImage,
+    Workflow as WorkflowIcon,
+    Shield,
+    MessageSquare,
+    MousePointerClick,
+    Info,
+    History,
+} from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { useSearchParams } from "next/navigation"
+import { Textarea } from "@/components/ui/textarea"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { useClipboard } from "@/hooks/useClipboard"
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface WorkflowPayload {
+    service: string;
+    serviceOther?: string;
+    city?: string;
+    state?: string;
+    seal?: string;
+    copyTone?: string;
+    cta?: string;
+    photoDesc?: string;
+    extraNotes?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    aspectRatio?: string;
+    hasPhotos: boolean;
+    hasLogo: boolean;
+}
+
+interface UploadedFile {
+    file: File
+    previewUrl: string
+    name: string
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const SEALS_OPTIONS = [
+    { value: "none", label: "Nenhum Selo" },
+    { value: "Licensed & Insured", label: "🛡️ Licensed & Insured" },
+    { value: "5-Star Rated", label: "⭐ 5-Star Rated" },
+    { value: "A+ BBB Rated", label: "🏆 A+ BBB Rated" },
+    { value: "Free Estimate", label: "🎁 Free Estimate" },
+    { value: "Satisfaction Guaranteed", label: "✅ Satisfaction Guaranteed" },
+    { value: "Family Owned & Operated", label: "🏠 Family Owned & Operated" },
+    { value: "Locally Owned & Operated", label: "📍 Locally Owned & Operated" },
+    { value: "10+ Years Experience", label: "🔟 10+ Years Experience" },
+    { value: "Veteran Owned", label: "🇺🇸 Veteran Owned" },
+    { value: "100% Satisfaction Guarantee", label: "💯 100% Satisfaction Guarantee" },
+    { value: "No Hidden Fees", label: "💰 No Hidden Fees" },
+    { value: "Same Day Service", label: "⚡ Same Day Service" },
+    { value: "Financing Available", label: "💳 Financing Available" },
+]
+
+const COPY_TONE_OPTIONS = [
+    { value: "none", label: "Sem tom específico" },
+    { value: "Urgência / Escassez (oferta limitada, últimas vagas)", label: "🔥 Urgência / Escassez" },
+    { value: "Prova Social (clientes satisfeitos, avaliações 5 estrelas)", label: "⭐ Prova Social" },
+    { value: "Dor / Problema (destaca o problema que o cliente resolve)", label: "😤 Foco na Dor / Problema" },
+    { value: "Transformação / Resultado antes e depois", label: "✨ Transformação / Antes & Depois" },
+    { value: "Autoridade / Expertise (anos de experiência, especialistas certificados)", label: "🏆 Autoridade / Expertise" },
+    { value: "Custo-Benefício / Economia (melhor preço, sem taxas escondidas)", label: "💰 Custo-Benefício" },
+    { value: "Localidade / Comunidade (empresa local, atende sua região)", label: "📍 Local / Comunidade" },
+    { value: "Garantia / Confiança (satisfação garantida, licenciado e segurado)", label: "🛡️ Garantia / Confiança" },
+]
+
+const CTA_OPTIONS = [
+    { value: "none", label: "Sem CTA específico" },
+    { value: "Call Now — Free Estimate!", label: "📞 Call Now — Free Estimate!" },
+    { value: "Get Your Free Quote Today!", label: "💬 Get Your Free Quote Today!" },
+    { value: "Schedule Your Free Consultation!", label: "📅 Schedule Free Consultation!" },
+    { value: "Book Online Now!", label: "🖥️ Book Online Now!" },
+    { value: "Text Us For A Free Quote!", label: "📱 Text Us For A Free Quote!" },
+    { value: "Call or Text Anytime!", label: "☎️ Call or Text Anytime!" },
+    { value: "Limited Spots — Book Today!", label: "⚡ Limited Spots — Book Today!" },
+    { value: "See Our Work — Call Now!", label: "👀 See Our Work — Call Now!" },
+    { value: "Get Started Today!", label: "🚀 Get Started Today!" },
+    { value: "Don't Wait — Call Now!", label: "⏰ Don't Wait — Call Now!" },
+]
+
+const ASPECT_RATIO_OPTIONS = [
+    { value: "none", label: "Não especificar (Livre)" },
+    { value: "1:1", label: "Quadrado (1:1) - Feed" },
+    { value: "4:5", label: "Vertical (4:5) - Feed Instagram" },
+    { value: "9:16", label: "Tela Cheia (9:16) - Stories / Reels" },
+    { value: "16:9", label: "Paisagem (16:9) - YouTube / TV" },
+]
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+    })
+}
+
+function extractDominantColors(image: HTMLImageElement): { primary: string; secondary: string } {
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return { primary: "#FF6B00", secondary: "#1E1E1E" }
+
+    canvas.width = image.width
+    canvas.height = image.height
+    ctx.drawImage(image, 0, 0)
+
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+    const colorCounts: Record<string, number> = {}
+
+    for (let i = 0; i < data.length; i += 40) {
+        const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3]
+        if (a < 128) continue
+        const sum = r + g + b
+        if (sum > 720 || sum < 40) continue
+        const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`
+        colorCounts[hex] = (colorCounts[hex] || 0) + 1
+    }
+
+    const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1])
+    return {
+        primary: sorted[0]?.[0] ?? "#FF6B00",
+        secondary: sorted[1]?.[0] ?? "#1E1E1E",
+    }
+}
+
+// ─── Sub-Components ───────────────────────────────────────────────────────────
+
+function ImagePreviewGrid({ files, onRemove }: { files: UploadedFile[]; onRemove: (i: number) => void }) {
+    if (files.length === 0) return null
+    return (
+        <div className="mt-3 grid grid-cols-3 sm:grid-cols-5 gap-2">
+            {files.map((f, i) => (
+                <div key={i} className="relative group rounded-xl overflow-hidden border border-border aspect-square bg-input">
+                    <img src={f.previewUrl} alt={f.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button type="button" onClick={() => onRemove(i)} className="p-1.5 bg-red-500 rounded-full text-white">
+                            <X size={12} />
+                        </button>
+                    </div>
+                    <p className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[8px] px-1 py-0.5 truncate">{f.name}</p>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function WorkflowPage() {
+    // Dados do serviço
+    const [service, setService] = useState("")
+    const [serviceOther, setServiceOther] = useState("")
+    const [city, setCity] = useState("")
+    const [state, setState] = useState("")
+
+    // Criativo
+    const [seal, setSeal] = useState("none")
+    const [copyTone, setCopyTone] = useState("none")
+    const [cta, setCta] = useState("none")
+    const [aspectRatio, setAspectRatio] = useState("none")
+
+    // Fotos e logo
+    const [photos, setPhotos] = useState<UploadedFile[]>([])
+    const [logoFile, setLogoFile] = useState<UploadedFile | null>(null)
+    const [photoDesc, setPhotoDesc] = useState("")
+    const [extraNotes, setExtraNotes] = useState("")
+
+    // Cores
+    const [primaryColor, setPrimaryColor] = useState("#FF6B00")
+    const [secondaryColor, setSecondaryColor] = useState("#1E1E1E")
+    const [colorsExtracted, setColorsExtracted] = useState(false)
+
+    // Output
+    const [generatedPrompt, setGeneratedPrompt] = useState("")
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    // History Hook
+    const { history, saveHistory } = useGenerationHistory<WorkflowPayload>("workflow")
+    const searchParams = useSearchParams()
+
+    useEffect(() => {
+        const restoreId = searchParams.get('restore_id')
+        if (restoreId && history.length > 0) {
+            const itemToRestore = history.find(item => item.id === restoreId)
+            if (itemToRestore) {
+                handleRestore(itemToRestore)
+            }
+        }
+    }, [searchParams, history])
+
+    const handleRestore = (item: any) => {
+        const p = item.payload as WorkflowPayload
+        if (!p) return
+
+        setService(p.service || "")
+        setServiceOther(p.serviceOther || "")
+        setCity(p.city || "")
+        setState(p.state || "")
+        setSeal(p.seal || "none")
+        setCopyTone(p.copyTone || "none")
+        setCta(p.cta || "none")
+        setAspectRatio(p.aspectRatio || "none")
+        setPhotoDesc(p.photoDesc || "")
+        setExtraNotes(p.extraNotes || "")
+        setPrimaryColor(p.primaryColor || "#FF6B00")
+        setSecondaryColor(p.secondaryColor || "#1E1E1E")
+        setGeneratedPrompt(item.prompt || "")
+        
+        // Note: Files (photos/logo) cannot be easily restored from localStorage
+        // but we keep the text data.
+    }
+
+    // Popup de imagens
+    const [showImagePopup, setShowImagePopup] = useState(false)
+    const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    const [isImageCopied, setIsImageCopied] = useState(false)
+
+    const allImages = [
+        ...(logoFile ? [{ ...logoFile, type: "Logo" }] : []),
+        ...photos.map((p, i) => ({ ...p, type: `Foto ${i + 1}` }))
+    ]
+
+    const { isCopied, copy } = useClipboard()
+    const photoInputRef = useRef<HTMLInputElement>(null)
+    const logoInputRef = useRef<HTMLInputElement>(null)
+
+    const finalService = service === "other" ? serviceOther : service
+    const isReady = !!finalService
+
+    // ── Handlers ───────────────────────────────────────────────────────────────
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const previewUrl = await toBase64(file)
+        setLogoFile({ file, previewUrl, name: file.name })
+        setColorsExtracted(false)
+        const img = new Image()
+        img.onload = () => {
+            const colors = extractDominantColors(img)
+            setPrimaryColor(colors.primary)
+            setSecondaryColor(colors.secondary)
+            setColorsExtracted(true)
+        }
+        img.src = previewUrl
+    }
+
+    const handlePhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files) return
+        const newFiles: UploadedFile[] = await Promise.all(
+            Array.from(files).map(async (file) => ({ file, previewUrl: await toBase64(file), name: file.name }))
+        )
+        setPhotos((prev) => [...prev, ...newFiles])
+    }
+
+    const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault()
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"))
+        if (!files.length) return
+        const newFiles: UploadedFile[] = await Promise.all(
+            files.map(async (file) => ({ file, previewUrl: await toBase64(file), name: file.name }))
+        )
+        setPhotos((prev) => [...prev, ...newFiles])
+    }, [])
+
+    const removeLogo = () => {
+        setLogoFile(null)
+        setColorsExtracted(false)
+        if (logoInputRef.current) logoInputRef.current.value = ""
+    }
+
+    const copyImageToClipboard = async (dataUrl: string) => {
+        try {
+            // Criar imagem temporária para desenhar no Canvas (resolve suporte a JPEG)
+            const img = new Image()
+            img.src = dataUrl
+            await new Promise((resolve) => (img.onload = resolve))
+
+            const canvas = document.createElement("canvas")
+            canvas.width = img.width
+            canvas.height = img.height
+            const ctx = canvas.getContext("2d")
+            if (!ctx) return
+            ctx.drawImage(img, 0, 0)
+
+            // Converter para PNG (formato universalmente aceito no clipboard)
+            const blob = await new Promise<Blob | null>((resolve) =>
+                canvas.toBlob((b) => resolve(b), "image/png")
+            )
+            if (!blob) return
+
+            const item = new ClipboardItem({ "image/png": blob })
+            await navigator.clipboard.write([item])
+            
+            setIsImageCopied(true)
+            setTimeout(() => setIsImageCopied(false), 2000)
+
+            // Avançar para a próxima imagem automaticamente após 1 segundo (feedback visual primeiro)
+            if (allImages.length > 1) {
+                setTimeout(() => {
+                    setCurrentImageIndex((prev) => (prev + 1) % allImages.length)
+                }, 800)
+            }
+        } catch (err) {
+            console.error("Erro ao copiar imagem:", err)
+        }
+    }
+
+    const handleCopyPrompt = () => {
+        copy(generatedPrompt)
+        setShowImagePopup(true)
+        setCurrentImageIndex(0)
+    }
+
+    // ── Gerar Prompt ───────────────────────────────────────────────────────────
+
+    const handleGenerate = () => {
+        setIsGenerating(true)
+        const location = [city, state].filter(Boolean).join(", ") || "Localização não especificada"
+        const logoInfo = logoFile ? logoFile.name : "Não fornecida"
+
+        const colorSection = `🎨 PALETA DE CORES${colorsExtracted ? " (extraída da logo automaticamente)" : ""}:
+• Primária: ${primaryColor}  |  Secundária: ${secondaryColor}
+→ Use essas cores exatas nos elementos de marca, botões e destaques do criativo.`
+
+        const sealSection = seal !== "none" ? `\n🛡️ SELO DE CREDIBILIDADE:\n→ Incluir destaque visual com: "${seal}"` : ""
+        const copySection = copyTone !== "none" ? `\n✍️ TOM DA COPY:\n→ ${copyTone}` : ""
+        const ctaSection = cta !== "none" ? `\n🖱️ BOTÃO CTA:\n→ Texto do botão: "${cta}"` : ""
+        const aspectRatioSection = aspectRatio !== "none" ? `\n📐 PROPORÇÃO/FORMATO:\n→ O criativo deve seguir a proporção ${aspectRatio} exata.` : ""
+
+        const photosSection = photos.length > 0
+            ? photos.map((p, i) => `  • Foto ${i + 1}: ${p.name}`).join("\n")
+            : "  • Nenhuma foto anexada"
+
+        const prompt = `🔧 WORKFLOW CRIATIVO — HOME SERVICES USA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 BRIEFING DO CLIENTE:
+• Serviço: ${finalService}
+• Região: ${location}
+
+📸 FOTOS DO CLIENTE:
+${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}
+
+🏷️ LOGO DO CLIENTE: ${logoInfo}
+
+${colorSection}
+${sealSection}${copySection}${ctaSection}${aspectRatioSection}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ SUA MISSÃO — CRIATIVO DE ALTA CONVERSÃO:
+
+Analise as fotos e a logo do cliente e crie um criativo profissional para tráfego pago seguindo TODAS estas diretrizes:
+
+1. VISUAL:
+   → Use as fotos enviadas como base do criativo (antes/depois se possível)
+   → Aplique a paleta "${primaryColor}" (primária) e "${secondaryColor}" (secundária)
+   → Mantenha a identidade visual da logo em todo o layout
+
+2. COPY:${copyTone !== "none" ? `
+   → Tom: ${copyTone}` : `
+   → Tom: Profissional, confiável e orientado a resultados`}
+   → Destaque o serviço de ${finalService} na região de ${location}
+   → Headline poderosa que conecta com o problema do cliente
+
+3. ELEMENTOS VISUAIS:
+   → ⚠️ IMPORTANTE: NÃO ALTERE NADA NA LOGO FORNECIDA. Mantenha a integridade total da marca e cores.${seal !== "none" ? `
+   → Incluir selo: "${seal}" em posição de destaque` : ""}${cta !== "none" ? `
+   → Botão CTA com texto: "${cta}"` : `
+   → CTA forte e visível`}
+   → Layout Mobile-First (maioria vê em celular)
+${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ ATENÇÃO: As fotos e logo estão ANEXADAS e serão enviadas agora. Use-as como referência visual obrigatória.`
+
+        setGeneratedPrompt(prompt)
+        setTimeout(() => {
+            setIsGenerating(false)
+            saveHistory({
+                service,
+                serviceOther,
+                city,
+                state,
+                seal,
+                copyTone,
+                cta,
+                photoDesc,
+                extraNotes,
+                primaryColor,
+                secondaryColor,
+                aspectRatio,
+                hasPhotos: photos.length > 0,
+                hasLogo: !!logoFile
+            }, prompt)
+        }, 700)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+
+    return (
+        <div className="flex-1 w-full font-sans">
+            <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
+
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-5 border border-primary/20">
+                        <WorkflowIcon size={14} /> Workflow Generator
+                    </div>
+                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+                        Crie o{" "}
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-amber-400">
+                            Prompt Perfeito
+                        </span>
+                    </h1>
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                        Preencha o briefing completo e gere um prompt estruturado + imagens prontas para colar na IA.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                    {/* ── Coluna Esquerda: Formulário ── */}
+                    <div className="lg:col-span-7 flex flex-col gap-6">
+
+                        {/* Card 1: Serviço & Região */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                    <Briefcase size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-foreground">Dados do Serviço</h2>
+                                    <p className="text-xs text-muted-foreground">Serviço principal e localização do cliente</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {/* Serviço */}
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label className="font-semibold text-foreground">
+                                        Serviço Principal <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Select value={service} onValueChange={setService}>
+                                        <SelectTrigger className="w-full"><SelectValue placeholder="Selecione o serviço..." /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-input uppercase text-xs font-bold text-muted-foreground tracking-wider">🏗️ Construção & Reformas</SelectLabel>
+                                                <SelectItem value="Construction / Remodeling">Construction / Remodeling</SelectItem>
+                                                <SelectItem value="Carpentry">Carpentry (Marcenaria)</SelectItem>
+                                                <SelectItem value="Framing">Framing (Estrutura)</SelectItem>
+                                                <SelectItem value="Additions">Additions (Ampliações)</SelectItem>
+                                            </SelectGroup>
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🎨 Acabamentos</SelectLabel>
+                                                <SelectItem value="Painting">Painting (Pintura)</SelectItem>
+                                                <SelectItem value="Roofing">Roofing (Telhados)</SelectItem>
+                                                <SelectItem value="Siding">Siding (Revestimento)</SelectItem>
+                                                <SelectItem value="Insulation">Insulation (Isolamento)</SelectItem>
+                                                <SelectItem value="Countertops">Countertops (Bancadas)</SelectItem>
+                                            </SelectGroup>
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🪵 Pisos (Flooring)</SelectLabel>
+                                                <SelectItem value="Hardwood Flooring">Hardwood Flooring</SelectItem>
+                                                <SelectItem value="Luxury Vinyl Plank (LVP)">Luxury Vinyl Plank (LVP)</SelectItem>
+                                                <SelectItem value="Laminate Flooring">Laminate Flooring</SelectItem>
+                                                <SelectItem value="Sand & Refinish">Sand & Refinish</SelectItem>
+                                                <SelectItem value="Epoxy Flooring">Epoxy Flooring</SelectItem>
+                                                <SelectItem value="Tile & Stone">Tile & Stone</SelectItem>
+                                            </SelectGroup>
+                                            <SelectGroup>
+                                                <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🌿 Exterior & Outros</SelectLabel>
+                                                <SelectItem value="Landscaping">Landscaping</SelectItem>
+                                                <SelectItem value="Cleaning / Maid Services">Cleaning / Maid Services</SelectItem>
+                                                <SelectItem value="HVAC">HVAC</SelectItem>
+                                                <SelectItem value="Plumbing">Plumbing</SelectItem>
+                                                <SelectItem value="Electrical">Electrical</SelectItem>
+                                                <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    {service === "other" && (
+                                        <Input placeholder="Especifique o serviço..." value={serviceOther} onChange={(e) => setServiceOther(e.target.value)} className="mt-2" />
+                                    )}
+                                </div>
+
+                                {/* Cidade */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <MapPin size={14} className="text-primary" /> Cidade
+                                    </Label>
+                                    <Input placeholder="Ex: Orlando, Miami..." value={city} onChange={(e) => setCity(e.target.value)} />
+                                </div>
+
+                                {/* Estado */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground">Estado</Label>
+                                    <Select value={state} onValueChange={setState}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {[["FL","Florida"],["TX","Texas"],["CA","California"],["NY","New York"],["GA","Georgia"],["NC","North Carolina"],["AZ","Arizona"],["NV","Nevada"],["OH","Ohio"],["IL","Illinois"],["PA","Pennsylvania"],["WA","Washington"],["CO","Colorado"],["MA","Massachusetts"],["NJ","New Jersey"],["VA","Virginia"],["TN","Tennessee"],["SC","South Carolina"],["MN","Minnesota"],["MO","Missouri"]].map(([code, name]) => (
+                                                <SelectItem key={code} value={`${name} (${code})`}>{name} ({code})</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Card 2: Criativo (Selos, Copy, CTA) */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="size-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                                    <MousePointerClick size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-foreground">Configuração do Criativo</h2>
+                                    <p className="text-xs text-muted-foreground">Selos, tom da copy e botão de CTA</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Selos */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <Shield size={14} className="text-emerald-400" /> Selo de Credibilidade
+                                    </Label>
+                                    <Select value={seal} onValueChange={setSeal}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            {SEALS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Tom da Copy */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <MessageSquare size={14} className="text-blue-400" /> Tom da Copy (Ângulo de Venda)
+                                    </Label>
+                                    <Select value={copyTone} onValueChange={setCopyTone}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            {COPY_TONE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* CTA */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <MousePointerClick size={14} className="text-primary" /> Botão de Chamada para Ação (CTA)
+                                    </Label>
+                                    <Select value={cta} onValueChange={setCta}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            {CTA_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                {/* Aspect Ratio */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <ImagePlus size={14} className="text-purple-400" /> Formato da Imagem (Aspect Ratio)
+                                    </Label>
+                                    <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            {ASPECT_RATIO_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {/* Preview chips */}
+                            {(seal !== "none" || copyTone !== "none" || cta !== "none" || aspectRatio !== "none") && (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {aspectRatio !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-full border border-purple-500/20">{ASPECT_RATIO_OPTIONS.find(o => o.value === aspectRatio)?.label}</span>}
+                                    {seal !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20">{SEALS_OPTIONS.find(o => o.value === seal)?.label}</span>}
+                                    {copyTone !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/20">{COPY_TONE_OPTIONS.find(o => o.value === copyTone)?.label}</span>}
+                                    {cta !== "none" && <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20">{CTA_OPTIONS.find(o => o.value === cta)?.label}</span>}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Card 3: Fotos */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="size-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                                    <ImagePlus size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-foreground">Fotos do Serviço</h2>
+                                    <p className="text-xs text-muted-foreground">Arraste ou clique • Múltiplos arquivos</p>
+                                </div>
+                            </div>
+
+                            <div
+                                onDrop={handleDrop}
+                                onDragOver={(e) => e.preventDefault()}
+                                onClick={() => photoInputRef.current?.click()}
+                                className="border-2 border-dashed border-border hover:border-blue-500/50 rounded-xl p-6 text-center cursor-pointer transition-all group hover:bg-blue-500/5"
+                            >
+                                <Upload size={28} className="mx-auto mb-2 text-muted-foreground group-hover:text-blue-400 transition-colors" />
+                                <p className="text-sm font-semibold text-muted-foreground group-hover:text-foreground">
+                                    Arraste imagens ou <span className="text-blue-400">clique para selecionar</span>
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WEBP • Múltiplos arquivos</p>
+                                <input ref={photoInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handlePhotosUpload} />
+                            </div>
+
+                            <ImagePreviewGrid files={photos} onRemove={(i) => setPhotos(prev => prev.filter((_, idx) => idx !== i))} />
+
+                            <div className="mt-4 space-y-2">
+                                <Label className="font-semibold text-foreground text-sm">
+                                    Descrição <span className="text-muted-foreground font-normal">(Opcional)</span>
+                                </Label>
+                                <Textarea
+                                    placeholder="Ex: Foto antes da instalação do LVP, foto após o serviço finalizado..."
+                                    rows={2} className="resize-none text-sm"
+                                    value={photoDesc} onChange={(e) => setPhotoDesc(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Card 4: Logo */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="size-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+                                    <Palette size={20} />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-bold text-foreground">Logo do Cliente</h2>
+                                    <p className="text-xs text-muted-foreground">Extrai a paleta de cores automaticamente</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div
+                                    onClick={() => logoInputRef.current?.click()}
+                                    className="border-2 border-dashed border-border hover:border-purple-500/50 rounded-xl p-5 text-center cursor-pointer transition-all group hover:bg-purple-500/5"
+                                >
+                                    {logoFile ? (
+                                        <div className="relative">
+                                            <img src={logoFile.previewUrl} alt="Logo" className="max-h-20 mx-auto object-contain rounded-lg" />
+                                            <button type="button" onClick={(e) => { e.stopPropagation(); removeLogo() }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white"><X size={12} /></button>
+                                            <p className="text-xs text-muted-foreground mt-2 truncate">{logoFile.name}</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <FileImage size={28} className="mx-auto mb-2 text-muted-foreground group-hover:text-purple-400 transition-colors" />
+                                            <p className="text-sm font-semibold text-muted-foreground group-hover:text-foreground">Clique para selecionar a logo</p>
+                                            <p className="text-xs text-muted-foreground mt-1">PNG, JPG, SVG</p>
+                                        </>
+                                    )}
+                                    <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                                </div>
+
+                                <div className="flex flex-col gap-4">
+                                    {colorsExtracted && (
+                                        <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
+                                            <Check size={14} className="text-green-400 shrink-0" />
+                                            <p className="text-xs text-green-400 font-semibold">Cores extraídas automaticamente!</p>
+                                        </div>
+                                    )}
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cor Primária</Label>
+                                        <div className="flex gap-2 items-center">
+                                            <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent shrink-0" />
+                                            <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-9 font-mono text-xs uppercase" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cor Secundária</Label>
+                                        <div className="flex gap-2 items-center">
+                                            <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent shrink-0" />
+                                            <Input value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-9 font-mono text-xs uppercase" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Card 5: Observações */}
+                        <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
+                            <h2 className="text-base font-bold text-foreground mb-3">Observações Adicionais</h2>
+                            <Textarea
+                                placeholder="Ex: Cliente quer destacar o prazo de entrega rápido, focar no público de imóveis de luxo..."
+                                rows={3} className="resize-none"
+                                value={extraNotes} onChange={(e) => setExtraNotes(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Botão Gerar */}
+                        <Button
+                            onClick={handleGenerate}
+                            disabled={!isReady || isGenerating}
+                            className={cn(
+                                "w-full py-7 text-lg font-bold rounded-2xl shadow-xl transition-all duration-300",
+                                isReady ? "bg-primary hover:bg-primary/90 text-black hover:-translate-y-1 hover:shadow-primary/30" : "bg-muted text-muted-foreground cursor-not-allowed"
+                            )}
+                        >
+                            {isGenerating ? <><Check size={22} className="mr-2" /> Prompt Gerado!</> : <><Sparkles size={22} className="mr-2" /> Gerar Prompt</>}
+                        </Button>
+                        {!isReady && <p className="text-center text-xs text-muted-foreground -mt-3">Selecione o <strong>Serviço Principal</strong> para continuar.</p>}
+
+                        {/* Histórico Recente */}
+                        <GenerationHistory 
+                            history={history} 
+                            onRestore={handleRestore} 
+                            generatorName="workflow" 
+                        />
+                    </div>
+
+                    {/* ── Coluna Direita: Output ── */}
+                    <div className="lg:col-span-5">
+                        <div className="sticky top-24 flex flex-col gap-4">
+
+                            {/* Aviso clipboard */}
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
+                                <Info size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    <strong className="text-blue-400">Sobre as imagens:</strong> Por limitação do browser, não é possível copiar imagens junto com o texto em uma única operação. Copie o prompt e <strong className="text-foreground">arraste as imagens do painel abaixo</strong> para a IA.
+                                </p>
+                            </div>
+
+                            {/* Prompt Output */}
+                            <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
+                                <div className="px-5 py-4 border-b border-border flex items-center justify-between bg-muted/50">
+                                    <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                                        <WorkflowIcon size={20} className="text-primary" /> Prompt Gerado
+                                    </h2>
+                                    {generatedPrompt && (
+                                        <span className="text-[10px] font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20 uppercase tracking-wider">Pronto</span>
+                                    )}
+                                </div>
+
+                                <div className="p-5 min-h-[280px] flex flex-col">
+                                    {generatedPrompt ? (
+                                        <>
+                                            <Textarea
+                                                className="flex-1 bg-input border-none text-foreground resize-none min-h-[220px] text-[12px] font-mono p-4 leading-relaxed focus-visible:ring-1 focus-visible:ring-primary/40 rounded-xl custom-scrollbar"
+                                                readOnly value={generatedPrompt}
+                                            />
+                                            <Button
+                                                onClick={handleCopyPrompt}
+                                                className={cn("w-full font-bold transition-all mt-4", isCopied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-primary hover:bg-primary/90 text-black")}
+                                            >
+                                                {isCopied ? <><Check size={18} className="mr-2" /> Prompt Copiado!</> : <><Copy size={18} className="mr-2" /> Copiar Prompt</>}
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+                                            <WorkflowIcon size={44} className="text-primary mb-4" />
+                                            <p className="text-muted-foreground text-sm max-w-[200px]">Preencha o formulário e clique em <strong>"Gerar Prompt"</strong>.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Painel de imagens para arrastar */}
+                            {(photos.length > 0 || logoFile) && (
+                                <div className="bg-card border border-amber-500/30 rounded-2xl overflow-hidden shadow-lg">
+                                    <div className="px-5 py-3 bg-amber-500/10 border-b border-amber-500/20 flex items-center gap-2">
+                                        <span className="text-lg">🖼️</span>
+                                        <div>
+                                            <p className="text-amber-400 font-bold text-sm">Passo 2: Arraste estas imagens para a IA</p>
+                                            <p className="text-muted-foreground text-xs">Cole o prompt primeiro, depois arraste as imagens abaixo</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-4">
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {logoFile && (
+                                                <div className="relative rounded-xl overflow-hidden border-2 border-purple-500/40 aspect-square bg-input group cursor-grab">
+                                                    <img src={logoFile.previewUrl} alt="logo" className="w-full h-full object-contain p-1" />
+                                                    <div className="absolute bottom-0 inset-x-0 bg-purple-500/80 text-white text-[8px] font-bold px-1 py-0.5 text-center uppercase tracking-wide">Logo</div>
+                                                </div>
+                                            )}
+                                            {photos.map((p, i) => (
+                                                <div key={i} className="relative rounded-xl overflow-hidden border border-amber-500/30 aspect-square bg-input cursor-grab">
+                                                    <img src={p.previewUrl} alt={p.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] px-1 py-0.5 truncate">Foto {i + 1}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-3 text-center">
+                                            {(photos.length + (logoFile ? 1 : 0))} imagem(ns) • Arraste-as para o chat da IA após colar o prompt
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Stats */}
+                            {(photos.length > 0 || logoFile || finalService) && (
+                                <div className="bg-card border border-border rounded-xl p-4 grid grid-cols-4 divide-x divide-border text-center">
+                                    <div className="px-2">
+                                        <p className="text-[10px] text-muted-foreground mb-0.5">Serviço</p>
+                                        <p className="text-xs font-bold text-foreground truncate">{finalService || "—"}</p>
+                                    </div>
+                                    <div className="px-2">
+                                        <p className="text-[10px] text-muted-foreground mb-0.5">Fotos</p>
+                                        <p className="text-sm font-bold text-blue-400">{photos.length}</p>
+                                    </div>
+                                    <div className="px-2">
+                                        <p className="text-[10px] text-muted-foreground mb-0.5">Logo</p>
+                                        <p className="text-sm font-bold text-purple-400">{logoFile ? "✓" : "—"}</p>
+                                    </div>
+                                    <div className="px-2">
+                                        <p className="text-[10px] text-muted-foreground mb-0.5">CTA</p>
+                                        <p className="text-sm font-bold text-primary">{cta !== "none" ? "✓" : "—"}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Popup de Fluxo de Trabalho Customizado (Prompt > Imagens > Logo) */}
+            {showImagePopup && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowImagePopup(false)} />
+                    
+                    <div className="relative w-full max-w-[1200px] max-h-[90vh] bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl flex flex-col outline-none z-10 animate-in zoom-in-95 duration-200">
+                    {/* Header Premium */}
+                    <div className="bg-primary px-6 py-4 flex items-center justify-between shrink-0 border-b border-black/10">
+                        <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-xl bg-black/10 flex items-center justify-center">
+                                <Sparkles size={24} className="text-black" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-black uppercase tracking-tight leading-none">
+                                    Workflow de Finalização
+                                </h2>
+                                <p className="text-black/60 text-[10px] font-bold uppercase tracking-wider mt-1">
+                                    Siga os passos e cole diretamente no ChatGPT/Claude
+                                </p>
+                            </div>
+                        </div>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-black hover:bg-black/10 rounded-full h-10 w-10" 
+                            onClick={() => setShowImagePopup(false)}
+                        >
+                            <X size={24} />
+                        </Button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-800 h-full min-h-[400px]">
+                            
+                            {/* PASSO 1: TEXTO */}
+                            <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950 min-h-[400px]">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-10 rounded-full bg-primary text-black flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20 shrink-0">1</div>
+                                    <h3 className="text-lg font-bold text-white uppercase tracking-tight">Copiar Prompt</h3>
+                                </div>
+                                
+                                <div className="flex-1 min-h-[250px] relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 shadow-inner group">
+                                    <Textarea
+                                        className="absolute inset-0 w-full h-full bg-transparent border-none text-[12px] text-zinc-300 font-mono p-5 leading-relaxed focus-visible:ring-0 resize-none custom-scrollbar"
+                                        readOnly 
+                                        value={generatedPrompt}
+                                    />
+                                </div>
+
+                                <Button
+                                    onClick={() => copy(generatedPrompt)}
+                                    className={cn(
+                                        "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
+                                        isCopied ? "bg-green-600 text-white hover:bg-green-700" : "bg-primary hover:bg-orange-500 text-black"
+                                    )}
+                                >
+                                    {isCopied ? <><Check size={20} className="mr-2" /> Copiado com Sucesso!</> : <><Copy size={20} className="mr-2" /> Copiar para o Clipboard</>}
+                                </Button>
+                            </div>
+
+                            {/* PASSO 2: FOTOS */}
+                            <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-900/20">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/20 shrink-0">2</div>
+                                    <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Fotos</h3>
+                                </div>
+
+                                <div className="flex-1 flex flex-col gap-6">
+                                    {photos.length > 0 ? (
+                                        <>
+                                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 flex items-center justify-center p-3 shadow-xl">
+                                                <img 
+                                                    src={photos[currentImageIndex]?.previewUrl} 
+                                                    alt="Preview" 
+                                                    className="max-w-full max-h-full object-contain rounded-lg"
+                                                />
+                                                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-blue-400 border border-blue-500/20 uppercase tracking-widest">
+                                                    Foto {currentImageIndex + 1} / {photos.length}
+                                                </div>
+                                                
+                                                {photos.length > 1 && (
+                                                    <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(p => (p === 0 ? photos.length - 1 : p - 1)) }} 
+                                                            className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-blue-500 transition-colors pointer-events-auto border border-white/10"
+                                                        >
+                                                            <ChevronLeft size={20} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(p => (p === photos.length - 1 ? 0 : p + 1)) }} 
+                                                            className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-blue-500 transition-colors pointer-events-auto border border-white/10"
+                                                        >
+                                                            <ChevronRight size={20} />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <Button 
+                                                onClick={() => copyImageToClipboard(photos[currentImageIndex]?.previewUrl)}
+                                                className={cn(
+                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
+                                                    isImageCopied ? "bg-green-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
+                                                )}
+                                            >
+                                                {isImageCopied ? <><Check size={20} className="mr-2" /> Foto Copiada!</> : <><Copy size={20} className="mr-2" /> Copiar Esta Foto</>}
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center bg-zinc-900/50 border border-dashed border-zinc-800 rounded-2xl opacity-40">
+                                            <ImagePlus size={44} className="mb-4 text-zinc-500" />
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 text-center leading-relaxed">Nenhuma foto<br/>carregada</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* PASSO 3: LOGO */}
+                            <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-purple-500/20 shrink-0">3</div>
+                                    <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Logo</h3>
+                                </div>
+
+                                <div className="flex-1 flex flex-col gap-6">
+                                    {logoFile ? (
+                                        <>
+                                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 flex items-center justify-center p-6 shadow-xl">
+                                                <img 
+                                                    src={logoFile.previewUrl} 
+                                                    alt="Logo" 
+                                                    className="max-w-full max-h-full object-contain"
+                                                />
+                                                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-purple-400 border border-purple-500/20 uppercase tracking-widest">
+                                                    Logo Cliente
+                                                </div>
+                                            </div>
+
+                                            <Button 
+                                                onClick={() => copyImageToClipboard(logoFile.previewUrl)}
+                                                className={cn(
+                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl", 
+                                                    isImageCopied ? "bg-green-600 text-white" : "bg-purple-500 hover:bg-purple-600 text-white"
+                                                )}
+                                            >
+                                                {isImageCopied ? <><Check size={20} className="mr-2" /> Logo Copiada!</> : <><Copy size={20} className="mr-2" /> Copiar Logo</>}
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center bg-zinc-900/50 border border-dashed border-zinc-800 rounded-2xl opacity-40">
+                                            <Palette size={44} className="mb-4 text-zinc-500" />
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 text-center leading-relaxed">Nenhuma logo<br/>carregada</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer Clean */}
+                    <div className="px-6 py-4 bg-zinc-900 border-t border-zinc-800 flex items-center justify-between">
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                            <Check size={14} className="text-primary" /> 
+                            Processo finalizado? Basta colar e pronto!
+                        </p>
+                        <Button variant="ghost" className="text-zinc-400 hover:text-white" onClick={() => setShowImagePopup(false)}>Fechar Popup</Button>
+                    </div>
+                </div>
+                </div>
+            )}
+        </div>
+    )
+}
