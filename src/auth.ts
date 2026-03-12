@@ -19,18 +19,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // Idealmente, você faria uma busca (Ex: no banco de dados) para checar a senha.
                 const adminEmail = process.env.ADMIN_EMAIL;
                 const adminPassword = process.env.ADMIN_PASSWORD;
+                const operacaoUser = process.env.OPERACAO_USER;
+                const operacaoPassword = process.env.OPERACAO_PASSWORD;
 
                 if (!credentials?.email || !credentials?.password) {
                     return null;
                 }
 
+                // Verifica Admin
                 if (credentials.email === adminEmail && credentials.password === adminPassword) {
-                    // Retorna um objeto de usuário que será salvo na sessão (Admin)
                     return { id: "1", name: "Administrador", email: adminEmail, role: "admin" }
                 }
 
+                // Verifica Operação
+                if (credentials.email === operacaoUser && credentials.password === operacaoPassword) {
+                    return { id: "2", name: "Operador", email: "operacao@tstools.com", role: "user" }
+                }
 
-                // Return null if user data could not be retrieved
                 return null;
             }
         })
