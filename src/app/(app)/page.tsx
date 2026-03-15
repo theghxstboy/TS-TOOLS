@@ -193,9 +193,10 @@ const ACCENT_CLASSES: Record<string, { hover: string; icon: string; glow: string
 
 const ORDER_KEY = "ts_tools_sort_order"
 const KNOWLEDGE_ORDER_KEY = "ts_knowledge_sort_order"
+const MODAL_KEY = "ts_tools_patch_v2_skip"
 
 // Sortable Tool Card Component
-function SortableToolCard({ tool }: { tool: Tool }) {
+function SortableToolCard({ tool, index }: { tool: Tool; index: number }) {
   const {
     attributes,
     listeners,
@@ -216,9 +217,9 @@ function SortableToolCard({ tool }: { tool: Tool }) {
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, animationDelay: `${index * 60}ms` }}
       className={cn(
-        "relative group h-full transition-opacity",
+        "relative group h-full transition-opacity animate-fade-up",
         isDragging && "opacity-40"
       )}
     >
@@ -258,7 +259,7 @@ function SortableToolCard({ tool }: { tool: Tool }) {
 }
 
 // Sortable Knowledge Card Component
-function SortableKnowledgeCard({ item }: { item: KnowledgeItem }) {
+function SortableKnowledgeCard({ item, index }: { item: KnowledgeItem; index: number }) {
   const {
     attributes,
     listeners,
@@ -277,9 +278,9 @@ function SortableKnowledgeCard({ item }: { item: KnowledgeItem }) {
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, animationDelay: `${index * 60}ms` }}
       className={cn(
-        "relative group transition-opacity",
+        "relative group transition-opacity animate-fade-up",
         isDragging && "opacity-40"
       )}
     >
@@ -341,8 +342,6 @@ export default function Home() {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>(KNOWLEDGE_ITEMS)
   const [mounted, setMounted] = useState(false)
 
-  const MODAL_KEY = 'ts_tools_patch_v2_skip'
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -374,7 +373,10 @@ export default function Home() {
           .filter((t): t is Tool => !!t)
         const missing = ALL_TOOLS.filter(t => !orderIds.includes(t.id))
         setTools([...ordered, ...missing])
-      } catch { /* ignore */ }
+      } catch {
+        // Remove item corrompido para evitar loop de falhas
+        localStorage.removeItem(ORDER_KEY)
+      }
     }
 
     // Load Knowledge Order
@@ -387,7 +389,10 @@ export default function Home() {
           .filter((k): k is KnowledgeItem => !!k)
         const missing = KNOWLEDGE_ITEMS.filter(k => !orderIds.includes(k.id))
         setKnowledgeItems([...ordered, ...missing])
-      } catch { /* ignore */ }
+      } catch {
+        // Remove item corrompido para evitar loop de falhas
+        localStorage.removeItem(KNOWLEDGE_ORDER_KEY)
+      }
     }
   }, [])
 
@@ -425,7 +430,7 @@ export default function Home() {
   return (
     <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8">
       {/* Hero Section */}
-      <div className="text-center mb-16 mt-8">
+      <div className="text-center mb-16 mt-8 animate-fade-up">
         <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f3f0ed] to-[#a99d94]">
             Crie. Converta.{" "}
@@ -463,8 +468,8 @@ export default function Home() {
               strategy={rectSortingStrategy}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {tools.map((tool) => (
-                  <SortableToolCard key={tool.id} tool={tool} />
+                {tools.map((tool, i) => (
+                  <SortableToolCard key={tool.id} tool={tool} index={i} />
                 ))}
               </div>
             </SortableContext>
@@ -504,8 +509,8 @@ export default function Home() {
               strategy={verticalListSortingStrategy}
             >
               <div className="flex flex-col gap-4">
-                {knowledgeItems.map((item) => (
-                  <SortableKnowledgeCard key={item.id} item={item} />
+                {knowledgeItems.map((item, i) => (
+                  <SortableKnowledgeCard key={item.id} item={item} index={i} />
                 ))}
               </div>
             </SortableContext>

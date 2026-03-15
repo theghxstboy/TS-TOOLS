@@ -22,16 +22,9 @@ export default function DocsPage() {
     return (
         <div className="flex flex-col min-h-screen bg-input">
             {/* Hero Section */}
-            <div className="pt-24 pb-16 px-6 text-center border-b border-border bg-card relative overflow-hidden">
+            <div className="pt-24 pb-16 px-6 text-center border-b border-border bg-card relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Background Glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-primary/5 blur-[120px] rounded-full"></div>
-
-                <div className="absolute top-8 left-8 md:top-12 md:left-12 z-10">
-                    <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-semibold text-sm group">
-                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                        Voltar ao Hub
-                    </Link>
-                </div>
 
                 <div className="relative z-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[0.65rem] font-bold uppercase tracking-widest mb-6">
@@ -47,7 +40,7 @@ export default function DocsPage() {
                 </div>
             </div>
 
-            <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-16">
+            <main className="flex-1 max-w-[1400px] w-full mx-auto px-6 py-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
                     {/* Destaque: Manual dos Nichos */}

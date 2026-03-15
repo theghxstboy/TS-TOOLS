@@ -18,13 +18,8 @@ export default function ParametrosFlowPage() {
     return (
         <div className="flex flex-col min-h-screen bg-input">
             {/* Header */}
-            <div className="pt-20 pb-12 px-6 border-b border-border bg-card">
+            <div className="pt-20 pb-12 px-6 border-b border-border bg-card animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="max-w-4xl mx-auto">
-                    <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm mb-8 group">
-                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                        Voltar para Academy
-                    </Link>
-
                     <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-orange-600/10 text-orange-500 flex items-center justify-center">
                             <Sliders size={32} />
@@ -39,7 +34,7 @@ export default function ParametrosFlowPage() {
                 </div>
             </div>
 
-            <main className="flex-1 max-w-4xl mx-auto w-full py-12 px-6">
+            <main className="flex-1 max-w-4xl mx-auto w-full py-12 px-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                 <div className="prose prose-invert max-w-none space-y-16">
 
                     <section className="space-y-6">

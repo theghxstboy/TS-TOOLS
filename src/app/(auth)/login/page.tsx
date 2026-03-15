@@ -2,10 +2,12 @@
 
 import { signIn } from "next-auth/react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const router = useRouter()
 
     async function handleSubmit(formData: FormData) {
         setIsLoading(true)
@@ -22,19 +24,20 @@ export default function LoginPage() {
 
             if (res?.error) {
                 setError("Credenciais inválidas. Tente novamente.")
-                setIsLoading(false)
             } else {
-                window.location.href = "/"
+                router.push("/")
             }
         } catch (err) {
-            setError("Ocorreu um erro.")
+            console.error("Erro ao fazer login:", err)
+            setError("Ocorreu um erro inesperado. Tente novamente.")
+        } finally {
             setIsLoading(false)
         }
     }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-background px-4">
-            <div className="w-full max-w-md space-y-8 rounded-2xl bg-card p-10 shadow-2xl border border-border">
+            <div className="w-full max-w-md space-y-8 rounded-2xl bg-card p-10 shadow-2xl border border-border animate-fade-up">
                 <div className="text-center">
                     <img src="/logo.png" alt="TS TOOLS" className="h-[60px] w-auto mx-auto mb-6" />
                     <h2 className="text-2xl font-extrabold text-foreground drop-shadow-sm">
@@ -58,16 +61,16 @@ export default function LoginPage() {
                     <div className="space-y-4">
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-                                Email
+                                Email ou Usuário
                             </label>
                             <input
                                 id="email"
                                 name="email"
-                                type="email"
-                                autoComplete="email"
+                                type="text"
+                                autoComplete="username"
                                 required
                                 className="mt-1 block w-full rounded-md border border-border bg-input text-foreground px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm placeholder-muted-foreground"
-                                placeholder="seu@email.com"
+                                placeholder="seu@email.com ou usuário"
                             />
                         </div>
 

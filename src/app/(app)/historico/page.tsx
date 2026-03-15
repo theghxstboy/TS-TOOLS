@@ -1,30 +1,74 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
-    ArrowLeft,
     History as ClockCounterClockwise,
     Trash2 as Trash,
-    CheckCircle2 as CheckCircle,
     Copy,
     Check,
     Search as MagnifyingGlass,
     Wand2 as MagicWand,
     UserSquare2 as UserFocus,
     Video as VideoCamera,
-    Image as Images
+    Image as Images,
+    RotateCcw as Workflow,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { HistoryItem } from "@/types/generator"
 import { formatDistanceToNow, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useClipboard } from "@/hooks/useClipboard"
-import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { toast } from "sonner"
 
 type GeneratorTab = "gerador" | "gerador-humano" | "gerador-video" | "antes-depois" | "workflow";
+
+const TABS = [
+    { id: "gerador" as GeneratorTab, label: "Imagens", icon: MagicWand },
+    { id: "gerador-humano" as GeneratorTab, label: "Humano", icon: UserFocus },
+    { id: "gerador-video" as GeneratorTab, label: "Vídeo", icon: VideoCamera },
+    { id: "antes-depois" as GeneratorTab, label: "Antes & Depois", icon: Images },
+    { id: "workflow" as GeneratorTab, label: "Workflow", icon: Workflow },
+]
+
+// Shimmer skeleton replicating history item layout
+function HistorySkeleton({ index }: { index: number }) {
+    return (
+        <div
+            className="bg-card border border-border rounded-xl p-5 animate-fade-up"
+            style={{ animationDelay: `${index * 40}ms` }}
+        >
+            <div className="flex flex-col md:flex-row gap-4 md:items-start justify-between">
+                <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="skeleton-shimmer h-5 w-16 rounded-md" />
+                        <div className="skeleton-shimmer h-4 w-28 rounded" />
+                    </div>
+                    <div className="space-y-1.5">
+                        <div className="skeleton-shimmer h-3.5 w-full rounded" />
+                        <div className="skeleton-shimmer h-3.5 w-4/5 rounded" />
+                    </div>
+                </div>
+                <div className="flex gap-2 md:flex-col">
+                    <div className="skeleton-shimmer h-9 w-36 rounded-lg" />
+                    <div className="skeleton-shimmer h-9 w-28 rounded-lg" />
+                </div>
+            </div>
+        </div>
+    )
+}
 
 function HistoricoContent() {
     const router = useRouter()
@@ -36,7 +80,6 @@ function HistoricoContent() {
     const { isCopied, copy } = useClipboard()
     const [isLoaded, setIsLoaded] = useState(false)
 
-    // Sync tab from URL on mount
     useEffect(() => {
         const tabParam = searchParams.get('gerador') as GeneratorTab
         if (tabParam && ["gerador", "gerador-humano", "gerador-video", "antes-depois", "workflow"].includes(tabParam)) {
@@ -44,18 +87,14 @@ function HistoricoContent() {
         }
     }, [searchParams])
 
-    // Load history for active tab
     useEffect(() => {
         setIsLoaded(false)
         try {
             const storedHistory = localStorage.getItem(`ts-tools-history-${activeTab}`)
-            if (storedHistory) {
-                setHistoryItems(JSON.parse(storedHistory))
-            } else {
-                setHistoryItems([])
-            }
+            setHistoryItems(storedHistory ? JSON.parse(storedHistory) : [])
         } catch (error) {
             console.error("Failed to parse history", error)
+            localStorage.removeItem(`ts-tools-history-${activeTab}`)
             setHistoryItems([])
         } finally {
             setIsLoaded(true)
@@ -63,28 +102,24 @@ function HistoricoContent() {
     }, [activeTab])
 
     const handleClearHistory = () => {
-        if (confirm("Tem certeza que deseja apagar todo o histórico deste gerador?")) {
-            localStorage.removeItem(`ts-tools-history-${activeTab}`)
-            setHistoryItems([])
-        }
+        localStorage.removeItem(`ts-tools-history-${activeTab}`)
+        setHistoryItems([])
+        toast.success("Histórico apagado.")
     }
 
     const handleRestore = (item: HistoryItem) => {
-        // Redirect to the appropriate generator with the restore ID in the URL
-        let path = ""
-        switch (activeTab) {
-            case "gerador": path = "/gerador"; break;
-            case "gerador-humano": path = "/gerador-humano"; break;
-            case "gerador-video": path = "/gerador-video"; break;
-            case "antes-depois": path = "/antes-depois"; break;
-            case "workflow": path = "/workflow"; break;
+        const pathMap: Record<GeneratorTab, string> = {
+            "gerador": "/gerador",
+            "gerador-humano": "/gerador-humano",
+            "gerador-video": "/gerador-video",
+            "antes-depois": "/antes-depois",
+            "workflow": "/workflow",
         }
-
-        router.push(`${path}?restore_id=${item.id}`)
+        router.push(`${pathMap[activeTab]}?restore_id=${item.id}`)
     }
 
-    const handleCopy = (prompt: string, id: string, e: React.MouseEvent) => {
-        e.stopPropagation(); // prevent restore action
+    const handleCopy = (prompt: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         copy(prompt);
     }
 
@@ -93,103 +128,101 @@ function HistoricoContent() {
     )
 
     return (
-        <div className="flex-1 w-full relative font-sans">
-            <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:py-12">
+        <div className="flex-1 w-full font-sans">
+            <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8 md:py-12">
 
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <Link href="/" className="size-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors bg-card/50 backdrop-blur-sm">
-                        <ArrowLeft size={20} />
-                    </Link>
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <ClockCounterClockwise size={32} className="text-primary" />
-                            Histórico de Gerações
-                        </h1>
-                        <p className="text-muted-foreground text-sm mt-1">
-                            Acesse e recupere até os últimos 50 prompts gerados em cada ferramenta.
-                        </p>
-                    </div>
+                <div className="mb-8 animate-fade-up">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+                        <ClockCounterClockwise size={28} className="text-primary" />
+                        Histórico
+                    </h1>
+                    <p className="text-muted-foreground text-sm mt-1">
+                        Acesse e recupere até os últimos 50 prompts gerados em cada ferramenta.
+                    </p>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex bg-card rounded-xl border border-border p-1 mb-8 max-w-3xl">
-                    <button
-                        onClick={() => setActiveTab("gerador")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
-                    >
-                        <MagicWand size={18} />
-                        Gerador PRO
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("gerador-humano")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador-humano' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
-                    >
-                        <UserFocus size={18} />
-                        Gerador Humano
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("gerador-video")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'gerador-video' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
-                    >
-                        <VideoCamera size={18} />
-                        Gerador Vídeo
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("antes-depois")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'antes-depois' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
-                    >
-                        <Images size={18} />
-                        Antes & Depois
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("workflow")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${activeTab === 'workflow' ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
-                    >
-                        <MagicWand size={18} />
-                        Workflow
-                    </button>
+                <div className="flex bg-card rounded-xl border border-border p-1 mb-6 gap-1 overflow-x-auto no-scrollbar animate-fade-up" style={{ animationDelay: "40ms" }}>
+                    {TABS.map(tab => {
+                        const Icon = tab.icon
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex-1 min-w-max flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${activeTab === tab.id ? 'bg-primary text-black shadow-md' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
+                            >
+                                <Icon size={16} />
+                                {tab.label}
+                            </button>
+                        )
+                    })}
                 </div>
 
-                {/* Tools & Search */}
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
-                    <div className="relative w-full md:w-96">
-                        <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                {/* Toolbar */}
+                <div className="flex flex-col md:flex-row gap-3 justify-between items-start md:items-center mb-5 animate-fade-up" style={{ animationDelay: "80ms" }}>
+                    <div className="relative w-full md:w-80">
+                        <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Buscar no histórico..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 bg-card border-border"
+                            className="pl-9 bg-card border-border focus-visible:ring-ring"
                         />
                     </div>
 
                     {historyItems.length > 0 && (
-                        <Button
-                            variant="destructive"
-                            onClick={handleClearHistory}
-                            className="w-full md:w-auto flex items-center gap-2 bg-red-950/30 text-red-500 hover:bg-red-900/50 hover:text-red-400 border border-red-900/30"
-                        >
-                            <Trash size={18} /> Limpar Histórico Atual
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="destructive"
+                                    className="w-full md:w-auto flex items-center gap-2 bg-red-950/30 text-red-500 hover:bg-red-900/50 hover:text-red-400 border border-red-900/30 focus-visible:ring-ring"
+                                >
+                                    <Trash size={16} />
+                                    Limpar Histórico
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-card border-border">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Apagar histórico?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Isso removerá permanentemente todos os {historyItems.length} prompt{historyItems.length !== 1 ? 's' : ''} salvos nesta aba. Essa ação não pode ser desfeita.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel className="bg-input border-border hover:bg-muted">
+                                        Cancelar
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleClearHistory}
+                                        className="bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-600"
+                                    >
+                                        Sim, apagar tudo
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     )}
                 </div>
 
-                {/* List View */}
+                {/* List */}
                 {!isLoaded ? (
-                    <div className="flex items-center justify-center h-64 text-muted-foreground">
-                        Carregando histórico...
+                    <div className="grid gap-4">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <HistorySkeleton key={i} index={i} />
+                        ))}
                     </div>
                 ) : filteredItems.length === 0 ? (
-                    <div className="bg-card/50 border border-border border-dashed rounded-2xl flex flex-col items-center justify-center p-12 text-center">
-                        <ClockCounterClockwise size={48} className="text-muted-foreground/50 mb-4" />
-                        <h3 className="text-lg font-bold text-foreground mb-2">Nenhum histórico encontrado</h3>
+                    <div className="bg-card/50 border border-border border-dashed rounded-2xl flex flex-col items-center justify-center p-12 text-center animate-fade-up">
+                        <ClockCounterClockwise size={40} className="text-muted-foreground/40 mb-4" />
+                        <h3 className="text-base font-bold text-foreground mb-2">Nenhum histórico encontrado</h3>
                         <p className="text-muted-foreground text-sm max-w-md">
-                            {searchQuery ? "Sua busca não retornou resultados." : "Você ainda não gerou prompts com esta ferramenta. Quando gerar, eles aparecerão aqui."}
+                            {searchQuery ? "Sua busca não retornou resultados." : "Você ainda não gerou prompts com esta ferramenta."}
                         </p>
                     </div>
                 ) : (
-                    <div className="grid gap-4">
-                        {filteredItems.map((item) => {
+                    <div className="grid gap-3">
+                        {filteredItems.map((item, index) => {
                             const date = new Date(item.timestamp)
                             const formattedDate = format(date, "d 'de' MMMM 'às' HH:mm", { locale: ptBR })
                             const timeAgo = formatDistanceToNow(item.timestamp, { addSuffix: true, locale: ptBR })
@@ -197,49 +230,47 @@ function HistoricoContent() {
                             return (
                                 <div
                                     key={item.id}
-                                    className="bg-card border border-border hover:border-primary/50 rounded-xl p-5 transition-colors group cursor-pointer"
+                                    className="bg-card border border-border hover:border-primary/50 rounded-xl p-5 transition-all group cursor-pointer animate-fade-up"
                                     onClick={() => handleRestore(item)}
                                     title="Clique para restaurar este prompt no gerador"
+                                    style={{ animationDelay: `${index * 40}ms` }}
                                 >
                                     <div className="flex flex-col md:flex-row gap-4 md:items-start justify-between">
-                                        <div className="flex-1">
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <span className="text-xs font-bold bg-muted px-2 py-1 rounded-md text-muted-foreground uppercase tracking-wider">
+                                                <span className="text-xs font-bold bg-muted px-2 py-0.5 rounded-md text-muted-foreground uppercase tracking-wider shrink-0">
                                                     {timeAgo}
                                                 </span>
-                                                <span className="text-xs text-muted-foreground">
+                                                <span className="text-xs text-muted-foreground truncate">
                                                     {formattedDate}
                                                 </span>
                                             </div>
-                                            <p className="text-foreground text-sm leading-relaxed mb-4 line-clamp-2 md:line-clamp-none group-hover:text-primary/90 transition-colors">
+                                            <p className="text-foreground text-sm leading-relaxed line-clamp-2 group-hover:text-primary/90 transition-colors">
                                                 {item.prompt}
                                             </p>
                                         </div>
 
-                                        <div className="flex items-center gap-2 md:flex-col md:items-end w-full md:w-auto border-t md:border-t-0 border-border pt-4 md:pt-0">
+                                        <div className="flex items-center gap-2 md:shrink-0 border-t md:border-t-0 border-border pt-3 md:pt-0">
                                             <Button
                                                 variant="secondary"
                                                 size="sm"
-                                                className="flex-1 md:w-full flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary hover:text-black border-none"
-                                                onClick={(e) => {
-                                                    e.stopPropagation() // Prevent div click
-                                                    handleRestore(item)
-                                                }}
+                                                className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary hover:text-black border-none focus-visible:ring-ring"
+                                                onClick={(e) => { e.stopPropagation(); handleRestore(item) }}
                                             >
-                                                <ClockCounterClockwise size={16} />
-                                                Restaurar Opções
+                                                <ClockCounterClockwise size={14} />
+                                                Restaurar
                                             </Button>
 
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className={`flex-1 md:w-full flex items-center justify-center gap-2 ${isCopied ? 'bg-green-600/20 text-green-500 border-green-600/30' : 'bg-input border-border text-foreground hover:bg-muted'}`}
-                                                onClick={(e) => handleCopy(item.prompt, item.id, e)}
+                                                className={`flex-1 md:flex-none flex items-center justify-center gap-2 focus-visible:ring-ring ${isCopied ? 'bg-emerald-600/20 text-emerald-500 border-emerald-600/30' : 'bg-input border-border text-foreground hover:bg-muted'}`}
+                                                onClick={(e) => handleCopy(item.prompt, e)}
                                             >
                                                 {isCopied ? (
-                                                    <><Check size={16} /> Copiado</>
+                                                    <><Check size={14} /> Copiado</>
                                                 ) : (
-                                                    <><Copy size={16} /> Copiar Apenas</>
+                                                    <><Copy size={14} /> Copiar</>
                                                 )}
                                             </Button>
                                         </div>
@@ -256,7 +287,15 @@ function HistoricoContent() {
 
 export default function HistoricoPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center p-10 h-screen">Carregando histórico...</div>}>
+        <Suspense fallback={
+            <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-12">
+                <div className="grid gap-3">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <HistorySkeleton key={i} index={i} />
+                    ))}
+                </div>
+            </div>
+        }>
             <HistoricoContent />
         </Suspense>
     )

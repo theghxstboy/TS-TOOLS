@@ -195,14 +195,7 @@ export default function NichosPage() {
         <div className="flex flex-col min-h-screen bg-input">
 
             {/* Hero Section */}
-            <div className="pt-20 pb-12 px-6 text-center border-b border-border bg-gradient-to-b from-amber-500/10 to-transparent relative">
-                <div className="absolute top-8 left-8 md:top-12 md:left-12">
-                    <Link href="/docs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium text-sm">
-                        <ArrowLeft size={20} />
-                        Voltar para Academy
-                    </Link>
-                </div>
-
+            <div className="pt-20 pb-12 px-6 text-center border-b border-border bg-gradient-to-b from-amber-500/10 to-transparent relative animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6">
                     <Buildings size={16} />
                     Home Services EUA
@@ -234,7 +227,7 @@ export default function NichosPage() {
             </div>
 
             {/* Niches List */}
-            <main className="flex-1 max-w-6xl mx-auto w-full py-12 px-6">
+            <main className="flex-1 max-w-[1400px] mx-auto w-full py-12 px-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 
                 {filteredNiches.length === 0 ? (
                     <div className="text-center py-20">

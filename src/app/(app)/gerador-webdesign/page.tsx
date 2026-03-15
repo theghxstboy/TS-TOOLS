@@ -363,48 +363,37 @@ Utilize a seguinte estrutura de seções:
 
     return (
         <div className="flex-1 w-full relative font-sans">
-            <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:py-12">
-                {/* Navigation Top */}
-                <div className="flex items-center justify-end mb-8">
-                    <Link href="/gerador" className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-secondary/80 transition-colors shadow-sm">
-                        <ArrowLeft size={20} />
-                        VOLTAR AO GERADOR DE IMAGENS
-                    </Link>
-                </div>
-
-                {/* Header Content */}
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">Web Design</span> Generator
-                    </h1>
-                    <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                        Estruture prompts de código de alta conversão para IAs (Lovable, v0, Antigravity) criarem LPs perfeitas.
+            <div className="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8 md:py-12">
+                {/* Hero */}
+                <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <div className="flex items-center gap-4 justify-center mb-4">
+                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-lg relative group">
+                            <Code size={28} />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                                    Web Design <span className="text-blue-500">Generator</span>
+                                </h1>
+                            </div>
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest text-left">FRONT-END PROMPT SYSTEM</p>
+                        </div>
+                    </div>
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
+                        Estruture prompts de código de alta conversão para IAs (Lovable, v0, Bolt) criarem LPs <span className="text-foreground">perfeitas</span>.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Inputs Column */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 
-                        <div className="flex items-center gap-4">
-                            <div className="size-12 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-lg relative group">
-                                <Code size={28} />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-                                        Gerador <span className="text-blue-500">HTML</span>
-                                    </h1>
-                                </div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">FRONT-END PROMPT SYSTEM</p>
-                            </div>
-                        </div>
 
                         {/* Presets Gallery */}
                         <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Templates Prontos (Presets) <span className="text-blue-500 text-xl">↓</span>
+                                <h2 className="text-xl font-black tracking-tight leading-none uppercase flex items-center gap-2">
+                                    Templates Prontos <span className="text-blue-500 text-xl">↓</span>
                                 </h2>
                                 <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">
                                     Preenche Auto
@@ -451,22 +440,28 @@ Utilize a seguinte estrutura de seções:
 
                         {/* Engine Config */}
                         <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-xl font-bold text-foreground">Configurações Base</h2>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                                        <Code size={28} />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-black tracking-tight leading-none uppercase">Configuração Base</h2>
+                                        <p className="text-xs text-muted-foreground mt-1 font-bold italic tracking-wider">ESTRUTURA & DESIGN SYSTEM</p>
+                                    </div>
+                                </div>
 
-                                <div className="flex items-center bg-muted p-1 rounded-xl">
+                                <div className="flex items-center bg-muted p-1 rounded-2xl">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-blue-500 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-blue-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        <ListChecks size={18} />
-                                        Modo Base
+                                        Modo Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("expert")}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'expert' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'expert' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        <TerminalWindow size={18} />
                                         Modo Expert
                                     </button>
                                 </div>
@@ -723,10 +718,9 @@ Utilize a seguinte estrutura de seções:
                                 <div className="pt-6 pb-2">
                                     <Button
                                         onClick={handleGenerate}
-                                        className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${isGenerating ? 'bg-blue-600 opacity-90' : 'bg-blue-500 hover:bg-blue-600 hover:-translate-y-1'}`}
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-blue-500 hover:bg-blue-600 text-white shadow-2xl shadow-blue-500/20 transition-all active:scale-[0.98]"
                                     >
-                                        {isGenerating ? <CheckCircle size={24} className="mr-2" /> : <Code size={24} className="mr-2" />}
-                                        {isGenerating ? 'Código Pronto!' : 'Gerar Prompt p/ Código'}
+                                        {isGenerating ? <CheckCircle size={28} /> : "Gerar Prompt de Código"}
                                     </Button>
                                 </div>
                             </div>
@@ -735,12 +729,15 @@ Utilize a seguinte estrutura de seções:
 
                     {/* Output Column */}
                     <div className="lg:col-span-5 relative">
-                        <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
+                        <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24 animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
                             <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
                                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <TerminalWindow size={24} className="text-blue-500" />
-                                    Resultado do Prompt
+                                    Prompt Gerado
                                 </h2>
+                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-blue-500/20 text-blue-500">
+                                    PRONTO PARA IA
+                                </span>
                             </div>
 
                             {/* ALERTA IMPORTANTE PARA IMAGEM */}
@@ -779,10 +776,10 @@ Utilize a seguinte estrutura de seções:
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
-                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted font-bold'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
-                                                {isCopied ? 'Copiado!' : 'Copiar p/ IA'}
+                                                {isCopied ? 'Copiado!' : 'Copiar Prompt'}
                                             </Button>
                                         </div>
                                     </div>
@@ -790,7 +787,7 @@ Utilize a seguinte estrutura de seções:
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
                                         <Code size={48} className="text-blue-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Selecione as cores da paleta, preencha os dados e clique em gerar para ver o prompt estruturado de código HTML/Tailwind.
+                                            Preencha os campos e clique em <strong>Gerar Prompt de Código</strong>.
                                         </p>
                                     </div>
                                 )}

@@ -524,7 +524,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
             <div className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
 
                 {/* Header */}
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 animate-fade-up">
                     <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-5 border border-primary/20">
                         <WorkflowIcon size={14} /> Workflow Generator
                     </div>
@@ -542,7 +542,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
                     {/* ── Coluna Esquerda: Formulário ── */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
 
                         {/* Card 1: Serviço & Região */}
                         <div className="bg-card border border-border rounded-2xl shadow-sm p-6 md:p-8">
@@ -943,9 +943,9 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                                         <WorkflowIcon size={20} className="text-primary" /> Prompt Gerado
                                     </h2>
-                                    {generatedPrompt && (
-                                        <span className="text-[10px] font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20 uppercase tracking-wider">Pronto</span>
-                                    )}
+                                    <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
+                                        PRONTO PARA IA
+                                    </span>
                                 </div>
 
                                 <div className="p-5 min-h-[280px] flex flex-col">
@@ -1093,7 +1093,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     )}
                                 >
                                     {copiedType === "prompt" ? <Check size={20} /> : <Copy size={20} />}
-                                    <span>{copiedType === "prompt" ? "Copiado com Sucesso!" : "Copiar para o Clipboard"}</span>
+                                    <span>{copiedType === "prompt" ? "Copiado!" : "Copiar Prompt"}</span>
                                 </Button>
                             </div>
 

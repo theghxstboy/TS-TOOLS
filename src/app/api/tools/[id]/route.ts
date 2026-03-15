@@ -10,8 +10,11 @@ export async function PATCH(
     try {
         const params = await props.params;
         const session = await auth();
-        if (!session?.user || session.user.role !== "admin") {
+        if (!session?.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        if (session.user.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         const body = await request.json();
@@ -45,8 +48,11 @@ export async function PUT(
     try {
         const params = await props.params;
         const session = await auth();
-        if (!session?.user || session.user.role !== "admin") {
+        if (!session?.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        if (session.user.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         const body = await request.json();
@@ -80,9 +86,11 @@ export async function DELETE(
         const params = await props.params;
         const session = await auth();
 
-        // Let's assume only admins can delete
-        if (!session?.user || session.user.role !== "admin") {
+        if (!session?.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        if (session.user.role !== "admin") {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         const deleted = await deleteTool(params.id);

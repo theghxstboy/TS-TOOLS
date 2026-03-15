@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, X, Link2 as LinkIcon, Briefcase, FileText, MapPin as MapPinLine, Image as ImageIcon, Video as VideoCamera, Target } from "lucide-react"
+import { Plus, X, Link2 as LinkIcon, Briefcase, Image as ImageIcon, Video as VideoCamera, Target } from "lucide-react"
 import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 interface SubmitToolModalProps {
     isOpen: boolean;
@@ -68,14 +69,19 @@ export function SubmitToolModal({ isOpen, onClose, onSuccess }: SubmitToolModalP
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.error || "Falha ao enviar ferramenta");
+                const msg = data.error || "Falha ao enviar ferramenta";
+                setError(msg);
+                toast.error(msg);
+                return;
             }
 
             onSuccess();
             onClose();
             setFormData({ title: "", description: "", url: "", category: "Marketing" });
-        } catch (err: any) {
-            setError(err.message);
+        } catch {
+            const msg = "Erro de conexão. Tente novamente.";
+            setError(msg);
+            toast.error(msg);
         } finally {
             setIsLoading(false);
         }

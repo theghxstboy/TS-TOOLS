@@ -306,13 +306,13 @@ function GeradorVideoContent() {
                                         onClick={() => setMode("simple")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Tático
+                                        Modo Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'advanced' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Diretor
+                                        Modo Expert
                                     </button>
                                 </div>
                             </div>
@@ -481,7 +481,7 @@ function GeradorVideoContent() {
                                     onClick={handleGenerate}
                                     className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
                                 >
-                                    {isGenerating ? <CheckCircle size={28} /> : "Gravar Prompt Técnica"}
+                                    {isGenerating ? <CheckCircle size={28} /> : "Gerar Prompt"}
                                 </Button>
                             </div>
                         </div>
@@ -492,11 +492,11 @@ function GeradorVideoContent() {
                         <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
                             <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
                                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <TerminalWindow size={24} className="text-blue-500" />
-                                    Resultado do Diretor
+                                    <TerminalWindow size={24} className="text-primary" />
+                                    Prompt Gerado
                                 </h2>
-                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-blue-500/20 text-blue-300">
-                                    VIDEO AI OTIMIZADO
+                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
+                                    PRONTO PARA IA
                                 </span>
                             </div>
 
@@ -528,15 +528,15 @@ function GeradorVideoContent() {
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
-                                                {isCopied ? 'Copiado!' : 'Copiar Direção'}
+                                                {isCopied ? 'Copiado!' : 'Copiar Prompt'}
                                             </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 min-h-[200px]">
-                                        <FilmStrip size={48} className="text-blue-500 mb-4" />
+                                        <FilmStrip size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Preencha os campos e grave a prompt técnica para visualizar sua direção aqui.
+                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
                                         </p>
                                     </div>
                                 )}

@@ -34,13 +34,8 @@ export default function NicheDocPage({
     return (
         <div className="flex min-h-screen bg-card">
             {/* Sidebar */}
-            <aside className="hidden lg:block w-72 border-r border-border bg-input h-screen sticky top-0 overflow-y-auto custom-scrollbar p-6">
-                <Link href="/docs/nichos" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-semibold mb-8">
-                    <ArrowLeft size={18} />
-                    Manual dos Nichos
-                </Link>
-
-                <div className="space-y-8">
+            <aside className="hidden lg:block w-72 border-r border-border bg-input h-screen sticky top-0 overflow-y-auto custom-scrollbar p-6 animate-in fade-in slide-in-from-left-4 duration-700">
+                <div className="space-y-8 mt-4">
                     {groups.map(group => (
                         <div key={group} className="space-y-3">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -66,13 +61,7 @@ export default function NicheDocPage({
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 max-w-4xl px-6 py-8 md:py-16 md:px-12 mx-auto">
-                <div className="lg:hidden mb-8">
-                    <Link href="/docs/nichos" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm font-semibold">
-                        <ArrowLeft size={18} />
-                        Voltar ao Manual
-                    </Link>
-                </div>
+            <main className="flex-1 max-w-4xl px-6 py-8 md:py-16 md:px-12 mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 
                 {/* Header */}
                 <header className="mb-12 pb-8 border-b border-border">

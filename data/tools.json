@@ -1,7 +1,7 @@
 [
   {
-    "title": "Pinterest123",
-    "description": "Encontrar referencias..123",
+    "title": "Pinterest",
+    "description": "Plataforma visual para encontrar referências e inspirações para seus projetos de design e marketing.",
     "url": "https://br.pinterest.com/",
     "category": "Marketing",
     "submittedBy": "Administrador",
@@ -12,7 +12,7 @@
   },
   {
     "title": "Figma",
-    "description": "UX/UI",
+    "description": "A ferramenta líder para design de interface, prototipagem e colaboração em tempo real para times de design.",
     "url": "https://www.figma.com/",
     "category": "Design",
     "submittedBy": "Test User",
@@ -20,5 +20,192 @@
     "id": "f2bf5a8c-5ef8-4cb8-8e33-cb33febc62c4",
     "status": "approved",
     "createdAt": "2026-03-04T03:01:04.682Z"
+  },
+  {
+    "title": "Flow AI",
+    "description": "Nossa engine principal para geração de imagens e vídeos fotorrealistas de alta performance para Home Services.",
+    "url": "https://flow.com",
+    "category": "IA & Automação",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "7d9e2b10-1a2b-4c3d-8e9f-0a1b2c3d4e5f",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "ChatGPT",
+    "description": "IA da OpenAI para criação de copys, roteiros, tradução técnica e brainstorming estratégico para anúncios.",
+    "url": "https://chat.openai.com",
+    "category": "Marketing",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "1b2c3d4e-5f6a-7b8c-9d0e-1a2b3c4d5e6f",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Claude AI",
+    "description": "IA da Anthropic excelente para escrita criativa, análise de documentos e contextos complexos de serviços.",
+    "url": "https://claude.ai",
+    "category": "Marketing",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "2c3d4e5f-6a7b-8c9d-0e1a-2b3c4d5e6f7a",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Canva",
+    "description": "Design gráfico intuitivo para criação rápida de posts, stories e materiais de marketing direto.",
+    "url": "https://www.canva.com",
+    "category": "Design",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "3d4e5f6a-7b8c-9d0e-1a2b-3c4d5e6f7a8b",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "CapCut",
+    "description": "Editor de vídeo completo e fácil de usar, ideal para Shorts, Reels e anúncios de alta retenção.",
+    "url": "https://www.capcut.com",
+    "category": "Audiovisual",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "4e5f6a7b-8c9d-0e1a-2b3c-4d5e6f7a8b9c",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Facebook Ads Library",
+    "description": "Explore todos os anúncios ativos no ecossistema Meta para benchmark e inspiração de criativos.",
+    "url": "https://www.facebook.com/ads/library",
+    "category": "Tráfego Pago",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "5f6a7b8c-9d0e-1a2b-3c4d-5e6f7a8b9c0d",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Google Ads Keyword Planner",
+    "description": "Planejador de palavras-chave oficial para descobrir termos de busca e volume de tráfego nos EUA.",
+    "url": "https://ads.google.com/home/tools/keyword-planner/",
+    "category": "Tráfego Pago",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "6a7b8c9d-0e1a-2b3c-4d5e-6f7a8b9c0d1e",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Remove.bg",
+    "description": "IA especializada em remover fundos de imagens com precisão cirúrgica em segundos.",
+    "url": "https://www.remove.bg",
+    "category": "Design",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "7b8c9d0e-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Unsplash",
+    "description": "A maior biblioteca de fotos de alta fidelidade e uso gratuito para projetos comerciais.",
+    "url": "https://unsplash.com",
+    "category": "Audiovisual",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "8c9d0e1a-2b3c-4d5e-6f7a-8b9c0d1e2f3g",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:53:54.000Z"
+  },
+  {
+    "title": "Coolors",
+    "description": "Gerador de esquemas de cores super rápido e profissional para identidades visuais.",
+    "url": "https://coolors.co",
+    "category": "Design",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "9d0e1a2b-3c4d-5e6f-7a8b-9c0d1e2f3h4i",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:53:54.000Z"
+  },
+  {
+    "title": "Loom",
+    "description": "Grave e envie mensagens de vídeo rápidas para comunicação eficiente com clientes e equipe.",
+    "url": "https://www.loom.com",
+    "category": "Social Media",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "0e1a2b3c-4d5e-6f7a-8b9c-0d1e2f3i4j5k",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:53:54.000Z"
+  },
+  {
+    "title": "Google Trends",
+    "description": "Acompanhe o que o mundo (e especificamente o mercado americano) está pesquisando agora.",
+    "url": "https://trends.google.com",
+    "category": "Marketing",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3j4k5l6m",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:53:54.000Z"
+  },
+  {
+    "title": "Meta Ad Standards",
+    "description": "Guia oficial de boas práticas e políticas para anúncios no Instagram e Facebook.",
+    "url": "https://www.facebook.com/business/help/h",
+    "category": "Tráfego Pago",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3k4l5m6n7o",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:53:54.000Z"
+  },
+  {
+    "title": "Pexels",
+    "description": "Banco de vídeos gratuitos de alta qualidade, perfeitos para overlays e fundo de anúncios.",
+    "url": "https://www.pexels.com",
+    "category": "Audiovisual",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "8c9d0e1a-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Buffer",
+    "description": "Agende e gerencie suas postagens em diversas redes sociais em um só lugar de forma simples.",
+    "url": "https://buffer.com",
+    "category": "Social Media",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "9d0e1a2b-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "AnswerThePublic",
+    "description": "Descubra as perguntas reais que o público faz no Google para criar conteúdos de alta relevância.",
+    "url": "https://answerthepublic.com",
+    "category": "Marketing",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "0e1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
+  },
+  {
+    "title": "Perplexity AI",
+    "description": "Motor de busca inteligente que resume resultados e entrega referências diretas para pesquisa rápida.",
+    "url": "https://www.perplexity.ai",
+    "category": "IA & Automação",
+    "submittedBy": "Administrador",
+    "userId": "admin@tstools.com",
+    "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "status": "approved",
+    "createdAt": "2026-03-15T02:46:54.000Z"
   }
 ]

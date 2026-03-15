@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
 import { getTools, updateToolStatus } from "@/lib/tools";
 import { auth } from "@/auth";
+import { updateToolStatusSchema } from "@/lib/validations";
 
-// Middleware/Helper to check if user is admin
-async function isAdmin() {
+// Helper: verifica se a sessão atual tem papel de admin
+async function requireAdmin() {
     const session = await auth();
-    return session?.user?.role === "admin" || session?.user?.email === process.env.ADMIN_EMAIL;
+    if (!session?.user) return { error: "Unauthorized", status: 401 } as const;
+    if (session.user.role !== "admin") return { error: "Forbidden", status: 403 } as const;
+    return null;
 }
 
 export async function GET() {
     try {
-        if (!(await isAdmin())) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+        const authError = await requireAdmin();
+        if (authError) {
+            return NextResponse.json({ error: authError.error }, { status: authError.status });
         }
 
         const allTools = await getTools();
-        // Return only pending tools for the admin to review
         const pendingTools = allTools.filter(tool => tool.status === "pending");
         return NextResponse.json(pendingTools);
     } catch (error) {
@@ -26,18 +29,28 @@ export async function GET() {
 
 export async function PUT(request: Request) {
     try {
-        if (!(await isAdmin())) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+        const authError = await requireAdmin();
+        if (authError) {
+            return NextResponse.json({ error: authError.error }, { status: authError.status });
         }
 
         const body = await request.json();
-        const { id, status } = body;
 
-        if (!id || !status || !["approved", "rejected"].includes(status)) {
-            return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+        // Valida com Zod — consistente com as demais rotas da API
+        const idParsed = typeof body?.id === "string" && body.id.length > 0;
+        if (!idParsed) {
+            return NextResponse.json({ error: "ID da ferramenta é obrigatório" }, { status: 400 });
         }
 
-        const updatedTool = await updateToolStatus(id, status as "approved" | "rejected");
+        const statusParsed = updateToolStatusSchema.safeParse({ status: body.status });
+        if (!statusParsed.success) {
+            return NextResponse.json(
+                { error: statusParsed.error.issues[0].message },
+                { status: 400 }
+            );
+        }
+
+        const updatedTool = await updateToolStatus(body.id, statusParsed.data.status);
 
         if (!updatedTool) {
             return NextResponse.json({ error: "Tool not found" }, { status: 404 });

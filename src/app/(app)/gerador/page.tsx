@@ -37,6 +37,17 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_GERADOR } from "@/constants/presets"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 
 interface GeradorPayload {
     mode: "simple" | "advanced";
@@ -107,18 +118,35 @@ function GeradorContent() {
     const { history, saveHistory } = useGenerationHistory<GeradorPayload>("gerador")
     const { isFavorited, toggleFavorite } = useFavorites()
     const searchParams = useSearchParams()
+    const [pendingRestoreItem, setPendingRestoreItem] = useState<HistoryItem<GeradorPayload> | null>(null)
 
+    const hasUserData = () => {
+        return !!(subject || niche || nicheAdv || styleAdv || environmentAdv || lightingAdv || locationAdv || objectiveAdv || negativeAdv)
+    }
     useEffect(() => {
         const restoreId = searchParams.get('restore_id')
         if (restoreId && history.length > 0) {
             const itemToRestore = history.find((item: HistoryItem<GeradorPayload>) => item.id === restoreId)
             if (itemToRestore) {
-                handleRestore(itemToRestore)
+                if (hasUserData()) {
+                    setPendingRestoreItem(itemToRestore)
+                } else {
+                    doRestore(itemToRestore)
+                }
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, history])
 
     const handleRestore = (item: HistoryItem<GeradorPayload>) => {
+        if (hasUserData()) {
+            setPendingRestoreItem(item)
+        } else {
+            doRestore(item)
+        }
+    }
+
+    const doRestore = (item: HistoryItem<GeradorPayload>) => {
         const p = item.payload;
         if (!p) return;
 
@@ -152,6 +180,7 @@ function GeradorContent() {
         setSubject(p.subject || "")
         setGeneratedPrompt(item.prompt || "")
         setSelectedPreset("")
+        toast.success("Prompt restaurado!", { description: "As configurações foram carregadas no gerador." })
     }
 
     const handlePresetClick = (id: string) => {
@@ -394,6 +423,31 @@ function GeradorContent() {
 
     return (
         <div className="flex-1 w-full relative font-sans">
+            {/* Restore Guard AlertDialog */}
+            <AlertDialog open={!!pendingRestoreItem} onOpenChange={(open) => { if (!open) setPendingRestoreItem(null) }}>
+                <AlertDialogContent className="bg-card border-border">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sobrescrever configurações?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Você já tem dados preenchidos no gerador. Restaurar este prompt do histórico irá substituir as configurações atuais.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-input border-border hover:bg-muted" onClick={() => setPendingRestoreItem(null)}>
+                            Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            className="bg-primary hover:bg-primary/90 text-black"
+                            onClick={() => {
+                                if (pendingRestoreItem) doRestore(pendingRestoreItem)
+                                setPendingRestoreItem(null)
+                            }}
+                        >
+                            Sim, restaurar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
             <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:py-12">
                 {/* Navigation Top */}
                 <div className="flex items-center justify-end mb-8">
@@ -404,7 +458,7 @@ function GeradorContent() {
                 </div>
 
                 {/* Header Content */}
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 animate-fade-up">
                     <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
                         Fábrica de <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-400">Imagens Hiper-Realistas</span>
                     </h1>
@@ -415,7 +469,7 @@ function GeradorContent() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Inputs Column */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
 
                         <div className="flex items-center gap-4">
                             <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
@@ -744,13 +798,16 @@ function GeradorContent() {
                     </div>
 
                     {/* Output Column */}
-                    <div className="lg:col-span-5 relative">
+                    <div className="lg:col-span-5 relative animate-fade-up" style={{ animationDelay: '160ms' }}>
                         <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
                             <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
                                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <TerminalWindow size={24} className="text-primary" />
-                                    Resultado do Prompt
+                                    Prompt Gerado
                                 </h2>
+                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
+                                    PRONTO PARA IA
+                                </span>
                             </div>
 
                             <div className="p-6 min-h-[300px] flex flex-col">
@@ -789,7 +846,7 @@ function GeradorContent() {
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
                                         <MagicWand size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Preencha os campos e clique em "Gerar Prompt" para ver o resultado estruturado.
+                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
                                         </p>
                                     </div>
                                 )}
@@ -805,14 +862,14 @@ function GeradorContent() {
                     </div>
                 </div>
 
-                {/* History Section - Full Width */}
-                <div className="mt-6">
-                    <GenerationHistory
-                        history={history}
-                        onRestore={handleRestore}
-                        generatorName="gerador"
-                    />
-                </div>
+            {/* History Section - Full Width Alignment */}
+            <div className="max-w-[1400px] mx-auto px-6 mt-6 pb-12">
+                <GenerationHistory
+                    history={history}
+                    onRestore={handleRestore}
+                    generatorName="gerador"
+                />
+            </div>
             </div>
 
             <FloatingHelpButton pageTitle="Gerador PRO" />

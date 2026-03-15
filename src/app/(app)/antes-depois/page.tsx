@@ -231,28 +231,23 @@ function AntesEDepoisContent() {
                 </div>
 
                 {/* Header Content */}
-                <div className="text-center mb-12">
-                    <div className="flex items-center gap-4 justify-center">
-                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
+                <div className="text-center mb-12 animate-fade-up">
+                    <div className="inline-flex items-center gap-3 mb-4">
+                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg">
                             <Sparkle size={28} />
                         </div>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1 uppercase tracking-tight">
-                                    Antes <span className="text-primary italic">&</span> Depois
-                                </h1>
-                            </div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">COMPARISON GENERATOR</p>
-                        </div>
                     </div>
-                    <p className="text-muted-foreground text-lg max-w-xl mx-auto mt-4">
-                        Gere comparações <strong>Antes & Depois</strong> perfeitas para anúncios. Foco em mostrar a transformação e o valor do serviço.
+                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3 uppercase tracking-tight">
+                        Antes <span className="text-primary italic">&</span> Depois
+                    </h1>
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                        Gere comparações <strong>Antes & Depois</strong> perfeitas para anúncios de <strong className="text-foreground">Home Services</strong>.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Inputs Column */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
 
                         {/* Presets Gallery */}
                         <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
@@ -313,15 +308,14 @@ function AntesEDepoisContent() {
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
                                         <ListChecks size={18} />
-                                        Modo Rápido
+                                        Modo Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
                                         <TerminalWindow size={18} />
-                                        Modo Custom
-                                        <span className="text-[0.6rem] ml-1 bg-purple-100 text-primary px-1.5 py-0.5 rounded uppercase leading-none">BETA</span>
+                                        Modo Expert
                                     </button>
                                 </div>
                             </div>
@@ -526,28 +520,22 @@ function AntesEDepoisContent() {
 
                                 {/* Action Buttons */}
                                 <div className="pt-6 pb-2">
-                                    <Button
-                                        onClick={handleGenerate}
-                                        className={`w-full py-6 text-lg font-bold rounded-xl shadow-lg transition-all ${isGenerating ? 'bg-purple-600 opacity-90' : 'bg-purple-600 hover:bg-purple-700 hover:-translate-y-1'}`}
-                                    >
-                                        {isGenerating ? <CheckCircle size={24} /> : <Sparkle size={24} />}
-                                        {isGenerating ? 'Gerado com Sucesso!' : 'Gerar Prompt Antes/Depois'}
-                                    </Button>
+                                        {isGenerating ? <div className="animate-pulse">Gerando...</div> : "Gerar Prompt"}
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Output Column */}
-                    <div className="lg:col-span-5 relative">
+                    <div className="lg:col-span-5 relative animate-fade-up" style={{ animationDelay: '160ms' }}>
                         <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
                             <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
                                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <TerminalWindow size={24} className="text-purple-500" />
-                                    Resultado do Prompt
+                                    <TerminalWindow size={24} className="text-primary" />
+                                    Prompt Gerado
                                 </h2>
-                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-purple-500/20 text-purple-300">
-                                    IMAGEFX OTIMIZADO
+                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
+                                    PRONTO PARA IA
                                 </span>
                             </div>
 
@@ -579,9 +567,9 @@ function AntesEDepoisContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Images size={48} className="text-purple-500 mb-4" />
+                                        <Images size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Preencha os campos e clique em "Gerar" para ver a estrutura split-screen aqui.
+                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
                                         </p>
                                     </div>
                                 )}

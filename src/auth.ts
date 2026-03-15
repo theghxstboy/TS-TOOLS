@@ -1,6 +1,20 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
+import { timingSafeEqual } from "crypto"
+
+/**
+ * Compara duas strings em tempo constante para prevenir timing attacks.
+ * Retorna false imediatamente se os comprimentos forem diferentes,
+ * evitando que o tamanho da senha vaze via tempo de resposta.
+ */
+function safeCompare(a: string, b: string): boolean {
+    if (!a || !b) return false
+    const bufA = Buffer.from(a)
+    const bufB = Buffer.from(b)
+    if (bufA.length !== bufB.length) return false
+    return timingSafeEqual(bufA, bufB)
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -15,24 +29,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Senha", type: "password" }
             },
             async authorize(credentials) {
-                // Logica simplificada para login estático usando variáveis de ambiente
-                // Idealmente, você faria uma busca (Ex: no banco de dados) para checar a senha.
                 const adminEmail = process.env.ADMIN_EMAIL;
                 const adminPassword = process.env.ADMIN_PASSWORD;
                 const operacaoUser = process.env.OPERACAO_USER;
                 const operacaoPassword = process.env.OPERACAO_PASSWORD;
 
-                if (!credentials?.email || !credentials?.password) {
+                const email = credentials?.email as string | undefined
+                const password = credentials?.password as string | undefined
+
+                if (!email || !password) {
                     return null;
                 }
 
-                // Verifica Admin
-                if (credentials.email === adminEmail && credentials.password === adminPassword) {
+                // Verifica Admin usando comparação em tempo constante
+                if (adminEmail && adminPassword &&
+                    safeCompare(email, adminEmail) &&
+                    safeCompare(password, adminPassword)) {
                     return { id: "1", name: "Administrador", email: adminEmail, role: "admin" }
                 }
 
-                // Verifica Operação
-                if (credentials.email === operacaoUser && credentials.password === operacaoPassword) {
+                // Verifica Operação usando comparação em tempo constante
+                if (operacaoUser && operacaoPassword &&
+                    safeCompare(email, operacaoUser) &&
+                    safeCompare(password, operacaoPassword)) {
                     return { id: "2", name: "Operador", email: "operacao@tstools.com", role: "user" }
                 }
 
@@ -56,5 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     pages: {
         signIn: "/login",
-    }
+    },
+    trustHost: true,
+    secret: process.env.AUTH_SECRET,
 })

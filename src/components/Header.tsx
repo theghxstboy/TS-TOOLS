@@ -1,5 +1,8 @@
-import { auth, signIn, signOut } from "@/auth"
+"use client"
+
+import { useSession, signOut, signIn } from "next-auth/react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { BackButton } from "./BackButton"
 import { SearchTrigger } from "./SearchTrigger"
 import {
@@ -11,18 +14,32 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 
-export default async function Header() {
-    const session = await auth()
+export default function Header() {
+    const { data: session } = useSession()
+    const pathname = usePathname()
+    const isHome = pathname === "/"
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-card/90 backdrop-blur-md">
-            <div className="container mx-auto grid grid-cols-3 h-20 max-w-6xl items-center px-4">
+            <div className={cn(
+                "container mx-auto grid grid-cols-3 h-20 items-center px-6 transition-all duration-500 ease-in-out",
+                isHome ? "max-w-5xl" : "max-w-[1400px]"
+            )}>
                 {/* Left Side: Logo + Back Button */}
-                <div className="flex items-center gap-4">
-                    <BackButton />
-                    <Link href="/" className="transition-opacity hover:opacity-80 shrink-0">
-                        <img src="/logo.png" alt="TS TOOLS" className="h-[45px] md:h-[55px] w-auto" />
+                <div className="flex items-center gap-4 py-2">
+                    <div className={cn(
+                        "flex items-center transition-all duration-500 ease-in-out",
+                        isHome ? "w-0 opacity-0 -translate-x-4 pointer-events-none" : "w-auto opacity-100 translate-x-0"
+                    )}>
+                        <BackButton />
+                    </div>
+                    <Link href="/" className={cn(
+                        "transition-all duration-500 ease-in-out hover:opacity-80 shrink-0",
+                        !isHome && "ml-2"
+                    )}>
+                        <img src="/logo.png" alt="TS TOOLS" className="h-[40px] md:h-[50px] w-auto transition-all duration-500" />
                     </Link>
                 </div>
 
@@ -68,35 +85,26 @@ export default async function Header() {
                                     <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem className="cursor-pointer text-red-500 font-bold">
-                                            <Link href="/ferramentas/admin" className="w-full">Painel Admin</Link>
+                                            <Link href="/admin/ferramentas" className="w-full">Painel Admin</Link>
                                         </DropdownMenuItem>
                                     </>
                                 )}
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
-                                    <form
-                                        action={async () => {
-                                            "use server"
-                                            await signOut()
-                                        }}
-                                        className="w-full"
-                                    >
-                                        <button type="submit" className="w-full text-left cursor-pointer text-destructive font-semibold hover:text-destructive/80 transition-colors">
-                                            Sair da conta
-                                        </button>
-                                    </form>
+                                <DropdownMenuItem 
+                                    className="cursor-pointer text-destructive font-semibold"
+                                    onClick={() => signOut()}
+                                >
+                                    Sair da conta
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <form
-                            action={async () => {
-                                "use server"
-                                await signIn()
-                            }}
+                        <button
+                            onClick={() => signIn()}
+                            className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            {/* Sign in button if needed */}
-                        </form>
+                            Entrar
+                        </button>
                     )}
                 </div>
             </div>

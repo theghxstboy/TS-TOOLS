@@ -71,58 +71,53 @@ function GeradorHumanoContent() {
     }, [searchParams, history, handleRestore])
 
     return (
-        <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 pb-20 font-sans">
-            {/* Top Bar matching TS TOOLS branding */}
-            <div className="max-w-[1400px] mx-auto px-6 py-8 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
+        <div className="flex-1 w-full min-h-screen bg-background text-foreground selection:bg-primary/30 pb-20 font-sans">
+            {/* Hero — Centered, matches /gerador standard */}
+            <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12 text-center animate-fade-up">
+                <div className="inline-flex items-center gap-3 mb-4">
+                    <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg">
                         <TerminalWindow size={28} />
                     </div>
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
-                                Gerador <span className="text-primary text-xl">↓</span>
-                            </h1>
-                        </div>
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">REALISM OVERRIDE SYSTEM</p>
-                    </div>
                 </div>
-
-                <div className="flex bg-card rounded-xl p-1 shadow-inner border border-border">
-                    <button
-                        onClick={() => setMode("imagem")}
-                        className={cn(
-                            "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all",
-                            mode === "imagem"
-                                ? "bg-gradient-to-r from-orange-400 to-primary text-black shadow-md"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                        )}
-                    >
-                        <ImageIcon size={18} /> Imagem
-                    </button>
-                    <button
-                        onClick={() => setMode("video")}
-                        className={cn(
-                            "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all",
-                            mode === "video"
-                                ? "bg-background text-foreground shadow-md border border-border"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                        )}
-                    >
-                        <Video size={18} /> Vídeo
-                    </button>
-                </div>
+                <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">
+                    Gerador de <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-amber-400">Humano Realista</span>
+                </h1>
+                <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                    Crie profissionais hiper-realistas para seus anúncios de <strong className="text-foreground">Home Services nos EUA</strong>.
+                </p>
             </div>
 
-            {/* Main Layout - Output Left, Inputs Right ? User didn't ask to revert, but we'll stick to Output Right, Inputs Left */}
+            {/* Main Layout */}
             <div className="max-w-[1400px] mx-auto px-6">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                     {/* LEFT COLUMN: Settings (Presets & Commands) */}
-                    <div className="lg:col-span-7 flex flex-col gap-6 order-2 lg:order-1">
+                    <div className="lg:col-span-7 flex flex-col gap-6 order-2 lg:order-1 animate-fade-up" style={{ animationDelay: '80ms' }}>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            {/* Empty container just to keep spacing if needed or you can remove entirely */}
+                        {/* Output type toggle — top of form */}
+                        <div className="flex bg-card rounded-xl p-1 shadow-inner border border-border self-start">
+                            <button
+                                onClick={() => setMode("imagem")}
+                                className={cn(
+                                    "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all",
+                                    mode === "imagem"
+                                        ? "bg-gradient-to-r from-orange-400 to-primary text-black shadow-md"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                )}
+                            >
+                                <ImageIcon size={16} /> Imagem
+                            </button>
+                            <button
+                                onClick={() => setMode("video")}
+                                className={cn(
+                                    "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all",
+                                    mode === "video"
+                                        ? "bg-background text-foreground shadow-md border border-border"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                                )}
+                            >
+                                <Video size={16} /> Vídeo
+                            </button>
                         </div>
 
                         {/* Thumbnail View (Above Presets) */}
@@ -397,17 +392,17 @@ function GeradorHumanoContent() {
                     </div>
 
                     {/* RIGHT COLUMN: Output (Prompt Top, Slider Bottom) */}
-                    <div className="lg:col-span-5 flex flex-col gap-6 order-1 lg:order-2">
+                    <div className="lg:col-span-5 flex flex-col gap-6 order-1 lg:order-2 animate-fade-up" style={{ animationDelay: '160ms' }}>
 
                         {/* Output Column - Standardized */}
                         <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
                             <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
                                 <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <TerminalWindow size={24} className="text-primary" />
-                                    Resultado do Prompt
+                                    Prompt Gerado
                                 </h2>
                                 <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
-                                    HUMAN REALISM OTIMIZADO
+                                    PRONTO PARA IA
                                 </span>
                             </div>
 
@@ -439,7 +434,7 @@ function GeradorHumanoContent() {
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
-                                                {isCopied ? 'Copiado!' : 'Copiar'}
+                                                {isCopied ? 'Copiado!' : 'Copiar Prompt'}
                                             </Button>
                                         </div>
                                     </div>
@@ -447,7 +442,7 @@ function GeradorHumanoContent() {
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 min-h-[200px]">
                                         <MagicWand size={48} className="text-primary mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Configure as características para ver o prompt realista aqui.
+                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
                                         </p>
                                     </div>
                                 )}
