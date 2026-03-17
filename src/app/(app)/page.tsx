@@ -525,8 +525,16 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 text-center border-t border-border">
-        <p className="text-sm text-muted-foreground font-medium">TSS &copy; {mounted ? new Date().getFullYear() : "2024"}. Feito para o Grupo TS.</p>
+      <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+        <div className="flex flex-col items-center gap-4">
+          <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+          <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+            TS TOOLS &copy; {mounted ? new Date().getFullYear() : "2026"} &bull; CENTRAL DE FERRAMENTAS
+          </p>
+          <p className="text-[10px] text-muted-foreground/40 font-medium">
+            A solução definitiva para escalar operações de Home Services.
+          </p>
+        </div>
       </footer>
 
       {/* Patch Notes Modal */}

@@ -67,6 +67,9 @@ interface WorkflowPayload {
     copyToneOther?: string;
     ctaOther?: string;
     aspectRatioOther?: string;
+    orientation?: string;
+    orientationOther?: string;
+    stateOther?: string;
     hasPhotos: boolean;
     hasLogo: boolean;
     hasReferencePhotos: boolean;
@@ -132,6 +135,15 @@ const ASPECT_RATIO_OPTIONS = [
     { value: "4:5", label: "Vertical (4:5) - Feed Instagram" },
     { value: "9:16", label: "Tela Cheia (9:16) - Stories / Reels" },
     { value: "16:9", label: "Paisagem (16:9) - YouTube / TV" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const ORIENTATION_OPTIONS = [
+    { value: "none", label: "Não especificar" },
+    { value: "Texto à Esquerda (Left)", label: "⬅️ Texto à Esquerda (Left)" },
+    { value: "Texto à Direita (Right)", label: "➡️ Texto à Direita (Right)" },
+    { value: "Texto Centralizado (Centered)", label: "🎯 Texto Centralizado (Center)" },
+    { value: "Layout Dividido (Split Screen)", label: "🌓 Layout Dividido (Split)" },
     { value: "other", label: "Outro (Personalizado)" },
 ]
 
@@ -221,6 +233,9 @@ function WorkflowContent() {
     const [ctaOther, setCtaOther] = useState("")
     const [aspectRatio, setAspectRatio] = useState("none")
     const [aspectRatioOther, setAspectRatioOther] = useState("")
+    const [orientation, setOrientation] = useState("none")
+    const [orientationOther, setOrientationOther] = useState("")
+    const [stateOther, setStateOther] = useState("")
 
     // Avançado
     const [isAdvancedMode, setIsAdvancedMode] = useState(false)
@@ -272,6 +287,9 @@ function WorkflowContent() {
         setCopyToneOther(p.copyToneOther || "")
         setCtaOther(p.ctaOther || "")
         setAspectRatioOther(p.aspectRatioOther || "")
+        setOrientation(p.orientation || "none")
+        setOrientationOther(p.orientationOther || "")
+        setStateOther(p.stateOther || "")
         setSpecificCopy(p.specificCopy || "")
         // If we restore a payload with advanced configurations, auto-enable advanced mode
         if (p.specificCopy || p.hasReferencePhotos) {
@@ -410,6 +428,8 @@ function WorkflowContent() {
         const finalCopyTone = copyTone === "other" ? copyToneOther : copyTone
         const finalCta = cta === "other" ? ctaOther : cta
         const finalAspectRatio = aspectRatio === "other" ? aspectRatioOther : aspectRatio
+        const finalOrientation = orientation === "other" ? orientationOther : orientation
+        const finalState = state === "other" ? stateOther : state
 
         const activeSeals = seals
             .filter(s => s !== "none")
@@ -427,6 +447,7 @@ function WorkflowContent() {
 
         const ctaSection = finalCta !== "none" && finalCta !== "" ? `\n🖱️ BOTÃO CTA:\n→ Texto do botão: "${finalCta}"` : ""
         const aspectRatioSection = finalAspectRatio !== "none" && finalAspectRatio !== "" ? `\n📐 PROPORÇÃO/FORMATO:\n→ O criativo deve seguir a proporção ${finalAspectRatio} exata.` : ""
+        const orientationSection = finalOrientation !== "none" && finalOrientation !== "" ? `\n🧭 LAYOUT/ALINHAMENTO:\n→ Os elementos/textos devem estar posicionados: ${finalOrientation}.` : ""
 
         const photosSection = photos.length > 0
             ? photos.map((p, i) => `  • Foto ${i + 1}: ${p.name}`).join("\n")
@@ -449,7 +470,7 @@ ${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}${refP
 🏷️ LOGO DO CLIENTE: ${logoInfo}
 
 ${colorSection}
-${sealSection}${copySection}${ctaSection}${aspectRatioSection}
+${sealSection}${copySection}${ctaSection}${aspectRatioSection}${orientationSection}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚙️ SUA MISSÃO — CRIATIVO DE ALTA CONVERSÃO:
@@ -489,10 +510,13 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 copyTone,
                 cta,
                 aspectRatio,
+                orientation,
                 sealOther,
                 copyToneOther,
                 ctaOther,
                 aspectRatioOther,
+                orientationOther,
+                stateOther,
                 specificCopy: isAdvancedMode ? specificCopy : undefined,
                 photoDesc,
                 extraNotes,
@@ -622,8 +646,12 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             {[["FL","Florida"],["TX","Texas"],["CA","California"],["NY","New York"],["GA","Georgia"],["NC","North Carolina"],["AZ","Arizona"],["NV","Nevada"],["OH","Ohio"],["IL","Illinois"],["PA","Pennsylvania"],["WA","Washington"],["CO","Colorado"],["MA","Massachusetts"],["NJ","New Jersey"],["VA","Virginia"],["TN","Tennessee"],["SC","South Carolina"],["MN","Minnesota"],["MO","Missouri"]].map(([code, name]) => (
                                                 <SelectItem key={code} value={`${name} (${code})`}>{name} ({code})</SelectItem>
                                             ))}
+                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    {state === "other" && (
+                                        <Input placeholder="Especifique o estado..." value={stateOther} onChange={(e) => setStateOther(e.target.value)} className="mt-2" />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -719,6 +747,22 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     </Select>
                                     {aspectRatio === "other" && (
                                         <Input placeholder="Especifique o formato (ex: 2:1 panorâmico)..." value={aspectRatioOther} onChange={(e) => setAspectRatioOther(e.target.value)} className="mt-2" />
+                                    )}
+                                </div>
+
+                                {/* Orientation */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <WorkflowIcon size={14} className="text-amber-400" /> Layout de Texto e Elementos
+                                    </Label>
+                                    <Select value={orientation} onValueChange={setOrientation}>
+                                        <SelectTrigger className="w-full bg-input/50 h-12 hover:bg-input transition-colors"><SelectValue placeholder="Selecione o layout..." /></SelectTrigger>
+                                        <SelectContent>
+                                            {ORIENTATION_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                    {orientation === "other" && (
+                                        <Input placeholder="Especifique o layout (ex: Diagonal, texto no topo e elementos na base)..." value={orientationOther} onChange={(e) => setOrientationOther(e.target.value)} className="mt-2" />
                                     )}
                                 </div>
                             </div>

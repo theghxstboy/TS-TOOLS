@@ -39,7 +39,10 @@ export default function Header() {
                         "transition-all duration-500 ease-in-out hover:opacity-80 shrink-0",
                         !isHome && "ml-2"
                     )}>
-                        <img src="/logo.png" alt="TS TOOLS" className="h-[40px] md:h-[50px] w-auto transition-all duration-500" />
+                        {/* Desktop Logo */}
+                        <img src="/logo/TS-TOOLS.svg" alt="TS TOOLS" className="h-[40px] md:h-[50px] w-auto hidden md:block transition-all duration-500" />
+                        {/* Mobile Logo */}
+                        <img src="/logo/ICONE.svg" alt="TS TOOLS" className="h-[35px] block md:hidden w-auto transition-all duration-500" />
                     </Link>
                 </div>
 

@@ -39,7 +39,7 @@ export default function LoginPage() {
         <div className="flex min-h-screen items-center justify-center bg-background px-4">
             <div className="w-full max-w-md space-y-8 rounded-2xl bg-card p-10 shadow-2xl border border-border animate-fade-up">
                 <div className="text-center">
-                    <img src="/logo.png" alt="TS TOOLS" className="h-[60px] w-auto mx-auto mb-6" />
+                    <img src="/logo/TS-TOOLS.svg" alt="TS TOOLS" className="h-[60px] w-auto mx-auto mb-6" />
                     <h2 className="text-2xl font-extrabold text-foreground drop-shadow-sm">
                         Bem-vindo ao TS TOOLS
                     </h2>
