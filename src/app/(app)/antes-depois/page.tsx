@@ -520,7 +520,23 @@ function AntesEDepoisContent() {
 
                                 {/* Action Buttons */}
                                 <div className="pt-6 pb-2">
-                                        {isGenerating ? <div className="animate-pulse">Gerando...</div> : "Gerar Prompt"}
+                                    <Button
+                                        onClick={handleGenerate}
+                                        disabled={isGenerating}
+                                        className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-black shadow-[0_0_20px_rgba(255,184,0,0.3)] transition-all active:scale-[0.98]"
+                                    >
+                                        {isGenerating ? (
+                                            <div className="flex items-center gap-2">
+                                                <MagicWand size={20} className="animate-spin text-black" />
+                                                GERANDO...
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <MagicWand size={20} className="text-black" />
+                                                GERAR PROMPT
+                                            </div>
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
                         </div>

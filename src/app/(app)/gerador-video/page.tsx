@@ -479,9 +479,17 @@ function GeradorVideoContent() {
 
                                 <Button
                                     onClick={handleGenerate}
+                                    disabled={isGenerating}
                                     className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
                                 >
-                                    {isGenerating ? <CheckCircle size={28} /> : "Gerar Prompt"}
+                                    {isGenerating ? (
+                                        <div className="flex items-center gap-2">
+                                            <MagicWand size={24} className="animate-spin text-black" />
+                                            GERANDO...
+                                        </div>
+                                    ) : (
+                                        "Gerar Prompt"
+                                    )}
                                 </Button>
                             </div>
                         </div>
