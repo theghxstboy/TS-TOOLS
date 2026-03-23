@@ -446,7 +446,7 @@ export default function CodigosPage() {
               key={post.id} 
               className={cn(
                 "group bg-card border rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer flex flex-col shadow-sm hover:shadow-2xl hover:shadow-primary/5 relative scale-in",
-                viewMode === 'list' ? "md:flex-row h-auto md:h-48" : "h-[420px]",
+                viewMode === 'list' ? "md:flex-row h-auto md:h-44" : "h-[420px]",
                 favorites.has(post.id) ? "border-primary/30 ring-1 ring-primary/10" : "border-border"
               )}
               style={{ animationDelay: `${index * 50}ms` }}
@@ -468,7 +468,7 @@ export default function CodigosPage() {
               {/* Card Preview */}
               <div className={cn(
                 "relative overflow-hidden bg-muted flex items-center justify-center",
-                viewMode === 'list' ? "w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-border" : "h-48 shrink-0 border-b border-border"
+                viewMode === 'list' ? "w-full md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border" : "h-48 shrink-0 border-b border-border"
               )}>
                 {post.imageUrl ? (
                   <>
@@ -489,10 +489,10 @@ export default function CodigosPage() {
 
               {/* Card Body */}
               <div className={cn(
-                "p-6 flex flex-col flex-1",
-                viewMode === 'list' && "justify-center"
+                "p-5 flex flex-col flex-1",
+                viewMode === 'list' && "justify-between"
               )}>
-                <div className="flex items-center justify-between mb-4 text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                <div className="flex items-center justify-between mb-3 text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] border border-white/10" style={{ background: getAvatarColor(post.author) }}>
                       {getInitials(post.author)}
@@ -504,7 +504,7 @@ export default function CodigosPage() {
 
                 <h3 className={cn(
                   "font-bold group-hover:text-primary transition-colors line-clamp-2 leading-tight",
-                  viewMode === 'grid' ? "text-lg mb-3" : "text-xl mb-auto"
+                  viewMode === 'grid' ? "text-lg mb-4" : "text-lg md:text-xl"
                 )}>{post.title}</h3>
                 
                 <div className="flex flex-wrap gap-1.5 min-h-[22px] mt-2 mb-1">
