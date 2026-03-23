@@ -16,6 +16,7 @@ import {
   Link as LinkIcon,
   UserSquare2 as UserFocus,
   Code2 as Code,
+  FileCode,
   GripVertical as DotsSixVertical,
   Workflow as WorkflowIcon,
 } from "lucide-react"
@@ -118,43 +119,46 @@ const ALL_TOOLS: Tool[] = [
   },
 ]
 
-type KnowledgeItem = {
-  id: string
-  href: string
-  title: string
-  description: string
-  icon: React.ReactNode
-  badge?: string
-  badgeColor?: string
-  accentColor?: "primary" | "emerald"
-}
-
-const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
+const KNOWLEDGE_ITEMS: Tool[] = [
+  {
+    id: "codigos",
+    href: "/codigos",
+    label: "Biblioteca de Códigos",
+    badge: "Web & TI",
+    badgeColor: "bg-amber-500/20 text-amber-500",
+    accentColor: "orange",
+    description: "Repositório de snippets e componentes prontos para o time de Web & TI.",
+    icon: <FileCode size={32} />,
+  },
   {
     id: "nichos",
     href: "/docs/nichos",
-    title: "Manual dos Nichos",
+    label: "Manual dos Nichos",
+    badge: "Guide",
+    badgeColor: "bg-primary/20 text-primary",
+    accentColor: "primary",
     description: "Aprenda a anatomia, workflow e vocabulário técnico de cada serviço.",
-    icon: <Buildings size={24} />,
-    accentColor: "primary"
+    icon: <Buildings size={32} />,
   },
   {
     id: "academy",
     href: "/docs",
-    title: "Prompt Academy",
+    label: "Prompt Academy",
+    badge: "Doc",
+    badgeColor: "bg-primary/20 text-primary",
+    accentColor: "primary",
     description: "Documentação técnica completa sobre a ciência dos prompts comerciais.",
-    icon: <BookOpen size={24} />,
-    accentColor: "primary"
+    icon: <BookOpen size={32} />,
   },
   {
     id: "hub",
     href: "/ferramentas",
-    title: "Hub de Ferramentas",
-    description: "O repositório oficial de softwares e recursos validados pela equipe TS.",
-    icon: <LinkIcon size={24} />,
+    label: "Hub de Ferramentas",
     badge: "Comunidade",
     badgeColor: "bg-emerald-500/20 text-emerald-500",
-    accentColor: "emerald"
+    accentColor: "emerald",
+    description: "O repositório oficial de softwares e recursos validados pela equipe TS.",
+    icon: <LinkIcon size={32} />,
   }
 ]
 
@@ -195,71 +199,8 @@ const ORDER_KEY = "ts_tools_sort_order"
 const KNOWLEDGE_ORDER_KEY = "ts_knowledge_sort_order"
 const MODAL_KEY = "ts_tools_patch_v2_skip"
 
-// Sortable Tool Card Component
-function SortableToolCard({ tool, index }: { tool: Tool; index: number }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({ id: tool.id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : 'auto',
-  }
-
-  const accent = ACCENT_CLASSES[tool.accentColor]
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ ...style, animationDelay: `${index * 60}ms` }}
-      className={cn(
-        "relative group h-full transition-opacity animate-fade-up",
-        isDragging && "opacity-40"
-      )}
-    >
-      {/* Drag Handle */}
-      <button
-        type="button"
-        {...attributes}
-        {...listeners}
-        className="absolute top-3 left-3 p-2 text-muted-foreground/30 hover:text-primary transition-colors cursor-grab active:cursor-grabbing rounded-lg hover:bg-input z-30"
-      >
-        <DotsSixVertical size={20} />
-      </button>
-
-      <Link
-        href={tool.href}
-        className={cn(
-          "flex flex-col items-center justify-center p-8 bg-card border border-border rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 h-full min-h-[280px] text-center w-full relative",
-          accent.hover,
-          isDragging ? "scale-105 rotate-1 border-primary shadow-2xl pointer-events-none" : ""
-        )}
-      >
-        {/* Badge */}
-        <span className={cn("absolute top-4 right-4 text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full", tool.badgeColor)}>
-          {tool.badge}
-        </span>
-
-        {/* Icon */}
-        <div className={cn("w-16 h-16 rounded-2xl bg-input flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300", accent.icon)}>
-          {tool.icon}
-        </div>
-
-        <h2 className="text-xl font-bold mb-3 text-foreground">{tool.label}</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">{tool.description}</p>
-      </Link>
-    </div>
-  )
-}
-
-// Sortable Knowledge Card Component
-function SortableKnowledgeCard({ item, index }: { item: KnowledgeItem; index: number }) {
+// Use the same card component for both sections
+function SortableCard({ item, index, type = 'tool' }: { item: Tool; index: number; type?: 'tool' | 'knowledge' }) {
   const {
     attributes,
     listeners,
@@ -275,61 +216,49 @@ function SortableKnowledgeCard({ item, index }: { item: KnowledgeItem; index: nu
     zIndex: isDragging ? 50 : 'auto',
   }
 
+  const accent = ACCENT_CLASSES[item.accentColor || 'primary']
+
   return (
     <div
       ref={setNodeRef}
       style={{ ...style, animationDelay: `${index * 60}ms` }}
       className={cn(
-        "relative group transition-opacity animate-fade-up",
-        isDragging && "opacity-40"
+        "relative group h-full transition-all animate-fade-up",
+        isDragging && "opacity-100 z-50"
       )}
     >
-      <Link href={item.href}
+      {/* Drag Handle */}
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="absolute top-3 left-3 p-2 text-muted-foreground/30 hover:text-primary transition-colors cursor-grab active:cursor-grabbing rounded-lg hover:bg-input z-30"
+      >
+        <DotsSixVertical size={20} />
+      </button>
+
+      <Link
+        href={item.href}
         className={cn(
-          "group flex flex-col sm:flex-row items-start sm:items-center gap-6 p-6 md:p-8 bg-card border border-border rounded-2xl shadow-sm hover:shadow-md hover:bg-input transition-all duration-200 relative",
-          item.accentColor === "emerald" ? "hover:border-emerald-500" : "hover:border-primary",
-          isDragging && "scale-[1.02] border-primary pointer-events-none"
+          "flex flex-col items-center justify-center p-8 bg-card border border-border rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 h-full min-h-[280px] text-center w-full relative",
+          accent.hover,
+          isDragging ? "scale-105 rotate-1 border-primary shadow-2xl z-50 pointer-events-none" : "hover:scale-[1.02]"
         )}
       >
-        {/* Drag Handle - Positioned before the icon for better visibility and access */}
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          className="p-2 text-muted-foreground/40 hover:text-primary transition-colors cursor-grab active:cursor-grabbing rounded-lg hover:bg-input shrink-0"
-          onClick={(e) => e.preventDefault()}
-        >
-          <DotsSixVertical size={20} />
-        </button>
+        {/* Badge */}
+        {item.badge && (
+          <span className={cn("absolute top-4 right-4 text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full", item.badgeColor)}>
+            {item.badge}
+          </span>
+        )}
 
-        <div className={cn(
-          "w-12 h-12 rounded-xl flex shrink-0 items-center justify-center transition-transform group-hover:scale-110",
-          item.accentColor === "emerald" ? "bg-emerald-500/10 text-emerald-500" : "bg-input text-primary"
-        )}>
+        {/* Icon */}
+        <div className={cn("w-16 h-16 rounded-2xl bg-input flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300", accent.icon)}>
           {item.icon}
         </div>
 
-        <div className="flex-grow">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className={cn(
-              "text-lg font-bold text-foreground transition-colors",
-              item.accentColor === "emerald" ? "group-hover:text-emerald-500" : "group-hover:text-primary"
-            )}>
-              {item.title}
-            </h4>
-            {item.badge && (
-              <span className={cn("px-2 py-0.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider", item.badgeColor)}>
-                {item.badge}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-muted-foreground">{item.description}</p>
-        </div>
-
-        <CaretCircleRight size={24} className={cn(
-          "hidden sm:block text-muted group-hover:translate-x-1 transition-all",
-          item.accentColor === "emerald" ? "group-hover:text-emerald-500" : "group-hover:text-primary"
-        )} />
+        <h2 className="text-xl font-bold mb-3 text-foreground">{item.label}</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
       </Link>
     </div>
   )
@@ -339,7 +268,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false)
   const [dontShowAgain, setDontShowAgain] = useState(false)
   const [tools, setTools] = useState<Tool[]>(ALL_TOOLS)
-  const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>(KNOWLEDGE_ITEMS)
+  const [knowledgeItems, setKnowledgeItems] = useState<Tool[]>(KNOWLEDGE_ITEMS)
   const [mounted, setMounted] = useState(false)
 
   const sensors = useSensors(
@@ -386,7 +315,7 @@ export default function Home() {
         const orderIds = JSON.parse(storedKnowledgeOrder) as string[]
         const ordered = orderIds
           .map(id => KNOWLEDGE_ITEMS.find(k => k.id === id))
-          .filter((k): k is KnowledgeItem => !!k)
+          .filter((k): k is Tool => !!k)
         const missing = KNOWLEDGE_ITEMS.filter(k => !orderIds.includes(k.id))
         setKnowledgeItems([...ordered, ...missing])
       } catch {
@@ -469,7 +398,7 @@ export default function Home() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {tools.map((tool, i) => (
-                  <SortableToolCard key={tool.id} tool={tool} index={i} />
+                  <SortableCard key={tool.id} item={tool} index={i} type="tool" />
                 ))}
               </div>
             </SortableContext>
@@ -506,11 +435,11 @@ export default function Home() {
           >
             <SortableContext
               items={knowledgeItems.map(k => k.id)}
-              strategy={verticalListSortingStrategy}
+              strategy={rectSortingStrategy}
             >
-              <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {knowledgeItems.map((item, i) => (
-                  <SortableKnowledgeCard key={item.id} item={item} index={i} />
+                  <SortableCard key={item.id} item={item} index={i} type="knowledge" />
                 ))}
               </div>
             </SortableContext>

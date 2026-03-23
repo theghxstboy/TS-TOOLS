@@ -62,15 +62,6 @@ const STATIC_ACTIONS: CommandAction[] = [
         category: "Ferramentas"
     },
     {
-        id: "gerador-webdesign",
-        title: "Web Design Generator",
-        description: "Estrutura e código HTML/Tailwind",
-        icon: <Code size={20} />,
-        href: "/gerador-webdesign",
-        category: "Ferramentas",
-        badge: "Dev"
-    },
-    {
         id: "nichos",
         title: "Manual dos Nichos",
         description: "Workflow e vocabulário técnico",
