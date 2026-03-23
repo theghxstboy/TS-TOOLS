@@ -39,7 +39,8 @@ export async function saveCodigoAction(formData: FormData, editingId?: string) {
         code,
         tags,
         imageUrl,
-        isGif
+        isGif,
+        observations: formData.get("observations") as string || ""
     };
 
     if (editingId) {

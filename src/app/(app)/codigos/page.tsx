@@ -65,6 +65,7 @@ type Post = {
   isGif: boolean
   tags: string[]
   reactions: { fire: number }
+  observations?: string
   userId?: string
 }
 
@@ -76,7 +77,6 @@ const AVATAR_COLORS = [
 ];
 
 const FAVORITES_KEY = "ts_codes_favorites_v2";
-const STORAGE_KEY = "ts_codes_library_posts_v2";
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
 
 // ═══════════════════ UTILS ═══════════════════
@@ -132,7 +132,8 @@ export default function CodigosPage() {
     tags: [] as string[],
     imageUrl: null as string | null,
     imageFile: null as File | null,
-    isGif: false
+    isGif: false,
+    observations: ''
   })
 
   // Fullscreen Code State
@@ -252,6 +253,7 @@ export default function CodigosPage() {
       formData.append("code", newPostData.code);
       formData.append("tags", JSON.stringify(newPostData.tags));
       formData.append("isGif", newPostData.isGif.toString());
+      formData.append("observations", newPostData.observations);
       if (newPostData.imageFile) {
         formData.append("imageFile", newPostData.imageFile);
       } else if (newPostData.imageUrl) {
@@ -277,7 +279,8 @@ export default function CodigosPage() {
         tags: [],
         imageUrl: null,
         imageFile: null,
-        isGif: false
+        isGif: false,
+        observations: ''
       })
       setShowCustomTagInput(false)
     } catch (e: any) {
@@ -306,7 +309,8 @@ export default function CodigosPage() {
       tags: post.tags,
       imageUrl: post.imageUrl,
       imageFile: null,
-      isGif: post.isGif || false
+      isGif: post.isGif || false,
+      observations: post.observations || ''
     })
     setIsModalOpen(true)
     setSelectedPost(null)
@@ -339,7 +343,7 @@ export default function CodigosPage() {
   return (
     <div className="flex-1 w-full max-w-6xl mx-auto px-4 py-8 animate-fade-up">
 
-      {/* ═══════════════════ HERO ═══════════════════ */}
+      {/* Hero Section */}
       <section className="relative mb-12 flex flex-col items-center text-center">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-primary/10 blur-[100px] -z-10 rounded-full"></div>
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold mb-4">
@@ -353,7 +357,7 @@ export default function CodigosPage() {
         </p>
       </section>
 
-      {/* ═══════════════════ TOOLBAR ═══════════════════ */}
+      {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -374,7 +378,8 @@ export default function CodigosPage() {
               tags: [],
               imageUrl: null,
               imageFile: null,
-              isGif: false
+              isGif: false,
+              observations: ''
             });
             setIsModalOpen(true);
           }}
@@ -435,7 +440,7 @@ export default function CodigosPage() {
         </div>
       </div>
 
-      {/* ═══════════════════ GRID / LIST ═══════════════════ */}
+      {/* Grid / List View */}
       {filteredPosts.length > 0 ? (
         <div className={cn(
           "grid gap-6",
@@ -555,9 +560,7 @@ export default function CodigosPage() {
         </div>
       )}
 
-      {/* ═══════════════════ DIALOGS ═══════════════════ */}
-
-      {/* Post Details Drawer (Sheet) */}
+      {/* Sheet para detalhes do Snippet */}
       <Sheet open={!!selectedPost} onOpenChange={(open) => !open && setSelectedPost(null)}>
         <SheetContent side="right" className="sm:max-w-[70vw] md:max-w-4xl h-full p-0 border-border bg-card overflow-hidden flex flex-col">
           {selectedPost && (
@@ -605,6 +608,17 @@ export default function CodigosPage() {
                       <span key={tag} className="text-[10px] font-black text-muted-foreground/80 bg-muted/50 border border-border/50 px-4 py-2 rounded-xl uppercase tracking-widest hover:border-primary/30 transition-colors">{tag}</span>
                    ))}
                 </div>
+
+                {selectedPost.observations && (
+                  <div className="bg-primary/5 border border-primary/20 p-6 rounded-3xl animate-fade-up">
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <MoreHorizontal size={14} /> Observações Técnicas
+                    </h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed italic whitespace-pre-wrap">
+                      {selectedPost.observations}
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -663,7 +677,6 @@ export default function CodigosPage() {
                     </span>
                   </Button>
                 
-                {/* Close Button at bottom of drawer for convenience */}
                 <Button variant="outline" onClick={() => setSelectedPost(null)} className="rounded-2xl font-black h-14 px-8 border-border">Fechar</Button>
               </div>
             </div>
@@ -671,7 +684,7 @@ export default function CodigosPage() {
         </SheetContent>
       </Sheet>
 
-      {/* New Post Modal */}
+      {/* Modal Nova Postagem */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl border-border bg-card shadow-2xl">
           <DialogHeader>
@@ -802,7 +815,7 @@ export default function CodigosPage() {
                {showCustomTagInput && (
                  <div className="flex gap-2 animate-fade-up">
                    <Input 
-                    placeholder="Digite a nova tag e pressione Enter..." 
+                    placeholder="Digite a nova tag..." 
                     className="h-11 text-xs bg-input font-bold px-4"
                     value={customTagInput}
                     onChange={(e) => setCustomTagInput(e.target.value)}
@@ -834,6 +847,16 @@ export default function CodigosPage() {
                  </div>
                )}
             </div>
+
+            <div className="space-y-4">
+               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/70">Observações (Opcional)</label>
+               <Textarea 
+                 placeholder="Instruções de uso, dependências ou notas importantes..." 
+                 className="min-h-[120px] bg-input border-border rounded-xl text-xs font-medium resize-none focus:border-primary/50 transition-all p-5"
+                 value={newPostData.observations}
+                 onChange={(e) => setNewPostData({...newPostData, observations: e.target.value})}
+               />
+            </div>
           </div>
 
           <DialogFooter className="border-t border-border pt-8 mt-2 flex flex-col sm:flex-row gap-3">
@@ -852,40 +875,29 @@ export default function CodigosPage() {
             <div className="flex items-center justify-between pr-8">
                <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                       <FileCode size={24} />
-                    </div>
-                    <div className="flex flex-col">
-                       <DialogTitle className="text-2xl font-black tracking-tight">{selectedPost?.title}</DialogTitle>
-                       <span className="text-[10px] font-black text-primary uppercase tracking-widest">{selectedPost?.language} SOURCE CODE</span>
-                    </div>
+                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+                    <DialogTitle className="text-3xl font-black tracking-tight">{selectedPost?.title}</DialogTitle>
                   </div>
+                  <p className="text-muted-foreground text-xs uppercase font-black tracking-[0.2em] opacity-60">Visualização em Tela Cheia • {selectedPost?.language}</p>
                </div>
-               <div className="flex items-center gap-4">
-                  <Button variant="outline" size="sm" className="rounded-xl gap-2.5 font-black px-10 h-12 bg-card border-border hover:border-primary/50 hover:text-primary transition-all shadow-lg active:scale-95" onClick={() => selectedPost && handleCopyCode(selectedPost.code)}>
-                     <Copy size={20} /> Copiar Tudo
-                  </Button>
+               <div className="flex items-center gap-3">
+                 <Button variant="outline" className="h-14 px-8 border-border hover:border-primary/50 hover:text-primary transition-all rounded-2xl font-black gap-2 text-lg shadow-xl" onClick={() => handleCopyCode(selectedPost?.code || '')}>
+                   <Copy size={20} /> Copiar
+                 </Button>
+                 <Button variant="secondary" className="h-14 px-8 rounded-2xl font-black text-lg shadow-xl" onClick={() => setIsFullscreenCodeOpen(false)}>Fechar</Button>
                </div>
             </div>
           </DialogHeader>
-          <div className="flex-1 overflow-auto p-12 bg-[#050505] custom-scrollbar shadow-inner">
-            <pre className="font-mono text-base leading-loose text-foreground/80 selection:bg-primary/30">
-              <code className="block w-full">{selectedPost?.code}</code>
+          <div className="flex-1 overflow-hidden bg-[#0c0c0c] relative">
+            <pre className="h-full p-12 text-base font-mono overflow-auto custom-scrollbar leading-loose text-foreground/90 selection:bg-primary/30">
+              <code>{selectedPost?.code}</code>
             </pre>
+            <div className="absolute bottom-8 right-12 opacity-30 hover:opacity-100 transition-opacity pointer-events-none">
+               <Code2 size={120} className="text-primary/5" />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* ═══════════════════ FOOTER ═══════════════════ */}
-      <footer className="mt-32 pb-16 pt-12 border-t border-border/50 text-center opacity-30 hover:opacity-100 transition-opacity">
-        <div className="flex flex-col items-center gap-6">
-           <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] mx-auto grayscale opacity-50" />
-           <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 leading-none">TS TOOLS © 2026 • CENTRAL DE INTEGRAÇÃO</p>
-              <p className="text-[9px] font-bold text-muted-foreground/30 leading-none">A inteligência que escala o extraordinário.</p>
-           </div>
-        </div>
-      </footer>
     </div>
   )
 }
