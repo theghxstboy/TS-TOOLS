@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { getPosts, deletePost, updatePost } from "@/lib/codigos";
 import { auth } from "@/auth";
 
+/**
+ * Next.js 15 dynamic Route Handlers require 'params' to be awaited as it is now a Promise.
+ */
+
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     try {
         const session = await auth();
         if (!session?.user) {
@@ -14,7 +19,7 @@ export async function DELETE(
 
         const isAdmin = session.user.role === "admin";
         const allPosts = await getPosts();
-        const post = allPosts.find((p) => p.id === params.id);
+        const post = allPosts.find((p) => p.id === id);
 
         if (!post) {
             return NextResponse.json({ error: "Snippet not found" }, { status: 404 });
@@ -24,7 +29,7 @@ export async function DELETE(
             return NextResponse.json({ error: "Unauthorized deletion" }, { status: 403 });
         }
 
-        const success = await deletePost(params.id);
+        const success = await deletePost(id);
         if (!success) {
             return NextResponse.json({ error: "Failed to delete snippet" }, { status: 500 });
         }
@@ -38,8 +43,9 @@ export async function DELETE(
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     try {
         const session = await auth();
         if (!session?.user) {
@@ -48,7 +54,7 @@ export async function PUT(
 
         const isAdmin = session.user.role === "admin";
         const allPosts = await getPosts();
-        const post = allPosts.find((p) => p.id === params.id);
+        const post = allPosts.find((p) => p.id === id);
 
         if (!post) {
             return NextResponse.json({ error: "Snippet not found" }, { status: 404 });
@@ -59,7 +65,7 @@ export async function PUT(
         }
 
         const body = await request.json();
-        const updated = await updatePost(params.id, body);
+        const updated = await updatePost(id, body);
 
         if (!updated) {
             return NextResponse.json({ error: "Failed to update snippet" }, { status: 500 });
