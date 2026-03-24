@@ -246,7 +246,45 @@ export default function CodigosPage() {
     }
 
     try {
-      // Use FormData for large files (no Base64 JSON overhead)
+      let finalImageUrl = newPostData.imageUrl;
+
+      // 1. If there's a file, upload DIRECTLY from client to Supabase to bypass Vercel limits (4.5MB)
+      if (newPostData.imageFile) {
+        const file = newPostData.imageFile;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `codigos/${fileName}`;
+
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+          throw new Error("Supabase URL or Key not configured");
+        }
+
+        const toastId = toast.loading("Fazendo upload da imagem...");
+
+        const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/codigos/${filePath}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseKey}`,
+            'apikey': supabaseKey,
+            'Content-Type': file.type
+          },
+          body: file
+        });
+
+        if (!uploadResponse.ok) {
+          const err = await uploadResponse.json().catch(() => ({}));
+          throw new Error(err.message || "Falha no upload para o Supabase");
+        }
+
+        // 2. Get Public URL
+        finalImageUrl = `${supabaseUrl}/storage/v1/object/public/codigos/${filePath}`;
+        toast.dismiss(toastId);
+      }
+
+      // 3. Save to database via Server Action (now only sending metadata and URL)
       const formData = new FormData();
       formData.append("title", newPostData.title);
       formData.append("language", newPostData.language);
@@ -254,10 +292,8 @@ export default function CodigosPage() {
       formData.append("tags", JSON.stringify(newPostData.tags));
       formData.append("isGif", newPostData.isGif.toString());
       formData.append("observations", newPostData.observations);
-      if (newPostData.imageFile) {
-        formData.append("imageFile", newPostData.imageFile);
-      } else if (newPostData.imageUrl) {
-        formData.append("imageUrl", newPostData.imageUrl);
+      if (finalImageUrl) {
+        formData.append("imageUrl", finalImageUrl);
       }
 
       const saved = await saveCodigoAction(formData, editingPost?.id);

@@ -1,5 +1,3 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { query } from './db';
 
 export interface CodigosPost {
@@ -17,31 +15,7 @@ export interface CodigosPost {
     userId?: string;
 }
 
-async function saveImageLocally(base64Data: string, id: string, isGif: boolean): Promise<string | null> {
-    if (!base64Data || !base64Data.startsWith('data:')) return base64Data;
-    
-    try {
-        const base64Content = base64Data.split(';base64,').pop();
-        if (!base64Content) return null;
-        
-        const extension = isGif ? 'gif' : 'png';
-        const fileName = `${id}.${extension}`;
-        const relativePath = `/uploads/codigos/${fileName}`;
-        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'codigos', fileName);
-        
-        // Ensure directory exists
-        await fs.mkdir(path.dirname(fullPath), { recursive: true });
-        
-        const fileContent = Buffer.from(base64Content, 'base64');
-        await fs.writeFile(fullPath, fileContent);
-        
-        return `${relativePath}?v=${Date.now()}`;
-    } catch (e) {
-        console.error("Error saving image locally:", e);
-        return null;
-    }
-}
-
+// Remove local storage logic for Vercel persistence
 export async function getPosts(): Promise<CodigosPost[]> {
     try {
         const { rows } = await query('SELECT * FROM codigos ORDER BY date DESC');
@@ -60,11 +34,7 @@ export async function getPosts(): Promise<CodigosPost[]> {
 export async function addPost(post: Omit<CodigosPost, 'id' | 'date' | 'reactions'>): Promise<CodigosPost> {
     const tempId = crypto.randomUUID();
     
-    // Handle image upload to local storage
-    let imageUrl = post.imageUrl;
-    if (imageUrl && imageUrl.startsWith('data:')) {
-        imageUrl = await saveImageLocally(imageUrl, tempId, post.isGif);
-    }
+    const imageUrl = post.imageUrl;
 
     const { rows } = await query(
         `INSERT INTO codigos (title, author, language, code, tags, "imageUrl", "isGif", observations, "userId") 
@@ -96,10 +66,6 @@ export async function deletePost(id: string): Promise<boolean> {
 }
 
 export async function updatePost(id: string, updates: Partial<CodigosPost>): Promise<CodigosPost | null> {
-    // If updating image, handle upload first
-    if (updates.imageUrl && updates.imageUrl.startsWith('data:')) {
-        updates.imageUrl = await saveImageLocally(updates.imageUrl, id, updates.isGif || false);
-    }
 
     const fields = Object.keys(updates);
     if (fields.length === 0) return null;

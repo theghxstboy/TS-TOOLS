@@ -20,18 +20,7 @@ export async function saveCodigoAction(formData: FormData, editingId?: string) {
     const tags = JSON.parse(formData.get("tags") as string || "[]");
     const isGif = formData.get("isGif") === "true";
     
-    // File could be a string (existing URL) or a File object (new upload)
-    const imageFile = formData.get("imageFile");
-    let imageUrl: string | null = formData.get("imageUrl") as string | null;
-
-    if (imageFile && imageFile instanceof File && imageFile.size > 0) {
-        // Convert File to Base64 to use the existing saveImage logic in lib
-        // (Server scale: Buffer is better than Base64, but I'll keep saveImage simple)
-        const bytes = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        const base64 = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
-        imageUrl = base64;
-    }
+    const imageUrl = formData.get("imageUrl") as string | null;
 
     const postData = {
         title: title.toUpperCase(),
