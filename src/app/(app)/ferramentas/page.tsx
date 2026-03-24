@@ -11,7 +11,7 @@ import Link from "next/link"
 const FAVORITES_KEY = "ts_tools_community_favorites"
 const ITEMS_PER_PAGE = 9
 
-// Shimmer skeleton replicating the real tool card layout
+// Shimmer skeleton replicating the real tool card layou
 function ToolCardSkeleton({ index }: { index: number }) {
     return (
         <div
@@ -232,7 +232,7 @@ export default function FerramentasHubPage() {
                                     {/* Tool Preview Header */}
                                     <div className="h-44 relative overflow-hidden bg-muted flex items-center justify-center border-b border-border">
                                         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-black/20 z-10" />
-                                        <img 
+                                        <img
                                             src={`https://api.microlink.io?url=${encodeURIComponent(tool.url)}&screenshot=true&embed=screenshot.url`}
                                             alt={tool.title}
                                             className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 opacity-80 group-hover:opacity-100"
@@ -263,9 +263,9 @@ export default function FerramentasHubPage() {
                                     <div className="p-6 flex flex-col flex-1">
                                         <div className="flex items-center gap-4 mb-4">
                                             <div className="w-12 h-12 rounded-xl bg-input border border-border-muted flex items-center justify-center overflow-hidden shrink-0 shadow-inner group-hover:border-primary/30 transition-colors">
-                                                <img 
-                                                    src={getThumbnailUrl(tool.url) || ""} 
-                                                    alt="" 
+                                                <img
+                                                    src={getThumbnailUrl(tool.url) || ""}
+                                                    alt=""
                                                     className="w-6 h-6 object-contain"
                                                     onError={(e) => (e.target as any).style.display = 'none'}
                                                 />
@@ -320,11 +320,10 @@ export default function FerramentasHubPage() {
                                         <button
                                             key={i}
                                             onClick={() => setCurrentPage(i + 1)}
-                                            className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
-                                                currentPage === i + 1
-                                                ? 'bg-primary text-black shadow-lg shadow-primary/20'
-                                                : 'bg-card border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
-                                            }`}
+                                            className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${currentPage === i + 1
+                                                    ? 'bg-primary text-black shadow-lg shadow-primary/20'
+                                                    : 'bg-card border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                                                }`}
                                         >
                                             {i + 1}
                                         </button>
