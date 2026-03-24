@@ -61,3 +61,5 @@ async function setup() {
 }
 
 setup();
+
+export {};
