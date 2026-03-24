@@ -10,7 +10,7 @@ export interface FavoriteItem<T = unknown> extends HistoryItem<T> {
     title: string;
 }
 
-export type GeneratorId = 'gerador' | 'gerador-humano' | 'gerador-video' | 'gerador-webdesign' | 'antes-depois';
+export type GeneratorId = 'gerador' | 'gerador-humano' | 'gerador-video' | 'gerador-webdesign' | 'antes-depois' | 'checklist-webdesign';
 
 export interface CommandAction {
     id: string;

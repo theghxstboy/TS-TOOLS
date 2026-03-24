@@ -117,6 +117,16 @@ const ALL_TOOLS: Tool[] = [
     description: "Briefing completo com serviço, região, fotos e logo — gera o prompt perfeito.",
     icon: <WorkflowIcon size={32} />,
   },
+  {
+    id: "checklist-webdesign",
+    href: "/checklist-webdesign",
+    label: "Checklist Migração",
+    badge: "Web",
+    badgeColor: "bg-blue-500/20 text-blue-400",
+    accentColor: "blue",
+    description: "Gestor de tarefas e configurações para setups de desenvolvimento web.",
+    icon: <Code size={32} />,
+  },
 ]
 
 const KNOWLEDGE_ITEMS: Tool[] = [
