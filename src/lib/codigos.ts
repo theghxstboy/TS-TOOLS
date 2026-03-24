@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { query } from './db';
 
 export interface CodigosPost {
     id: string;
@@ -12,37 +13,11 @@ export interface CodigosPost {
     isGif: boolean;
     tags: string[];
     reactions: { fire: number };
+    observations?: string;
     userId?: string;
 }
 
-const SUPABASE_URL = "https://izxutidvmffhmetjpoao.supabase.co";
-const SUPABASE_KEY = "sb_publishable_TbDj_MKk1jWEn02UWIho0g_kyCnjZcB";
-
-/**
- * Utility to communicate with Supabase via REST for both Table and Storage.
- * Using pure fetch to avoid external dependencies.
- */
-
-async function supabaseFetch(path_str: string, options: RequestInit = {}) {
-    const res = await fetch(`${SUPABASE_URL}${path_str}`, {
-        ...options,
-        headers: {
-            "apikey": SUPABASE_KEY,
-            "Authorization": `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            "Prefer": "return=representation",
-            ...options.headers,
-        },
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        console.log("Supabase error:", err);
-        throw new Error(err.message || res.statusText);
-    }
-    return res.json();
-}
-
-async function uploadToSupabase(base64Data: string, id: string, isGif: boolean): Promise<string | null> {
+async function saveImageLocally(base64Data: string, id: string, isGif: boolean): Promise<string | null> {
     if (!base64Data || !base64Data.startsWith('data:')) return base64Data;
     
     try {
@@ -51,49 +26,33 @@ async function uploadToSupabase(base64Data: string, id: string, isGif: boolean):
         
         const extension = isGif ? 'gif' : 'png';
         const fileName = `${id}.${extension}`;
-        const contentType = isGif ? 'image/gif' : 'image/png';
+        const relativePath = `/uploads/codigos/${fileName}`;
+        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'codigos', fileName);
+        
+        // Ensure directory exists
+        await fs.mkdir(path.dirname(fullPath), { recursive: true });
+        
         const fileContent = Buffer.from(base64Content, 'base64');
+        await fs.writeFile(fullPath, fileContent);
         
-        // Use Storage API directly with fetch
-        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/codigos/${fileName}`, {
-            method: 'POST',
-            headers: {
-                "apikey": SUPABASE_KEY,
-                "Authorization": `Bearer ${SUPABASE_KEY}`,
-                "Content-Type": contentType,
-            },
-            body: fileContent
-        });
-
-        // 409 means already exists (updating)
-        if (res.status === 409) {
-             await fetch(`${SUPABASE_URL}/storage/v1/object/codigos/${fileName}`, {
-                method: 'PUT',
-                headers: {
-                    "apikey": SUPABASE_KEY,
-                    "Authorization": `Bearer ${SUPABASE_KEY}`,
-                    "Content-Type": contentType,
-                },
-                body: fileContent
-            });
-        } else if (!res.ok) {
-            throw new Error(`Storage failure: ${res.statusText}`);
-        }
-        
-        // Public link: URL/storage/v1/object/public/BUCKET/NAME
-        return `${SUPABASE_URL}/storage/v1/object/public/codigos/${fileName}?v=${Date.now()}`;
+        return `${relativePath}?v=${Date.now()}`;
     } catch (e) {
-        console.error("Error uploading to Supabase Storage:", e);
+        console.error("Error saving image locally:", e);
         return null;
     }
 }
 
 export async function getPosts(): Promise<CodigosPost[]> {
     try {
-        const data = await supabaseFetch("/rest/v1/codigos?select=*&order=date.desc");
-        return data;
+        const { rows } = await query('SELECT * FROM codigos ORDER BY date DESC');
+        return rows.map(row => ({
+            ...row,
+            imageUrl: row.imageUrl,
+            isGif: row.isGif,
+            userId: row.userId
+        }));
     } catch (error) {
-        console.error('Supabase GET failed:', error);
+        console.error('Database GET failed:', error);
         return [];
     }
 }
@@ -101,28 +60,35 @@ export async function getPosts(): Promise<CodigosPost[]> {
 export async function addPost(post: Omit<CodigosPost, 'id' | 'date' | 'reactions'>): Promise<CodigosPost> {
     const tempId = crypto.randomUUID();
     
-    // Handle image upload to storage bucket
+    // Handle image upload to local storage
     let imageUrl = post.imageUrl;
     if (imageUrl && imageUrl.startsWith('data:')) {
-        imageUrl = await uploadToSupabase(imageUrl, tempId, post.isGif);
+        imageUrl = await saveImageLocally(imageUrl, tempId, post.isGif);
     }
 
-    const data = await supabaseFetch("/rest/v1/codigos", {
-        method: "POST",
-        body: JSON.stringify({
-            ...post,
-            imageUrl,
-            date: new Date().toISOString(),
-            reactions: { fire: 0 }
-        })
-    });
+    const { rows } = await query(
+        `INSERT INTO codigos (title, author, language, code, tags, "imageUrl", "isGif", observations, "userId") 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+         RETURNING *`,
+        [
+            post.title.toUpperCase(), 
+            post.author, 
+            post.language, 
+            post.code, 
+            post.tags, 
+            imageUrl, 
+            post.isGif, 
+            post.observations || "", 
+            post.userId
+        ]
+    );
 
-    return data[0];
+    return rows[0];
 }
 
 export async function deletePost(id: string): Promise<boolean> {
     try {
-        await supabaseFetch(`/rest/v1/codigos?id=eq.${id}`, { method: "DELETE" });
+        await query('DELETE FROM codigos WHERE id = $1', [id]);
         return true;
     } catch {
         return false;
@@ -132,12 +98,23 @@ export async function deletePost(id: string): Promise<boolean> {
 export async function updatePost(id: string, updates: Partial<CodigosPost>): Promise<CodigosPost | null> {
     // If updating image, handle upload first
     if (updates.imageUrl && updates.imageUrl.startsWith('data:')) {
-        updates.imageUrl = await uploadToSupabase(updates.imageUrl, id, updates.isGif || false);
+        updates.imageUrl = await saveImageLocally(updates.imageUrl, id, updates.isGif || false);
     }
 
-    const data = await supabaseFetch(`/rest/v1/codigos?id=eq.${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(updates)
-    });
-    return data[0] || null;
+    const fields = Object.keys(updates);
+    if (fields.length === 0) return null;
+
+    // Map camelCase keys to quoted identifiers if they match the DB column names
+    const setClause = fields.map((f, i) => {
+        const columnName = (f === "imageUrl" || f === "isGif" || f === "userId") ? `"${f}"` : f;
+        return `${columnName} = $${i + 1}`;
+    }).join(', ');
+    const values = fields.map(f => (updates as any)[f]);
+
+    const { rows } = await query(
+        `UPDATE codigos SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
+        [...values, id]
+    );
+    
+    return rows[0] || null;
 }

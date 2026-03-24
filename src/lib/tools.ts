@@ -1,5 +1,4 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { query } from './db';
 
 export interface Tool {
     id: string;
@@ -13,98 +12,73 @@ export interface Tool {
     createdAt: string;
 }
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'tools.json');
-
-// Ensure the data directory and file exist
-async function initDb() {
-    try {
-        await fs.access(DATA_FILE);
-    } catch {
-        // File doesn't exist, create it with an empty array
-        await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-        await fs.writeFile(DATA_FILE, '[]', 'utf-8');
-    }
-}
-
 export async function getTools(): Promise<Tool[]> {
-    await initDb();
     try {
-        const data = await fs.readFile(DATA_FILE, 'utf-8');
-        return JSON.parse(data);
+        const { rows } = await query('SELECT * FROM tools ORDER BY "createdAt" DESC');
+        return rows.map(row => ({
+            ...row,
+            submittedBy: row.submittedBy,
+            userId: row.userId,
+            createdAt: row.createdAt
+        }));
     } catch (error) {
-        console.error('Error reading tools database:', error);
+        console.error('Database GET tools failed:', error);
         return [];
     }
 }
 
-export async function saveTools(tools: Tool[]): Promise<void> {
-    await initDb();
-    try {
-        await fs.writeFile(DATA_FILE, JSON.stringify(tools, null, 2), 'utf-8');
-    } catch (error) {
-        console.error('Error writing to tools database:', error);
-        throw new Error('Failed to save data');
-    }
-}
-
 export async function addTool(tool: Omit<Tool, 'id' | 'createdAt' | 'status'>): Promise<Tool> {
-    const tools = await getTools();
+    const { rows } = await query(
+        `INSERT INTO tools (title, description, url, category, status, "submittedBy", "userId") 
+         VALUES ($1, $2, $3, $4, 'pending', $5, $6) 
+         RETURNING *`,
+        [tool.title, tool.description, tool.url, tool.category, tool.submittedBy, tool.userId]
+    );
 
-    const newTool: Tool = {
-        ...tool,
-        id: crypto.randomUUID(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-    };
-
-    tools.push(newTool);
-    await saveTools(tools);
-
-    return newTool;
+    return rows[0];
 }
 
 export async function updateToolStatus(id: string, status: 'approved' | 'rejected' | 'pending'): Promise<Tool | null> {
-    const tools = await getTools();
-    const index = tools.findIndex(t => t.id === id);
-
-    if (index === -1) return null;
-
-    tools[index] = {
-        ...tools[index],
-        status,
-    };
-
-    await saveTools(tools);
-    return tools[index];
+    const { rows } = await query(
+        'UPDATE tools SET status = $1 WHERE id = $2 RETURNING *',
+        [status, id]
+    );
+    return rows[0] || null;
 }
 
 export async function getToolsByUser(userId: string): Promise<Tool[]> {
-    const tools = await getTools();
-    return tools.filter(t => t.userId === userId);
+    try {
+        const { rows } = await query('SELECT * FROM tools WHERE "userId" = $1 ORDER BY "createdAt" DESC', [userId]);
+        return rows || [];
+    } catch (error) {
+        console.error('Database GET tools by user failed:', error);
+        return [];
+    }
 }
 
 export async function deleteTool(id: string): Promise<boolean> {
-    let tools = await getTools();
-    const initialLength = tools.length;
-    tools = tools.filter(t => t.id !== id);
-
-    if (tools.length === initialLength) return false;
-
-    await saveTools(tools);
-    return true;
+    try {
+        await query('DELETE FROM tools WHERE id = $1', [id]);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 export async function updateTool(id: string, updates: Partial<Tool>): Promise<Tool | null> {
-    const tools = await getTools();
-    const index = tools.findIndex(t => t.id === id);
+    const fields = Object.keys(updates);
+    if (fields.length === 0) return null;
 
-    if (index === -1) return null;
+    const setClause = fields.map((f, i) => {
+        const columnName = (f === "submittedBy" || f === "userId" || f === "createdAt") ? `"${f}"` : f;
+        return `${columnName} = $${i + 1}`;
+    }).join(', ');
+    const values = fields.map(f => (updates as any)[f]);
 
-    tools[index] = {
-        ...tools[index],
-        ...updates,
-    };
-
-    await saveTools(tools);
-    return tools[index];
+    const { rows } = await query(
+        `UPDATE tools SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
+        [...values, id]
+    );
+    
+    return rows[0] || null;
 }
