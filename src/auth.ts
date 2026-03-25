@@ -33,6 +33,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const adminPassword = process.env.ADMIN_PASSWORD;
                 const operacaoUser = process.env.OPERACAO_USER;
                 const operacaoPassword = process.env.OPERACAO_PASSWORD;
+                const guestUser = process.env.GUEST_USER;
+                const guestPassword = process.env.GUEST_PASSWORD;
 
                 const email = credentials?.email as string | undefined
                 const password = credentials?.password as string | undefined
@@ -53,6 +55,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     safeCompare(email, operacaoUser) &&
                     safeCompare(password, operacaoPassword)) {
                     return { id: "2", name: "Operador", email: "operacao@tstools.com", role: "user" }
+                }
+
+                // Verifica Visitante (Guest) usando comparação em tempo constante
+                if (guestUser && guestPassword &&
+                    safeCompare(email, guestUser) &&
+                    safeCompare(password, guestPassword)) {
+                    return { id: "3", name: "Visitante", email: guestUser, role: "user" }
                 }
 
                 return null;
