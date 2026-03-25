@@ -3,16 +3,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import {
-    Command,
     Search as MagnifyingGlass,
     Wand2 as MagicWand,
-    Image as Images,
-    Video as VideoCamera,
+    ArrowRightLeft,
+    MonitorPlay,
     UserSquare2 as UserFocus,
-    Code2 as Code,
     Building2 as Buildings,
     BookOpen as BookOpenText,
-    Link as LinkIcon,
+    PackageSearch,
     Star,
     ArrowRight,
     History as ClockCounterClockwise
@@ -41,21 +39,21 @@ const STATIC_ACTIONS: CommandAction[] = [
         id: "antes-depois",
         title: "Antes & Depois",
         description: "Gere imagens comparativas perfeitas",
-        icon: <Images size={20} />,
+        icon: <ArrowRightLeft size={20} />,
         href: "/antes-depois",
         category: "Ferramentas"
     },
     {
         id: "gerador-video",
-        title: "Gerador de Vídeo",
+        title: "Gerador de Vídeos",
         description: "Roteiros e direções para vídeos por IA",
-        icon: <VideoCamera size={20} />,
+        icon: <MonitorPlay size={20} />,
         href: "/gerador-video",
         category: "Ferramentas"
     },
     {
         id: "gerador-humano",
-        title: "Gerador Humano",
+        title: "Humanizador",
         description: "Prompts de pessoas ultra-realistas",
         icon: <UserFocus size={20} />,
         href: "/gerador-humano",
@@ -81,7 +79,7 @@ const STATIC_ACTIONS: CommandAction[] = [
         id: "hub",
         title: "Hub de Ferramentas",
         description: "Recursos validados pela equipe",
-        icon: <LinkIcon size={20} />,
+        icon: <PackageSearch size={20} />,
         href: "/ferramentas",
         category: "Conhecimento"
     },
@@ -197,7 +195,7 @@ export function CommandPalette() {
                     <div className="max-h-[400px] overflow-y-auto p-2 custom-scrollbar">
                         {filteredActions.length === 0 ? (
                             <div className="py-12 text-center">
-                                <Command size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+                                <MagnifyingGlass size={48} className="mx-auto text-muted-foreground/20 mb-4" />
                                 <p className="text-muted-foreground font-medium">Nenhum resultado encontrado para "{search}"</p>
                             </div>
                         ) : (
