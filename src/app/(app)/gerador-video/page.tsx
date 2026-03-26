@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useRef } from "react"
 import {
     CheckCircle2 as CheckCircle,
     Video,
@@ -12,7 +12,11 @@ import {
     Wand2 as MagicWand,
     Copy,
     HelpCircle as Question,
-    Star
+    Star,
+    Upload,
+    X,
+    FileImage,
+    ImagePlus
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { useFavorites } from "@/hooks/useFavorites"
@@ -29,8 +33,18 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { PRESETS_VIDEO } from "@/constants/presets"
 
+function toBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 interface VideoPayload {
     mode: "simple" | "advanced";
+    videoType?: "normal" | "timelapse" | "before_after" | "ken_burns";
     niche?: string;
     nicheOther?: string;
     motion?: string;
@@ -43,6 +57,31 @@ interface VideoPayload {
     speedOther?: string;
     action?: string;
     negative?: string;
+    tlAction?: string;
+    tlSpeed?: string;
+    tlSpeedOther?: string;
+    tlAngle?: string;
+    tlAngleOther?: string;
+    tlStyle?: string;
+    tlStyleOther?: string;
+    baNiche?: string;
+    baNicheOther?: string;
+    baTransition?: string;
+    baTransitionOther?: string;
+    baPace?: string;
+    baPaceOther?: string;
+    baContrast?: string;
+    baContrastOther?: string;
+    baDetail?: string;
+    kbMovement?: string;
+    kbMovementOther?: string;
+    kbSpeed?: string;
+    kbSpeedOther?: string;
+    kbMood?: string;
+    kbMoodOther?: string;
+    kbDuration?: string;
+    kbDurationOther?: string;
+    hasKbPhoto?: boolean;
 }
 
 function GeradorVideoContent() {
@@ -52,8 +91,9 @@ function GeradorVideoContent() {
     }, [])
     const [selectedPreset, setSelectedPreset] = useState<string>("")
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
+    const [videoType, setVideoType] = useState<"normal" | "timelapse" | "before_after" | "ken_burns">("normal")
 
-    // Macro States
+    // Macro States (Normal Mode)
     const [niche, setNiche] = useState("residential interior")
     const [nicheOther, setNicheOther] = useState("")
     const [motion, setMotion] = useState("Slow Dolly Push-in")
@@ -64,9 +104,40 @@ function GeradorVideoContent() {
     const [lensOther, setLensOther] = useState("")
     const [speed, setSpeed] = useState("Real-time default speed")
     const [speedOther, setSpeedOther] = useState("")
-
     const [action, setAction] = useState("")
     const [negative, setNegative] = useState("")
+
+    // Timelapse States
+    const [tlAction, setTlAction] = useState("")
+    const [tlSpeed, setTlSpeed] = useState("4x")
+    const [tlSpeedOther, setTlSpeedOther] = useState("")
+    const [tlAngle, setTlAngle] = useState("Alternando ângulos")
+    const [tlAngleOther, setTlAngleOther] = useState("")
+    const [tlStyle, setTlStyle] = useState("Cinematográfico com color grade")
+    const [tlStyleOther, setTlStyleOther] = useState("")
+
+    // Antes & Depois States
+    const [baNiche, setBaNiche] = useState("Construction")
+    const [baNicheOther, setBaNicheOther] = useState("")
+    const [baTransition, setBaTransition] = useState("Wipe horizontal (clássico)")
+    const [baTransitionOther, setBaTransitionOther] = useState("")
+    const [baPace, setBaPace] = useState("Médio")
+    const [baPaceOther, setBaPaceOther] = useState("")
+    const [baContrast, setBaContrast] = useState("Médio")
+    const [baContrastOther, setBaContrastOther] = useState("")
+    const [baDetail, setBaDetail] = useState("")
+
+    // Ken Burns States
+    const [kbPhotoUrl, setKbPhotoUrl] = useState("")
+    const kbPhotoInputRef = useRef<HTMLInputElement>(null)
+    const [kbMovement, setKbMovement] = useState("Zoom in suave (Ken Burns clássico)")
+    const [kbMovementOther, setKbMovementOther] = useState("")
+    const [kbSpeed, setKbSpeed] = useState("Suave")
+    const [kbSpeedOther, setKbSpeedOther] = useState("")
+    const [kbMood, setKbMood] = useState("Neutro")
+    const [kbMoodOther, setKbMoodOther] = useState("")
+    const [kbDuration, setKbDuration] = useState("5s")
+    const [kbDurationOther, setKbDurationOther] = useState("")
 
     // Global State
     const [generatedPrompt, setGeneratedPrompt] = useState("")
@@ -82,6 +153,8 @@ function GeradorVideoContent() {
         if (!p) return;
 
         setMode(p.mode || "simple");
+        setVideoType(p.videoType || "normal");
+        
         setNiche(p.niche || "residential interior");
         setNicheOther(p.nicheOther || "");
         setMotion(p.motion || "Slow Dolly Push-in");
@@ -94,6 +167,33 @@ function GeradorVideoContent() {
         setSpeedOther(p.speedOther || "");
         setAction(p.action || "");
         setNegative(p.negative || "");
+
+        setTlAction(p.tlAction || "");
+        setTlSpeed(p.tlSpeed || "4x");
+        setTlSpeedOther(p.tlSpeedOther || "");
+        setTlAngle(p.tlAngle || "Alternando ângulos");
+        setTlAngleOther(p.tlAngleOther || "");
+        setTlStyle(p.tlStyle || "Cinematográfico com color grade");
+        setTlStyleOther(p.tlStyleOther || "");
+
+        setBaNiche(p.baNiche || "Construction");
+        setBaNicheOther(p.baNicheOther || "");
+        setBaTransition(p.baTransition || "Wipe horizontal (clássico)");
+        setBaTransitionOther(p.baTransitionOther || "");
+        setBaPace(p.baPace || "Médio");
+        setBaPaceOther(p.baPaceOther || "");
+        setBaContrast(p.baContrast || "Médio");
+        setBaContrastOther(p.baContrastOther || "");
+        setBaDetail(p.baDetail || "");
+
+        setKbMovement(p.kbMovement || "Zoom in suave (Ken Burns clássico)");
+        setKbMovementOther(p.kbMovementOther || "");
+        setKbSpeed(p.kbSpeed || "Suave");
+        setKbSpeedOther(p.kbSpeedOther || "");
+        setKbMood(p.kbMood || "Neutro");
+        setKbMoodOther(p.kbMoodOther || "");
+        setKbDuration(p.kbDuration || "5s");
+        setKbDurationOther(p.kbDurationOther || "");
     };
 
     // Handle Restore Effect
@@ -112,6 +212,7 @@ function GeradorVideoContent() {
         const preset = PRESETS_VIDEO.find(p => p.id === id);
         if (preset) {
             setMode("simple");
+            setVideoType("normal");
             setNiche(preset.data.niche);
             setMotion(preset.data.motion);
             setAngle(preset.data.angle);
@@ -127,70 +228,75 @@ function GeradorVideoContent() {
         }
     }
 
+    const handleKbPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const b64 = await toBase64(file);
+        setKbPhotoUrl(b64);
+    };
+
     const handleGenerate = () => {
-        if (!action && mode === 'simple') {
+        if (videoType === 'normal' && mode === 'simple' && !action) {
             alert("Por favor, descreva a ação que acontece no vídeo.")
+            return
+        }
+        if (videoType === 'timelapse' && !tlAction) {
+            alert("Por favor, descreva o que está sendo construído / executado no timelapse.")
             return
         }
 
         setIsGenerating(true)
 
-        if (mode === 'simple') {
-            let promptParts: string[] = []
-
-            const finalNiche = niche === 'other' ? nicheOther : niche
-            const finalMotion = motion === 'other' ? motionOther : motion
-            const finalAngle = angle === 'other' ? angleOther : angle
-            const finalLens = lens === 'other' ? lensOther : lens
-            const finalSpeed = speed === 'other' ? speedOther : speed
-
-            // Motion and Angle first for direction
-            if (finalMotion || finalAngle) {
-                promptParts.push(`${[finalMotion, finalAngle].filter(Boolean).join(', ')}.`)
-            }
-
-            // Core Action and Niche
-            promptParts.push(`A cinematic video showing ${action}`)
-            if (finalNiche) promptParts.push(`in a ${finalNiche}.`)
-            else promptParts.push(`.`)
-
-            // Quality and Speed
-            if (finalLens || finalSpeed) {
-                promptParts.push(`Shot styling: ${[finalLens, finalSpeed].filter(Boolean).join(', ')}.`)
-            }
-
-            setGeneratedPrompt(promptParts.join(' '))
-        } else {
-            const finalPromptObj = action + (negative ? `\n\n[NEGATIVE]: ${negative}` : "")
-            setGeneratedPrompt(finalPromptObj)
-        }
-
         setTimeout(() => {
             setIsGenerating(false)
-            // Determine final prompt since state update might not have applied yet
             let finalStr = ""
-            if (mode === 'simple') {
-                const finalNiche = niche === 'other' ? nicheOther : niche
-                const finalMotion = motion === 'other' ? motionOther : motion
-                const finalAngle = angle === 'other' ? angleOther : angle
-                const finalLens = lens === 'other' ? lensOther : lens
-                const finalSpeed = speed === 'other' ? speedOther : speed
 
-                let promptParts: string[] = []
-                if (finalMotion || finalAngle) promptParts.push(`${[finalMotion, finalAngle].filter(Boolean).join(', ')}.`)
-                promptParts.push(`A cinematic video showing ${action}`)
-                if (finalNiche) promptParts.push(`in a ${finalNiche}.`)
-                else promptParts.push(`.`)
-                if (finalLens || finalSpeed) promptParts.push(`Shot styling: ${[finalLens, finalSpeed].filter(Boolean).join(', ')}.`)
-
-                finalStr = promptParts.join(' ')
+            if (videoType === 'timelapse') {
+                const fSpeed = tlSpeed === 'other' ? tlSpeedOther : tlSpeed
+                const fAngle = tlAngle === 'other' ? tlAngleOther : tlAngle
+                const fStyle = tlStyle === 'other' ? tlStyleOther : tlStyle
+                finalStr = `A speed build/timelapse video of ${tlAction}. The camera angle is ${fAngle}. The video speed is ${fSpeed}. Visual style: ${fStyle}. Emphasize continuous progression of the action, multiple visible stages, and a sense of accelerated transformation. NO TEXT, NO LETTERS.`
+            } else if (videoType === 'before_after') {
+                const fNiche = baNiche === 'other' ? baNicheOther : baNiche
+                const fTransition = baTransition === 'other' ? baTransitionOther : baTransition
+                const fPace = baPace === 'other' ? baPaceOther : baPace
+                const fContrast = baContrast === 'other' ? baContrastOther : baContrast
+                finalStr = `A before and after sequence video of a ${fNiche} service. The transition type is a ${fTransition} with a ${fPace} rhythm. The contrast level between the before and after states is ${fContrast}. ${baDetail ? "Additional scene details: " + baDetail + "." : ""} Emphasize a clear distinction between the previous and subsequent states, highlighting the transition as a moment of impact. NO TEXT, NO LETTERS.`
+            } else if (videoType === 'ken_burns') {
+                const fMovement = kbMovement === 'other' ? kbMovementOther : kbMovement
+                const fSpeed = kbSpeed === 'other' ? kbSpeedOther : kbSpeed
+                const fMood = kbMood === 'other' ? kbMoodOther : kbMood
+                const fDuration = kbDuration === 'other' ? kbDurationOther : kbDuration
+                finalStr = `[USE UPLOADED IMAGE AS REFERENCE]\nA high quality video bringing the reference photo to life. Camera movement: ${fMovement} at a ${fSpeed} speed. The mood of the scene is ${fMood}. Duration: ${fDuration}. Apply a virtual camera movement over the static image without deforming objects, maintaining photorealistic quality. NO TEXT, NO LETTERS.`
             } else {
-                finalStr = action + (negative ? `\n\n[NEGATIVE]: ${negative}` : "")
+                if (mode === 'simple') {
+                    const finalNiche = niche === 'other' ? nicheOther : niche
+                    const finalMotion = motion === 'other' ? motionOther : motion
+                    const finalAngle = angle === 'other' ? angleOther : angle
+                    const finalLens = lens === 'other' ? lensOther : lens
+                    const finalSpeed = speed === 'other' ? speedOther : speed
+
+                    let promptParts: string[] = []
+                    if (finalMotion || finalAngle) promptParts.push(`${[finalMotion, finalAngle].filter(Boolean).join(', ')}.`)
+                    promptParts.push(`A cinematic video showing ${action}`)
+                    if (finalNiche) promptParts.push(`in a ${finalNiche}.`)
+                    else promptParts.push(`.`)
+                    if (finalLens || finalSpeed) promptParts.push(`Shot styling: ${[finalLens, finalSpeed].filter(Boolean).join(', ')}.`)
+
+                    finalStr = promptParts.join(' ')
+                } else {
+                    finalStr = action + (negative ? `\n\n[NEGATIVE]: ${negative}` : "")
+                }
             }
 
+            setGeneratedPrompt(finalStr)
+
             saveHistory({
-                mode, niche, nicheOther, motion, motionOther, angle, angleOther,
-                lens, lensOther, speed, speedOther, action, negative
+                mode, videoType, niche, nicheOther, motion, motionOther, angle, angleOther,
+                lens, lensOther, speed, speedOther, action, negative,
+                tlAction, tlSpeed, tlSpeedOther, tlAngle, tlAngleOther, tlStyle, tlStyleOther,
+                baNiche, baNicheOther, baTransition, baTransitionOther, baPace, baPaceOther, baContrast, baContrastOther, baDetail,
+                kbMovement, kbMovementOther, kbSpeed, kbSpeedOther, kbMood, kbMoodOther, kbDuration, kbDurationOther, hasKbPhoto: !!kbPhotoUrl
             }, finalStr)
         }, 800)
     }
@@ -210,6 +316,31 @@ function GeradorVideoContent() {
         setSpeedOther("")
         setAction("")
         setNegative("")
+        setTlAction("")
+        setTlSpeed("4x")
+        setTlSpeedOther("")
+        setTlAngle("Alternando ângulos")
+        setTlAngleOther("")
+        setTlStyle("Cinematográfico com color grade")
+        setTlStyleOther("")
+        setBaNiche("Construction")
+        setBaNicheOther("")
+        setBaTransition("Wipe horizontal (clássico)")
+        setBaTransitionOther("")
+        setBaPace("Médio")
+        setBaPaceOther("")
+        setBaContrast("Médio")
+        setBaContrastOther("")
+        setBaDetail("")
+        setKbPhotoUrl("")
+        setKbMovement("Zoom in suave (Ken Burns clássico)")
+        setKbMovementOther("")
+        setKbSpeed("Suave")
+        setKbSpeedOther("")
+        setKbMood("Neutro")
+        setKbMoodOther("")
+        setKbDuration("5s")
+        setKbDurationOther("")
         setGeneratedPrompt("")
         setSelectedPreset("")
     }
@@ -318,7 +449,33 @@ function GeradorVideoContent() {
                             </div>
 
                             <div className="space-y-10 relative z-10">
-                                <div className="space-y-4">
+                                <div className="space-y-4 bg-muted/30 p-5 rounded-2xl border border-border/50 shadow-inner">
+                                    <div className="flex items-center gap-2">
+                                        <FilmStrip size={18} className="text-blue-500" />
+                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Tipo de Vídeo</h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        {[
+                                            { id: "normal", label: "Cena Normal", icon: Play },
+                                            { id: "timelapse", label: "Timelapse", icon: TerminalWindow },
+                                            { id: "before_after", label: "Antes & Depois", icon: CheckCircle },
+                                            { id: "ken_burns", label: "Foto Ganhando Vida", icon: MagicWand },
+                                        ].map((opt) => (
+                                            <button
+                                                key={opt.id}
+                                                onClick={() => setVideoType(opt.id as any)}
+                                                className={cn("flex flex-col items-center justify-center p-4 rounded-xl border transition-all", videoType === opt.id ? "bg-blue-500/10 border-blue-500/50 text-blue-500 shadow-sm" : "bg-input/20 border-border hover:bg-input/40 text-muted-foreground")}
+                                            >
+                                                <opt.icon size={24} className="mb-2" />
+                                                <span className="text-xs font-bold uppercase tracking-wider text-center">{opt.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {videoType === 'normal' && (
+                                    <div className="space-y-10">
+                                        <div className="space-y-4">
                                     <div className="flex items-center gap-2">
                                         <Play size={18} className="text-primary" fill="currentColor" />
                                         <h3 className="text-sm font-black text-foreground uppercase tracking-widest">O que acontece na cena? (Ação)</h3>
@@ -491,6 +648,224 @@ function GeradorVideoContent() {
                                         "Gerar Prompt"
                                     )}
                                 </Button>
+                            </div>
+                        )}
+
+                        {videoType === 'timelapse' && (
+                            <div className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <TerminalWindow size={18} className="text-blue-500" />
+                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">O que está sendo construído / executado</h3>
+                                    </div>
+                                    <Textarea
+                                        placeholder="Ex: instalação completa de piso de vinílico em sala de estar"
+                                        className="min-h-[120px] bg-input border-border focus:border-blue-500/50 rounded-2xl p-5 text-base font-medium"
+                                        value={tlAction}
+                                        onChange={(e) => setTlAction(e.target.value)}
+                                    />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Velocidade do Timelapse</Label>
+                                        <select value={tlSpeed} onChange={(e) => setTlSpeed(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="2x">2x</option>
+                                            <option value="4x">4x</option>
+                                            <option value="8x">8x</option>
+                                            <option value="Ultra-rápido (hiper-comprimido)">Ultra-rápido (hiper-comprimido)</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {tlSpeed === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={tlSpeedOther} onChange={(e) => setTlSpeedOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ângulo Principal</Label>
+                                        <select value={tlAngle} onChange={(e) => setTlAngle(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="Frontal fixo">Frontal fixo</option>
+                                            <option value="Aéreo de cima">Aéreo de cima</option>
+                                            <option value="Seguindo o profissional">Seguindo o profissional</option>
+                                            <option value="Alternando ângulos">Alternando ângulos</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {tlAngle === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={tlAngleOther} onChange={(e) => setTlAngleOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Estilo Visual</Label>
+                                        <select value={tlStyle} onChange={(e) => setTlStyle(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="Documental realista">Documental realista</option>
+                                            <option value="Cinematográfico com color grade">Cinematográfico com color grade</option>
+                                            <option value="Clean e minimalista">Clean e minimalista</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {tlStyle === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={tlStyleOther} onChange={(e) => setTlStyleOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {videoType === 'before_after' && (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Nicho / Serviço</Label>
+                                        <select value={baNiche} onChange={(e) => setBaNiche(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <optgroup label="🏗️ Construção & Reformas">
+                                                <option value="Construction">Construction (Construção)</option>
+                                                <option value="Kitchen Remodel">Kitchen Remodel (Cozinha)</option>
+                                                <option value="Bathroom Remodel">Bathroom (Banheiro)</option>
+                                            </optgroup>
+                                            <optgroup label="🎨 Acabamentos & Superfícies">
+                                                <option value="House Painting">House Painting (Pintura)</option>
+                                                <option value="Roof Repair">Roof Repair (Telhado)</option>
+                                                <option value="Siding Installation">Siding (Revestimento)</option>
+                                            </optgroup>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {baNiche === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={baNicheOther} onChange={(e) => setBaNicheOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Tipo de Transição</Label>
+                                        <select value={baTransition} onChange={(e) => setBaTransition(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="Wipe horizontal (clássico)">Wipe horizontal (clássico)</option>
+                                            <option value="Reveal com cortina">Reveal com cortina</option>
+                                            <option value="Split screen animado">Split screen animado</option>
+                                            <option value="Fade entre os dois estados">Fade entre os dois estados</option>
+                                            <option value="Zoom in que revela o depois">Zoom in que revela o depois</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {baTransition === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={baTransitionOther} onChange={(e) => setBaTransitionOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ritmo da Transição</Label>
+                                        <select value={baPace} onChange={(e) => setBaPace(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="Lento e dramático">Lento e dramático</option>
+                                            <option value="Médio">Médio</option>
+                                            <option value="Rápido e impactante">Rápido e impactante</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {baPace === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={baPaceOther} onChange={(e) => setBaPaceOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Nível de Contraste</Label>
+                                        <select value={baContrast} onChange={(e) => setBaContrast(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
+                                            <option value="Sutil">Sutil</option>
+                                            <option value="Médio">Médio</option>
+                                            <option value="Extremo (máximo impacto)">Extremo (máximo impacto)</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {baContrast === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={baContrastOther} onChange={(e) => setBaContrastOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle size={18} className="text-blue-500" />
+                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Detalhe adicional da cena (Opcional)</h3>
+                                    </div>
+                                    <Textarea
+                                        placeholder="Ex: Mostrar o cliente sorrindo no final, focar no reflexo do chão limpo..."
+                                        className="min-h-[120px] bg-input border-border focus:border-blue-500/50 rounded-2xl p-5 text-base font-medium"
+                                        value={baDetail}
+                                        onChange={(e) => setBaDetail(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {videoType === 'ken_burns' && (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
+                                        <FileImage size={18} />
+                                        Foto base (opcional — para referência de estilo)
+                                    </Label>
+                                    <div
+                                        onClick={() => kbPhotoInputRef.current?.click()}
+                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
+                                    >
+                                        {kbPhotoUrl ? (
+                                            <div className="relative w-full h-full flex items-center justify-center">
+                                                <img src={kbPhotoUrl} alt="Referência" className="max-h-full max-w-full object-contain rounded-md" />
+                                                <button type="button" onClick={(e) => { e.stopPropagation(); setKbPhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto base</p>
+                                            </>
+                                        )}
+                                        <input ref={kbPhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleKbPhotoUpload} />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Tipo de Movimento</Label>
+                                        <select value={kbMovement} onChange={(e) => setKbMovement(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
+                                            <option value="Zoom in suave (Ken Burns clássico)">Zoom in suave (Ken Burns clássico)</option>
+                                            <option value="Zoom out revelador">Zoom out revelador</option>
+                                            <option value="Pan horizontal lento">Pan horizontal lento</option>
+                                            <option value="Pan vertical (de baixo para cima)">Pan vertical (de baixo para cima)</option>
+                                            <option value="Leve flutuação (parallax)">Leve flutuação (parallax)</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {kbMovement === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={kbMovementOther} onChange={(e) => setKbMovementOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Velocidade do Movimento</Label>
+                                        <select value={kbSpeed} onChange={(e) => setKbSpeed(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
+                                            <option value="Muito suave (realtor/luxury)">Muito suave (realtor/luxury)</option>
+                                            <option value="Suave">Suave</option>
+                                            <option value="Moderado">Moderado</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {kbSpeed === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={kbSpeedOther} onChange={(e) => setKbSpeedOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Clima da Cena</Label>
+                                        <select value={kbMood} onChange={(e) => setKbMood(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
+                                            <option value="Neutro">Neutro</option>
+                                            <option value="Dramático (luz intensa)">Dramático (luz intensa)</option>
+                                            <option value="Sereno (luz suave)">Sereno (luz suave)</option>
+                                            <option value="Premium">Premium</option>
+                                            <option value="Aconchegante">Aconchegante</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {kbMood === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={kbMoodOther} onChange={(e) => setKbMoodOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Duração</Label>
+                                        <select value={kbDuration} onChange={(e) => setKbDuration(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
+                                            <option value="5s">5s</option>
+                                            <option value="10s">10s</option>
+                                            <option value="15s">15s</option>
+                                            <option value="other">Outro (Personalizado)</option>
+                                        </select>
+                                        {kbDuration === 'other' && (
+                                            <Input type="text" placeholder="Especifique..." value={kbDurationOther} onChange={(e) => setKbDurationOther(e.target.value)} className="mt-2 bg-input/50" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                             </div>
                         </div>
                     </div>

@@ -55,12 +55,15 @@ interface WorkflowPayload {
     city?: string;
     state?: string;
     seals?: string[];
+    customSeals?: string[];
     copyTone?: string;
     cta?: string;
+    specificOffer?: string;
     photoDesc?: string;
     extraNotes?: string;
     primaryColor?: string;
     secondaryColor?: string;
+    customColors?: string[];
     aspectRatio?: string;
     specificCopy?: string;
     sealOther?: string;
@@ -70,6 +73,16 @@ interface WorkflowPayload {
     orientation?: string;
     orientationOther?: string;
     stateOther?: string;
+    targetAge?: string;
+    targetAgeOther?: string;
+    targetGender?: string;
+    targetGenderOther?: string;
+    socioeconomicStatus?: string;
+    socioeconomicStatusOther?: string;
+    campaignContext?: string;
+    campaignContextOther?: string;
+    platform?: string;
+    platformOther?: string;
     hasPhotos: boolean;
     hasLogo: boolean;
     hasReferencePhotos: boolean;
@@ -144,6 +157,52 @@ const ORIENTATION_OPTIONS = [
     { value: "Texto à Direita (Right)", label: "➡️ Texto à Direita (Right)" },
     { value: "Texto Centralizado (Centered)", label: "🎯 Texto Centralizado (Center)" },
     { value: "Layout Dividido (Split Screen)", label: "🌓 Layout Dividido (Split)" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const TARGET_AGE_OPTIONS = [
+    { value: "none", label: "Não especificar (Amplo)" },
+    { value: "Jovens (18-24)", label: "🎒 Jovens (18-24)" },
+    { value: "Adultos Jovens (25-34)", label: "🚀 Adultos Jovens (25-34)" },
+    { value: "Adultos (35-44)", label: "💼 Adultos (35-44)" },
+    { value: "Seniores (45-54)", label: "🏡 Seniores (45-54)" },
+    { value: "Idosos (55+)", label: "👴 Idosos (55+)" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const TARGET_GENDER_OPTIONS = [
+    { value: "none", label: "Ambos os gêneros" },
+    { value: "Feminino", label: "👩 Feminino" },
+    { value: "Masculino", label: "👨 Masculino" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const SOCIOECONOMIC_OPTIONS = [
+    { value: "none", label: "Não especificar" },
+    { value: "Alto Padrão / Luxo", label: "💎 Alto Padrão / Luxo" },
+    { value: "Médio-Alto", label: "🏠 Médio-Alto" },
+    { value: "Classe Média", label: "🏘️ Classe Média" },
+    { value: "Popular / Econômico / Acessível", label: "🏷️ Popular / Econômico" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const CAMPAIGN_CONTEXT_OPTIONS = [
+    { value: "none", label: "Campanha Comum (Evergreen)" },
+    { value: "Black Friday", label: "🖤 Black Friday" },
+    { value: "Promoção de Verão (Summer)", label: "☀️ Promoção de Verão" },
+    { value: "Promoção de Inverno (Winter)", label: "❄️ Promoção de Inverno" },
+    { value: "Fim de Ano (Holiday Season)", label: "🎄 Fim de Ano (Holidays)" },
+    { value: "Limpeza de Primavera (Spring Cleaning)", label: "🌸 Spring Cleaning" },
+    { value: "other", label: "Outro (Personalizado)" },
+]
+
+const PLATFORM_OPTIONS = [
+    { value: "none", label: "Múltiplas / Não especificar" },
+    { value: "Meta (Facebook/Instagram)", label: "📱 Meta (FB/IG)" },
+    { value: "Google Ads (Display/PMax)", label: "🔍 Google Ads" },
+    { value: "TikTok", label: "🎵 TikTok" },
+    { value: "YouTube", label: "📺 YouTube" },
+    { value: "TV Local / Streaming", label: "📡 TV Local / Hulu" },
     { value: "other", label: "Outro (Personalizado)" },
 ]
 
@@ -226,11 +285,15 @@ function WorkflowContent() {
 
     // Criativo
     const [seals, setSeals] = useState<string[]>([])
-    const [sealOther, setSealOther] = useState("")
+    const [sealOther, setSealOther] = useState("") // Deprecado em prol de customSeals, mantido fallback
+    const [customSeals, setCustomSeals] = useState<string[]>([])
+    const [newCustomSeal, setNewCustomSeal] = useState("")
+    
     const [copyTone, setCopyTone] = useState("none")
     const [copyToneOther, setCopyToneOther] = useState("")
     const [cta, setCta] = useState("none")
     const [ctaOther, setCtaOther] = useState("")
+    const [specificOffer, setSpecificOffer] = useState("")
     const [aspectRatio, setAspectRatio] = useState("none")
     const [aspectRatioOther, setAspectRatioOther] = useState("")
     const [orientation, setOrientation] = useState("none")
@@ -241,6 +304,16 @@ function WorkflowContent() {
     const [isAdvancedMode, setIsAdvancedMode] = useState(false)
     const [specificCopy, setSpecificCopy] = useState("")
     const [referencePhotos, setReferencePhotos] = useState<UploadedFile[]>([])
+    const [targetAge, setTargetAge] = useState("none")
+    const [targetAgeOther, setTargetAgeOther] = useState("")
+    const [targetGender, setTargetGender] = useState("none")
+    const [targetGenderOther, setTargetGenderOther] = useState("")
+    const [socioeconomicStatus, setSocioeconomicStatus] = useState("none")
+    const [socioeconomicStatusOther, setSocioeconomicStatusOther] = useState("")
+    const [campaignContext, setCampaignContext] = useState("none")
+    const [campaignContextOther, setCampaignContextOther] = useState("")
+    const [platform, setPlatform] = useState("none")
+    const [platformOther, setPlatformOther] = useState("")
 
     // Fotos e logo
     const [photos, setPhotos] = useState<UploadedFile[]>([])
@@ -251,6 +324,8 @@ function WorkflowContent() {
     // Cores
     const [primaryColor, setPrimaryColor] = useState("#FF6B00")
     const [secondaryColor, setSecondaryColor] = useState("#1E1E1E")
+    const [customColors, setCustomColors] = useState<string[]>([])
+    const [newCustomColor, setNewCustomColor] = useState("#FFFFFF")
     const [colorsExtracted, setColorsExtracted] = useState(false)
 
     // Output
@@ -291,8 +366,21 @@ function WorkflowContent() {
         setOrientationOther(p.orientationOther || "")
         setStateOther(p.stateOther || "")
         setSpecificCopy(p.specificCopy || "")
+        setCustomSeals(p.customSeals || [])
+        setSpecificOffer(p.specificOffer || "")
+        setCustomColors(p.customColors || [])
+        setTargetAge(p.targetAge || "none")
+        setTargetAgeOther(p.targetAgeOther || "")
+        setTargetGender(p.targetGender || "none")
+        setTargetGenderOther(p.targetGenderOther || "")
+        setSocioeconomicStatus(p.socioeconomicStatus || "none")
+        setSocioeconomicStatusOther(p.socioeconomicStatusOther || "")
+        setCampaignContext(p.campaignContext || "none")
+        setCampaignContextOther(p.campaignContextOther || "")
+        setPlatform(p.platform || "none")
+        setPlatformOther(p.platformOther || "")
         // If we restore a payload with advanced configurations, auto-enable advanced mode
-        if (p.specificCopy || p.hasReferencePhotos) {
+        if (p.specificCopy || p.hasReferencePhotos || p.targetAge !== "none" || p.targetGender !== "none" || p.campaignContext !== "none" || p.platform !== "none" || p.socioeconomicStatus !== "none") {
             setIsAdvancedMode(true)
         }
         setPhotoDesc(p.photoDesc || "")
@@ -421,8 +509,9 @@ function WorkflowContent() {
         const location = [city, state].filter(Boolean).join(", ") || "Localização não especificada"
         const logoInfo = logoFile ? logoFile.name : "Não fornecida"
 
+        const extraColorsSection = customColors.length > 0 ? `\n• Cores Adicionais (Paleta Extra): ${customColors.join(", ")}` : ""
         const colorSection = `🎨 PALETA DE CORES${colorsExtracted ? " (extraída da logo automaticamente)" : ""}:
-• Primária: ${primaryColor}  |  Secundária: ${secondaryColor}
+• Primária: ${primaryColor}  |  Secundária: ${secondaryColor}${extraColorsSection}
 → Use essas cores exatas nos elementos de marca, botões e destaques do criativo.`
 
         const finalCopyTone = copyTone === "other" ? copyToneOther : copyTone
@@ -430,11 +519,14 @@ function WorkflowContent() {
         const finalAspectRatio = aspectRatio === "other" ? aspectRatioOther : aspectRatio
         const finalOrientation = orientation === "other" ? orientationOther : orientation
         const finalState = state === "other" ? stateOther : state
+        const finalTargetAge = targetAge === "other" ? targetAgeOther : targetAge
+        const finalTargetGender = targetGender === "other" ? targetGenderOther : targetGender
+        const finalSocioeconomicStatus = socioeconomicStatus === "other" ? socioeconomicStatusOther : socioeconomicStatus
+        const finalCampaignContext = campaignContext === "other" ? campaignContextOther : campaignContext
+        const finalPlatform = platform === "other" ? platformOther : platform
 
-        const activeSeals = seals
-            .filter(s => s !== "none")
-            .map(s => s === "other" ? sealOther : s)
-            .filter(Boolean);
+        const predefinedSeals = seals.filter(s => s !== "none" && s !== "other");
+        const activeSeals = [...predefinedSeals, ...customSeals].filter(Boolean);
 
         const sealSection = activeSeals.length > 0 ? `\n🛡️ SELO(S) DE CREDIBILIDADE:\n→ Incluir destaque visual com: ${activeSeals.map(s => `"${s}"`).join(", ")}` : ""
         
@@ -462,7 +554,7 @@ function WorkflowContent() {
 
 📌 BRIEFING DO CLIENTE:
 • Serviço: ${finalService}
-• Região: ${location}
+• Região: ${location}${isAdvancedMode && finalTargetAge !== "none" ? `\n• Faixa Etária Alvo: ${finalTargetAge}` : ""}${isAdvancedMode && finalTargetGender !== "none" ? `\n• Gênero Alvo: ${finalTargetGender}` : ""}${isAdvancedMode && finalSocioeconomicStatus !== "none" ? `\n• Nível Socioeconômico: ${finalSocioeconomicStatus}` : ""}${isAdvancedMode && finalCampaignContext !== "none" ? `\n• Contexto/Sazonalidade: ${finalCampaignContext}` : ""}${isAdvancedMode && finalPlatform !== "none" ? `\n• Plataforma Destino: ${finalPlatform}` : ""}${specificOffer ? `\n• OFERTA / PREÇO: ${specificOffer}` : ""}
 
 📸 FOTOS DO CLIENTE:
 ${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}${refPhotosSection}
@@ -507,8 +599,10 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 city,
                 state,
                 seals,
+                customSeals,
                 copyTone,
                 cta,
+                specificOffer,
                 aspectRatio,
                 orientation,
                 sealOther,
@@ -518,10 +612,21 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 orientationOther,
                 stateOther,
                 specificCopy: isAdvancedMode ? specificCopy : undefined,
+                targetAge: isAdvancedMode ? targetAge : undefined,
+                targetAgeOther,
+                targetGender: isAdvancedMode ? targetGender : undefined,
+                targetGenderOther,
+                socioeconomicStatus: isAdvancedMode ? socioeconomicStatus : undefined,
+                socioeconomicStatusOther,
+                campaignContext: isAdvancedMode ? campaignContext : undefined,
+                campaignContextOther,
+                platform: isAdvancedMode ? platform : undefined,
+                platformOther,
                 photoDesc,
                 extraNotes,
                 primaryColor,
                 secondaryColor,
+                customColors,
                 hasPhotos: photos.length > 0,
                 hasReferencePhotos: isAdvancedMode ? referencePhotos.length > 0 : false,
                 hasLogo: !!logoFile
@@ -684,12 +789,20 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                         </SelectContent>
                                     </Select>
                                     
-                                    {seals.length > 0 && (
+                                    {(seals.filter(s => s !== "other").length > 0 || customSeals.length > 0) && (
                                         <div className="flex flex-wrap gap-2 mt-3 p-3 bg-input/20 border border-border rounded-lg">
-                                            {seals.map(s => (
+                                            {seals.filter(s => s !== "other").map(s => (
                                                 <div key={s} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 px-2.5 py-1.5 rounded-full border border-emerald-500/20">
-                                                    {s === "other" ? (sealOther || "Outro Selo") : SEALS_OPTIONS.find(o => o.value === s)?.label}
+                                                    {SEALS_OPTIONS.find(o => o.value === s)?.label}
                                                     <button onClick={() => setSeals(seals.filter(x => x !== s))} className="hover:bg-emerald-500/20 rounded-full p-0.5 transition-colors">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {customSeals.map((cs, i) => (
+                                                <div key={i} className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 px-2.5 py-1.5 rounded-full border border-emerald-500/20">
+                                                    {cs}
+                                                    <button onClick={() => setCustomSeals(customSeals.filter((_, idx) => idx !== i))} className="hover:bg-emerald-500/20 rounded-full p-0.5 transition-colors">
                                                         <X size={12} />
                                                     </button>
                                                 </div>
@@ -698,7 +811,34 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     )}
 
                                     {seals.includes("other") && (
-                                        <Input placeholder="Especifique o(s) selo(s)..." value={sealOther} onChange={(e) => setSealOther(e.target.value)} className="mt-2" />
+                                        <div className="flex gap-2 mt-2">
+                                            <Input 
+                                                placeholder="Selo personalizado (Ex: BBB Accredited)..." 
+                                                value={newCustomSeal} 
+                                                onChange={(e) => setNewCustomSeal(e.target.value)} 
+                                                onKeyDown={(e) => { 
+                                                    if (e.key === "Enter") { 
+                                                        e.preventDefault(); 
+                                                        if (newCustomSeal.trim()) { 
+                                                            setCustomSeals([...customSeals, newCustomSeal.trim()]); 
+                                                            setNewCustomSeal(""); 
+                                                        } 
+                                                    } 
+                                                }} 
+                                            />
+                                            <Button 
+                                                type="button" 
+                                                variant="secondary"
+                                                onClick={() => { 
+                                                    if (newCustomSeal.trim()) { 
+                                                        setCustomSeals([...customSeals, newCustomSeal.trim()]); 
+                                                        setNewCustomSeal(""); 
+                                                    } 
+                                                }}
+                                            >
+                                                Adicionar
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
 
@@ -732,6 +872,14 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                     {cta === "other" && (
                                         <Input placeholder="Especifique o botão CTA (ex: Solicite Orçamento)..." value={ctaOther} onChange={(e) => setCtaOther(e.target.value)} className="mt-2" />
                                     )}
+                                </div>
+
+                                {/* Oferta Especifica */}
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-foreground flex items-center gap-1.5">
+                                        <Sparkles size={14} className="text-amber-400" /> Preço ou Oferta Específica <span className="text-muted-foreground font-normal text-xs ml-auto">(Opcional)</span>
+                                    </Label>
+                                    <Input placeholder="Ex: $1,99 o sqft, 20% OFF, Instalation Included..." value={specificOffer} onChange={(e) => setSpecificOffer(e.target.value)} className="h-12 bg-input/50 focus:bg-input transition-colors" />
                                 </div>
 
                                 {/* Aspect Ratio */}
@@ -871,6 +1019,25 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             <Input value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-9 font-mono text-xs uppercase" />
                                         </div>
                                     </div>
+                                    <div className="pt-2 border-t border-border space-y-2">
+                                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cores Adicionais</Label>
+                                        <div className="flex gap-2 items-center">
+                                            <input type="color" value={newCustomColor} onChange={(e) => setNewCustomColor(e.target.value)} className="w-9 h-9 rounded-lg border border-border cursor-pointer bg-transparent shrink-0" />
+                                            <Input value={newCustomColor} onChange={(e) => setNewCustomColor(e.target.value)} className="h-9 font-mono text-xs uppercase" />
+                                            <Button type="button" onClick={() => { setCustomColors([...customColors, newCustomColor.toUpperCase()]); setNewCustomColor("#FFFFFF") }} variant="secondary" className="h-9 px-3">Adicionar</Button>
+                                        </div>
+                                        {customColors.length > 0 && (
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {customColors.map((c, i) => (
+                                                    <div key={i} className="flex items-center gap-1.5 bg-input/50 border border-border rounded-md pl-2 pr-1 py-1">
+                                                        <div className="w-3 h-3 rounded-full border border-black/20" style={{ backgroundColor: c }} />
+                                                        <span className="text-xs font-mono text-muted-foreground">{c}</span>
+                                                        <button type="button" onClick={() => setCustomColors(customColors.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-red-400 p-0.5"><X size={12} /></button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -908,6 +1075,63 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                             {isAdvancedMode && (
                                 <div className="mt-8 pt-6 border-t border-border space-y-8 animate-in slide-in-from-top-4 fade-in duration-300">
                                     <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-input/20 border border-border p-5 rounded-xl">
+                                            <div className="md:col-span-2 mb-2">
+                                                <h3 className="text-sm font-bold text-foreground">🎯 Público e Contexto</h3>
+                                                <p className="text-xs text-muted-foreground">Quem verá este anúncio e onde</p>
+                                            </div>
+                                            
+                                            {/* Target Age */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-semibold text-foreground uppercase tracking-wide">Faixa Etária</Label>
+                                                <Select value={targetAge} onValueChange={setTargetAge}>
+                                                    <SelectTrigger className="w-full bg-input/50 h-10 hover:bg-input"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>{TARGET_AGE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                                {targetAge === "other" && <Input placeholder="Especifique..." value={targetAgeOther} onChange={(e) => setTargetAgeOther(e.target.value)} className="mt-2 h-9 text-sm" />}
+                                            </div>
+
+                                            {/* Target Gender */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-semibold text-foreground uppercase tracking-wide">Gênero Predominante</Label>
+                                                <Select value={targetGender} onValueChange={setTargetGender}>
+                                                    <SelectTrigger className="w-full bg-input/50 h-10 hover:bg-input"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>{TARGET_GENDER_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                                {targetGender === "other" && <Input placeholder="Especifique..." value={targetGenderOther} onChange={(e) => setTargetGenderOther(e.target.value)} className="mt-2 h-9 text-sm" />}
+                                            </div>
+
+                                            {/* Socioeconomic */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-semibold text-foreground uppercase tracking-wide">Nível Sócioeconômico</Label>
+                                                <Select value={socioeconomicStatus} onValueChange={setSocioeconomicStatus}>
+                                                    <SelectTrigger className="w-full bg-input/50 h-10 hover:bg-input"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>{SOCIOECONOMIC_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                                {socioeconomicStatus === "other" && <Input placeholder="Especifique..." value={socioeconomicStatusOther} onChange={(e) => setSocioeconomicStatusOther(e.target.value)} className="mt-2 h-9 text-sm" />}
+                                            </div>
+
+                                            {/* Campaign Context */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-semibold text-foreground uppercase tracking-wide">Sazonalidade da Campanha</Label>
+                                                <Select value={campaignContext} onValueChange={setCampaignContext}>
+                                                    <SelectTrigger className="w-full bg-input/50 h-10 hover:bg-input"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>{CAMPAIGN_CONTEXT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                                {campaignContext === "other" && <Input placeholder="Especifique..." value={campaignContextOther} onChange={(e) => setCampaignContextOther(e.target.value)} className="mt-2 h-9 text-sm" />}
+                                            </div>
+
+                                            {/* Platform */}
+                                            <div className="space-y-2 md:col-span-2">
+                                                <Label className="text-xs font-semibold text-foreground uppercase tracking-wide">Plataforma Onde Vai Rodar</Label>
+                                                <Select value={platform} onValueChange={setPlatform}>
+                                                    <SelectTrigger className="w-full bg-input/50 h-10 hover:bg-input"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>{PLATFORM_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
+                                                </Select>
+                                                {platform === "other" && <Input placeholder="Especifique as plataformas envolvidas..." value={platformOther} onChange={(e) => setPlatformOther(e.target.value)} className="mt-2 h-9 text-sm" />}
+                                            </div>
+                                        </div>
+                                        
                                         <div>
                                             <Label className="font-semibold text-foreground flex items-center gap-1.5 text-base">
                                                 <MessageSquare size={16} className="text-primary" /> Copy Específica
