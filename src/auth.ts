@@ -54,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (operacaoUser && operacaoPassword &&
                     safeCompare(email, operacaoUser) &&
                     safeCompare(password, operacaoPassword)) {
-                    return { id: "2", name: "Operador", email: "operacao@tstools.com", role: "user" }
+                    return { id: "2", name: "Operador", email: operacaoUser, role: "user" }
                 }
 
                 // Verifica Visitante (Guest) usando comparação em tempo constante

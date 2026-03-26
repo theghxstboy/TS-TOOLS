@@ -5,7 +5,7 @@
     "url": "https://br.pinterest.com/",
     "category": "Marketing",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "4a55abc9-cc16-49d6-bb8d-2be5a10390d0",
     "status": "approved",
     "createdAt": "2026-03-03T23:16:21.194Z"
@@ -27,7 +27,7 @@
     "url": "https://flow.com",
     "category": "IA & Automação",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "7d9e2b10-1a2b-4c3d-8e9f-0a1b2c3d4e5f",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -38,7 +38,7 @@
     "url": "https://chat.openai.com",
     "category": "Marketing",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "1b2c3d4e-5f6a-7b8c-9d0e-1a2b3c4d5e6f",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -49,7 +49,7 @@
     "url": "https://claude.ai",
     "category": "Marketing",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "2c3d4e5f-6a7b-8c9d-0e1a-2b3c4d5e6f7a",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -60,7 +60,7 @@
     "url": "https://www.canva.com",
     "category": "Design",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "3d4e5f6a-7b8c-9d0e-1a2b-3c4d5e6f7a8b",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -71,7 +71,7 @@
     "url": "https://www.capcut.com",
     "category": "Audiovisual",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "4e5f6a7b-8c9d-0e1a-2b3c-4d5e6f7a8b9c",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -82,7 +82,7 @@
     "url": "https://www.facebook.com/ads/library",
     "category": "Tráfego Pago",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "5f6a7b8c-9d0e-1a2b-3c4d-5e6f7a8b9c0d",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -93,7 +93,7 @@
     "url": "https://ads.google.com/home/tools/keyword-planner/",
     "category": "Tráfego Pago",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "6a7b8c9d-0e1a-2b3c-4d5e-6f7a8b9c0d1e",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -104,7 +104,7 @@
     "url": "https://www.remove.bg",
     "category": "Design",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "7b8c9d0e-1a2b-3c4d-5e6f-7a8b9c0d1e2f",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -115,7 +115,7 @@
     "url": "https://unsplash.com",
     "category": "Audiovisual",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "8c9d0e1a-2b3c-4d5e-6f7a-8b9c0d1e2f3g",
     "status": "approved",
     "createdAt": "2026-03-15T02:53:54.000Z"
@@ -126,7 +126,7 @@
     "url": "https://coolors.co",
     "category": "Design",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "9d0e1a2b-3c4d-5e6f-7a8b-9c0d1e2f3h4i",
     "status": "approved",
     "createdAt": "2026-03-15T02:53:54.000Z"
@@ -137,7 +137,7 @@
     "url": "https://www.loom.com",
     "category": "Social Media",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "0e1a2b3c-4d5e-6f7a-8b9c-0d1e2f3i4j5k",
     "status": "approved",
     "createdAt": "2026-03-15T02:53:54.000Z"
@@ -148,7 +148,7 @@
     "url": "https://trends.google.com",
     "category": "Marketing",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3j4k5l6m",
     "status": "approved",
     "createdAt": "2026-03-15T02:53:54.000Z"
@@ -159,7 +159,7 @@
     "url": "https://www.facebook.com/business/help/h",
     "category": "Tráfego Pago",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "2b3c4d5e-6f7a-8b9c-0d1e-2f3k4l5m6n7o",
     "status": "approved",
     "createdAt": "2026-03-15T02:53:54.000Z"
@@ -170,7 +170,7 @@
     "url": "https://www.pexels.com",
     "category": "Audiovisual",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "8c9d0e1a-2b3c-4d5e-6f7a-8b9c0d1e2f3a",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -181,7 +181,7 @@
     "url": "https://buffer.com",
     "category": "Social Media",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "9d0e1a2b-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -192,7 +192,7 @@
     "url": "https://answerthepublic.com",
     "category": "Marketing",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "0e1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
@@ -203,7 +203,7 @@
     "url": "https://www.perplexity.ai",
     "category": "IA & Automação",
     "submittedBy": "Administrador",
-    "userId": "admin@tstools.com",
+    "userId": "admin@seudominio.com",
     "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
     "status": "approved",
     "createdAt": "2026-03-15T02:46:54.000Z"
