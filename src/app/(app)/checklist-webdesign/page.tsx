@@ -27,6 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 // Types
 type TaskItem = {
@@ -191,6 +193,10 @@ function ChecklistWebDesignContent() {
     const [newTaskText, setNewTaskText] = useState("");
     const [mounted, setMounted] = useState(false);
 
+    // Dialog states
+    const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+
     // Derived states
     const [messageModel, setMessageModel] = useState("");
     const [legalPreview, setLegalPreview] = useState("");
@@ -326,9 +332,9 @@ function ChecklistWebDesignContent() {
     };
 
     const deleteTask = (id: string) => {
-        if (confirm("Tem certeza que deseja remover esta tarefa?")) {
-            setTasks(prev => prev.filter(t => t.id !== id));
-        }
+        setTasks(prev => prev.filter(t => t.id !== id));
+        setTaskToDelete(null);
+        toast.success("Tarefa removida.");
     };
 
     const handleSaveTask = () => {
@@ -340,10 +346,10 @@ function ChecklistWebDesignContent() {
     };
 
     const handleReset = () => {
-        if (confirm("Isso apagará todas as tarefas atuais e voltará para o padrão. Continuar?")) {
-            setTasks([...DEFAULT_TASKS]);
-            setFormState({ ...DEFAULT_FORM });
-        }
+        setTasks([...DEFAULT_TASKS]);
+        setFormState({ ...DEFAULT_FORM });
+        setIsResetDialogOpen(false);
+        toast.success("Checklist resetado para o padrão.");
     };
 
     const handleCopyMsg = () => {
@@ -395,9 +401,9 @@ function ChecklistWebDesignContent() {
                     const j = JSON.parse(reader.result as string) as ChecklistPayload;
                     if (j.tasks) setTasks(j.tasks);
                     if (j.form) setFormState(j.form);
-                    alert('Checklist importado com sucesso!');
+                    toast.success('Checklist importado com sucesso!');
                 } catch (err) {
-                    alert('Erro ao ler o arquivo JSON. Certifique-se que é o backup correto.');
+                    toast.error('Erro ao ler o arquivo JSON. Certifique-se que é o backup correto.');
                 }
             };
             reader.readAsText(f);
@@ -445,7 +451,7 @@ function ChecklistWebDesignContent() {
                                     Tarefas da Migração
                                 </h2>
                                 <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={handleReset} className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive">
+                                    <Button variant="ghost" size="sm" onClick={() => setIsResetDialogOpen(true)} className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive">
                                         <RotateCcw size={14} className="mr-1.5" /> Resetar
                                     </Button>
                                     <Button size="sm" onClick={() => { setIsAddingTask(true); }} className="h-8 bg-cyan-500 hover:bg-cyan-600 text-black font-bold">
@@ -679,6 +685,17 @@ function ChecklistWebDesignContent() {
                     />
                 </div>
             </div>
+
+            {/* Dialogs */}
+            <ConfirmDialog 
+                isOpen={isResetDialogOpen}
+                onClose={() => setIsResetDialogOpen(false)}
+                onConfirm={handleReset}
+                title="Resetar Checklist"
+                description="Isso apagará todas as tarefas atuais e voltará para o padrão original da TS. Você deseja continuar? Esta ação não pode ser desfeita."
+                confirmText="Sim, Resetar"
+                variant="destructive"
+            />
         </div>
     );
 }

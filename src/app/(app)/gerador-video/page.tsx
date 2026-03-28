@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { PRESETS_VIDEO } from "@/constants/presets"
+import { toast } from "sonner"
 
 function toBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -237,11 +238,11 @@ function GeradorVideoContent() {
 
     const handleGenerate = () => {
         if (videoType === 'normal' && mode === 'simple' && !action) {
-            alert("Por favor, descreva a ação que acontece no vídeo.")
+            toast.error("Por favor, descreva a ação que acontece no vídeo.")
             return
         }
         if (videoType === 'timelapse' && !tlAction) {
-            alert("Por favor, descreva o que está sendo construído / executado no timelapse.")
+            toast.error("Por favor, descreva o que está sendo construído / executado no timelapse.")
             return
         }
 

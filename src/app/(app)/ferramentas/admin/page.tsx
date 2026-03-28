@@ -13,6 +13,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
 
 export default function AdminFerramentasPage() {
     const { data: session, status } = useSession();
@@ -21,6 +23,7 @@ export default function AdminFerramentasPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [editingTool, setEditingTool] = useState<Tool | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [toolToDelete, setToolToDelete] = useState<string | null>(null);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -68,19 +71,22 @@ export default function AdminFerramentasPage() {
         }
     };
 
-    const handleDeleteTool = async (id: string) => {
+    const handleDeleteTool = async () => {
+        if (!toolToDelete) return;
         try {
-            // Removendo o window.confirm que pode estar travando o estado do Next e Radix
-            const res = await fetch(`/api/tools/${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/tools/${toolToDelete}`, { method: "DELETE" });
             if (res.ok) {
+                toast.success("Ferramenta excluída com sucesso.");
                 fetchTools();
             } else {
                 const text = await res.text();
-                alert("Erro ao excluir. O servidor retornou: " + text);
+                toast.error("Erro ao excluir: " + text);
             }
         } catch (error) {
             console.error("Failed to delete tool", error);
-            alert("Erro de conexão ao excluir.");
+            toast.error("Erro de conexão ao excluir.");
+        } finally {
+            setToolToDelete(null);
         }
     };
 
@@ -184,7 +190,7 @@ export default function AdminFerramentasPage() {
                                                     <DropdownMenuItem onSelect={() => openEditModal(tool)} className="cursor-pointer gap-2 py-2.5">
                                                         <Pencil size={18} /> Editar Ferramenta
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => handleDeleteTool(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
+                                                    <DropdownMenuItem onSelect={() => setToolToDelete(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
                                                         <Trash size={18} /> Excluir Sugestão
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -235,7 +241,7 @@ export default function AdminFerramentasPage() {
                                                     <DropdownMenuItem onSelect={() => openEditModal(tool)} className="cursor-pointer gap-2 py-2.5">
                                                         <Pencil size={18} /> Editar
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onSelect={() => handleDeleteTool(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
+                                                    <DropdownMenuItem onSelect={() => setToolToDelete(tool.id)} className="cursor-pointer gap-2 py-2.5 text-red-500 focus:text-red-500">
                                                         <Trash size={18} /> Excluir
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -257,6 +263,16 @@ export default function AdminFerramentasPage() {
                 onSuccess={() => {
                     fetchTools();
                 }}
+            />
+
+            <ConfirmDialog 
+                isOpen={!!toolToDelete}
+                onClose={() => setToolToDelete(null)}
+                onConfirm={handleDeleteTool}
+                title="Excluir Ferramenta"
+                description="Tem certeza que deseja excluir esta ferramenta permanentemente? Esta ação não pode ser desfeita."
+                confirmText="Excluir"
+                variant="destructive"
             />
         </div>
     )

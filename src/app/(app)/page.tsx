@@ -30,6 +30,7 @@ import {
   MonitorPlay,
   LayoutTemplate,
   ListChecks,
+  ListTodo,
   Braces,
   PackageSearch,
 } from "lucide-react"
@@ -526,7 +527,7 @@ export default function Home() {
   return (
     <div className="flex-1 w-full max-w-5xl mx-auto px-4 py-8">
       {/* Hero Section */}
-      <div className="text-center mb-16 mt-8 animate-fade-up">
+      <div className="text-center mb-12 mt-8 animate-fade-up">
         <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#f3f0ed] to-[#a99d94]">
             Crie. Converta.{" "}
@@ -536,6 +537,12 @@ export default function Home() {
         <p className="text-muted-foreground md:text-lg max-w-2xl mx-auto font-medium">
           Sua central de inteligência e automação para escalar operações de <strong className="text-foreground">Home Services nos EUA</strong>.
         </p>
+      </div>
+
+      <div className="flex justify-center mb-6 animate-fade-up" style={{ animationDelay: '50ms' }}>
+          <Link href="/meu-checklist" className="inline-flex items-center gap-2 text-[0.65rem] md:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-sm hover:shadow-primary/10">
+            <ListTodo size={14} className="opacity-80" /> Meu Checklist
+          </Link>
       </div>
 
       {/* Departments Layer Section */}

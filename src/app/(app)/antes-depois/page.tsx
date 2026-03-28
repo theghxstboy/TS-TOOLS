@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_ANTES_DEPOIS } from "@/constants/presets"
+import { toast } from "sonner"
 
 export interface UploadedFile {
     file: File;
@@ -205,7 +206,7 @@ function AntesEDepoisContent() {
             setTimeout(() => setCopiedType(null), 2000);
         } catch (err) {
             console.error("Failed to copy image: ", err);
-            alert("Erro ao copiar a imagem.");
+            toast.error("Erro ao copiar a imagem.");
         }
     };
 
@@ -227,7 +228,7 @@ function AntesEDepoisContent() {
             finalStateAfter = stateAfterAdv;
 
             if (!finalNiche || !finalFocus || (generationMode !== 'only_after' && !finalStateBefore) || (generationMode !== 'only_before' && !finalStateAfter)) {
-                alert("Por favor, preencha todos os campos do modo avançado cruzados com *.");
+                toast.error("Por favor, preencha todos os campos do modo avançado cruzados com *.");
                 setIsGenerating(false);
                 return;
             }
