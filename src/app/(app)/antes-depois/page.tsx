@@ -19,7 +19,11 @@ import {
     Upload,
     X,
     FileImage,
-    ImagePlus
+    ImagePlus,
+    History as HistoryIcon,
+    RotateCcw,
+    Sparkles,
+    Split
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { GenerationHistory } from "@/components/GenerationHistory"
@@ -44,6 +48,11 @@ import {
 import { cn } from "@/lib/utils"
 import { PRESETS_ANTES_DEPOIS } from "@/constants/presets"
 import { toast } from "sonner"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export interface UploadedFile {
     file: File;
@@ -119,6 +128,9 @@ function AntesEDepoisContent() {
         setStateBeforeAdv(p.stateBeforeAdv || "");
         setStateAfterAdv(p.stateAfterAdv || "");
         setNegativeAdv(p.negativeAdv || "");
+        
+        setGeneratedPrompt(item.prompt || "");
+        setSelectedPreset("");
     };
 
     // Handle Restore Effect
@@ -132,18 +144,12 @@ function AntesEDepoisContent() {
         }
     }, [searchParams, history])
 
-    useEffect(() => {
-    }, [])
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
     const [generationMode, setGenerationMode] = useState<"both" | "only_before" | "only_after">("both")
     const [cameraAngle, setCameraAngle] = useState("none")
     const [referencePhotoUrl, setReferencePhotoUrl] = useState("")
     const referencePhotoInputRef = useRef<HTMLInputElement>(null)
     
-    // Popup copy workflow
-    const [showImagePopup, setShowImagePopup] = useState(false)
-    const [copiedType, setCopiedType] = useState<string | null>(null)
-
     // States - Simple Mode
     const [niche, setNiche] = useState("")
     const [nicheOther, setNicheOther] = useState("")
@@ -194,22 +200,6 @@ function AntesEDepoisContent() {
         setReferencePhotoUrl(b64);
     };
 
-    const copyImageToClipboard = async (url: string | undefined) => {
-        if (!url) return;
-        try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            await navigator.clipboard.write([
-                new ClipboardItem({ [blob.type]: blob })
-            ]);
-            setCopiedType("photo");
-            setTimeout(() => setCopiedType(null), 2000);
-        } catch (err) {
-            console.error("Failed to copy image: ", err);
-            toast.error("Erro ao copiar a imagem.");
-        }
-    };
-
     const handleGenerate = () => {
         setIsGenerating(true)
 
@@ -253,7 +243,6 @@ function AntesEDepoisContent() {
 
         setTimeout(() => {
             setIsGenerating(false)
-            // Determine final prompt since state update might not have applied yet
             let finalStr = prompt
 
             saveHistory({
@@ -261,12 +250,12 @@ function AntesEDepoisContent() {
                 stateAfter, stateAfterOther, style, styleOther, cameraAngle, nicheAdv, focusAdv,
                 stateBeforeAdv, stateAfterAdv, negativeAdv, hasAfterPhoto: !!referencePhotoUrl
             }, finalStr)
-            setShowImagePopup(true)
+            
+            toast.success("Prompt gerado com sucesso!")
         }, 800)
     }
 
     const handleClear = () => {
-        // Reset simple
         setNiche("")
         setNicheOther("")
         setFocus("the entire scene")
@@ -277,15 +266,11 @@ function AntesEDepoisContent() {
         setStateAfterOther("")
         setStyle("photorealistic, highly detailed, captured with DSLR camera")
         setStyleOther("")
-
-        // Reset advanced
         setNicheAdv("")
         setFocusAdv("")
         setStateBeforeAdv("")
         setStateAfterAdv("")
         setNegativeAdv("")
-
-        // Global
         setReferencePhotoUrl("")
         setGeneratedPrompt("")
         setSelectedPreset("")
@@ -294,488 +279,407 @@ function AntesEDepoisContent() {
     const handleCopy = () => copy(generatedPrompt)
 
     return (
-        <div className="flex-1 w-full relative font-sans">
-            <div className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 md:py-12">
-                {/* Navigation Top */}
-                <div className="flex items-center justify-end mb-8">
-                    <Link href="/docs/nichos" className="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-primary/80 transition-colors shadow-sm">
-                        <BookOpen size={20} />
-                        DOCS
-                    </Link>
-                </div>
-
-                {/* Header Content */}
+        <div className="flex-1 w-full bg-input/50 relative font-sans">
+            <div className="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8 md:py-12">
+                {/* Hero */}
                 <div className="text-center mb-12 animate-fade-up">
-                    <div className="inline-flex items-center gap-3 mb-4">
-                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg">
-                            <Sparkle size={28} />
+                    <div className="flex items-center gap-4 justify-center mb-4">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                        <Split size={32} />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>Creative Comparison Engine</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <div className="text-left">
+                            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                                Antes <span className="text-primary italic">&</span> Depois
+                            </h1>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">ADS VS REALITY SYSTEM</p>
                         </div>
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3 uppercase tracking-tight">
-                        Antes <span className="text-primary italic">&</span> Depois
-                    </h1>
-                    <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-                        Gere comparações <strong>Antes & Depois</strong> perfeitas para anúncios de <strong className="text-foreground">Home Services</strong>.
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
+                        Crie contrastes perfeitos de <span className="text-foreground font-bold">Antes & Depois</span> para seus anúncios de serviços.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Inputs Column */}
-                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
 
-                        {/* Presets Gallery */}
-                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Casos de Sucesso (Presets) <span className="text-purple-500 text-xl">↓</span>
-                                </h2>
-                                <span className="bg-purple-500/10 text-purple-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border border-purple-500/20">
-                                    Preenche Auto
-                                </span>
-                            </div>
-
-                            <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar snap-x snap-mandatory">
-                                {PRESETS_ANTES_DEPOIS.map((preset) => (
-                                    <button
-                                        key={preset.id}
-                                        onClick={() => handlePresetClick(preset.id)}
-                                        className={cn(
-                                            "relative w-[145px] h-[110px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                            selectedPreset === preset.id ? "border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
-                                        )}
-                                    >
-                                        <img
-                                            src={preset.image}
-                                            alt={preset.title}
-                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        />
-                                        <div className="absolute inset-[-1px] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-
-                                        <div className={cn(
-                                            "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                            selectedPreset === preset.id ? "bg-purple-500 border-purple-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
-                                        )}>
-                                            {selectedPreset === preset.id && <Check size={14} />}
-                                        </div>
-
-                                        <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
-                                            {preset.title}
-                                        </p>
-                                    </button>
-                                ))}
-                            </div>
+                        {/* Navigation Actions */}
+                        <div className="flex items-center justify-between mb-2">
+                            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
+                                <Link href="/docs/nichos" className="flex items-center gap-2">
+                                    <BookOpen size={18} />
+                                    <span>Documentação de Nichos</span>
+                                </Link>
+                            </Button>
                         </div>
 
-                        {/* Engine Config */}
-                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                                <div className="flex items-center gap-3">
-                                    <h2 className="text-xl font-bold text-foreground">Setup do Criativo</h2>
-                                    <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400">
-                                        FOCO EM ADS
-                                    </span>
+                        {/* Presets Gallery */}
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                                    Presets de Campanha <span className="text-primary text-xl">↓</span>
+                                </CardTitle>
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold uppercase tracking-wider text-[10px]">
+                                    READY-TO-USE
+                                </Badge>
+                            </CardHeader>
+
+                            <CardContent className="p-6 md:p-8">
+                                <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar snap-x snap-mandatory perspective-1000">
+                                    {PRESETS_ANTES_DEPOIS.map((preset) => (
+                                        <button
+                                            key={preset.id}
+                                            onClick={() => handlePresetClick(preset.id)}
+                                            className={cn(
+                                                "relative w-[145px] h-[110px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
+                                                selectedPreset === preset.id ? "border-primary shadow-[0_0_20px_rgba(255,184,0,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                            )}
+                                        >
+                                            <img
+                                                src={preset.image}
+                                                alt={preset.title}
+                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                            <div className="absolute inset-[-1px] bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
+
+                                            <div className={cn(
+                                                "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
+                                                selectedPreset === preset.id ? "bg-primary border-primary text-black" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                            )}>
+                                                {selectedPreset === preset.id && <Check size={14} />}
+                                            </div>
+
+                                            <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
+                                                {preset.title}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Setup Creative Context */}
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
+                                        <Sparkle size={28} />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-xl font-black tracking-tight leading-none uppercase">Setup do Criativo</CardTitle>
+                                        <CardDescription className="text-xs text-muted-foreground mt-1 font-bold italic tracking-wider uppercase">CONTRASTE ENGINE</CardDescription>
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center bg-muted p-1 rounded-xl self-start sm:self-auto">
+                                <div className="flex bg-muted p-1 rounded-xl shadow-inner border border-border">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <ListChecks size={18} />
-                                        Modo Automático
+                                        <ListChecks size={18} /> Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <TerminalWindow size={18} />
-                                        Modo Expert
+                                        <TerminalWindow size={18} /> Expert
                                     </button>
                                 </div>
-                            </div>
+                            </CardHeader>
 
-                            <div className="space-y-6">
+                            <CardContent className="p-6 md:p-8 space-y-8">
                                 {/* Toggle Generation Mode */}
-                                <div className="flex bg-input/50 p-1 rounded-xl w-full max-w-md mx-auto">
-                                    <button
-                                        onClick={() => setGenerationMode("both")}
-                                        className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${generationMode === 'both' ? 'bg-primary text-black shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                                    >
-                                        Gerar as duas fotos
-                                    </button>
-                                    <button
-                                        onClick={() => setGenerationMode("only_before")}
-                                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-semibold rounded-lg transition-all ${generationMode === 'only_before' ? 'bg-amber-500 text-black shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                                    >
-                                        <ImagePlus size={16} /> Só tenho o Depois
-                                    </button>
-                                    <button
-                                        onClick={() => setGenerationMode("only_after")}
-                                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-sm font-semibold rounded-lg transition-all ${generationMode === 'only_after' ? 'bg-amber-500 text-black shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                                    >
-                                        <ImagePlus size={16} /> Só tenho o Antes
-                                    </button>
+                                <div className="flex flex-col gap-4">
+                                    <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] px-2">Modo de Comparação</Label>
+                                    <div className="flex bg-muted p-1 rounded-2xl w-full border border-border shadow-inner">
+                                        <button
+                                            onClick={() => setGenerationMode("both")}
+                                            className={cn("flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'both' ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                        >
+                                            Split Screen
+                                        </button>
+                                        <button
+                                            onClick={() => setGenerationMode("only_before")}
+                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_before' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                        >
+                                            <ImagePlus size={16} /> Só o Antes
+                                        </button>
+                                        <button
+                                            onClick={() => setGenerationMode("only_after")}
+                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_after' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                        >
+                                            <ImagePlus size={16} /> Só o Depois
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground px-2 font-medium italic">* Use os modos unitários se já tiver uma das fotos reais para servir de referência.</p>
                                 </div>
+
+                                <Separator />
 
                                 {mode === 'simple' ? (
                                     <div className="space-y-6">
-                                        {/* Niche & Focus */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="niche" className="font-semibold text-foreground">Nicho / Indústria</Label>
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nicho / Indústria</Label>
                                                 <Select value={niche} onValueChange={setNiche}>
                                                     <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Selecione um nicho..." />
+                                                        <SelectValue placeholder="Selecione..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectGroup>
-                                                            <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider">🏗️ Construção & Reformas</SelectLabel>
-                                                            <SelectItem value="Construction">Construction (Construção)</SelectItem>
-                                                            <SelectItem value="Kitchen Remodel">Kitchen Remodel (Cozinha)</SelectItem>
-                                                            <SelectItem value="Bathroom Remodel">Bathroom (Banheiro)</SelectItem>
-                                                            <SelectItem value="Basement Finishing">Basement (Porão)</SelectItem>
-                                                            <SelectItem value="Home Addition">Addition (Ampliação)</SelectItem>
+                                                            <SelectLabel className="bg-muted uppercase text-[10px] font-black tracking-widest px-4 py-2">🏗️ Construção</SelectLabel>
+                                                            <SelectItem value="Construction">Construction</SelectItem>
+                                                            <SelectItem value="Kitchen Remodel">Kitchen Remodel</SelectItem>
+                                                            <SelectItem value="Basement Finishing">Basement Finishing</SelectItem>
                                                         </SelectGroup>
                                                         <SelectGroup>
-                                                            <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🎨 Acabamentos & Superfícies</SelectLabel>
-                                                            <SelectItem value="House Painting">House Painting (Pintura)</SelectItem>
-                                                            <SelectItem value="Roof Repair">Roof Repair (Telhado)</SelectItem>
-                                                            <SelectItem value="Siding Installation">Siding (Revestimento)</SelectItem>
-                                                            <SelectItem value="Countertop Installation">Countertops (Bancadas)</SelectItem>
+                                                            <SelectLabel className="bg-muted uppercase text-[10px] font-black tracking-widest px-4 py-2">🎨 Acabamentos</SelectLabel>
+                                                            <SelectItem value="House Painting">House Painting</SelectItem>
+                                                            <SelectItem value="Roof Repair">Roof Repair</SelectItem>
+                                                            <SelectItem value="LVP Installation">LVP Installation</SelectItem>
                                                         </SelectGroup>
                                                         <SelectGroup>
-                                                            <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🪵 Pisos</SelectLabel>
-                                                            <SelectItem value="Hardwood Flooring">Hardwood (Pisos de Madeira)</SelectItem>
-                                                            <SelectItem value="LVP Installation">LVP (Piso Vinílico)</SelectItem>
-                                                            <SelectItem value="Epoxy Flooring">Epoxy (Piso Epóxi)</SelectItem>
-                                                            <SelectItem value="Floor Sanding & Refinishing">Sand & Refinish (Restauro)</SelectItem>
-                                                        </SelectGroup>
-                                                        <SelectGroup>
-                                                            <SelectLabel className="bg-muted uppercase text-xs font-bold text-muted-foreground tracking-wider mt-2">🌿 Exterior & Serviços</SelectLabel>
-                                                            <SelectItem value="Landscaping & Lawn Care">Landscaping (Paisagismo)</SelectItem>
-                                                            <SelectItem value="Power Washing">Power Washing (Lavagem a Pressão)</SelectItem>
-                                                            <SelectItem value="House Cleaning">House Cleaning (Limpeza)</SelectItem>
-                                                            <SelectItem value="Auto Detailing">Auto Detailing (Estética Automotiva)</SelectItem>
+                                                            <SelectLabel className="bg-muted uppercase text-[10px] font-black tracking-widest px-4 py-2">🌿 Exterior</SelectLabel>
+                                                            <SelectItem value="Landscaping">Landscaping</SelectItem>
+                                                            <SelectItem value="Power Washing">Power Washing</SelectItem>
+                                                            <SelectItem value="Auto Detailing">Auto Detailing</SelectItem>
                                                         </SelectGroup>
                                                         <SelectItem value="other">Outro (Personalizado)</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {niche === 'other' && (
-                                                    <Input placeholder="Especifique o nicho..." value={nicheOther} onChange={e => setNicheOther(e.target.value)} className="mt-2" />
-                                                )}
+                                                {niche === 'other' && <Input placeholder="Especifique..." value={nicheOther} onChange={e => setNicheOther(e.target.value)} className="mt-2" />}
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="focus" className="font-semibold text-foreground">Cenário Típico</Label>
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Foco Visual</Label>
                                                 <Select value={focus} onValueChange={setFocus}>
                                                     <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Selecione..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="the entire scene">A cena inteira</SelectItem>
-                                                        <SelectItem value="the main surface">A superfície principal</SelectItem>
-                                                        <SelectItem value="the specific detail">Um detalhe específico</SelectItem>
-                                                        <SelectItem value="the workspace">O ambiente de trabalho</SelectItem>
-                                                        <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                        <SelectItem value="the entire scene">A cena inteira (Wide)</SelectItem>
+                                                        <SelectItem value="the main surface">Superfície Principal</SelectItem>
+                                                        <SelectItem value="the specific detail">Detalhe Específico (Close)</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {focus === 'other' && (
-                                                    <Input placeholder="Especifique o elemento em foco..." value={focusOther} onChange={e => setFocusOther(e.target.value)} className="mt-2" />
-                                                )}
                                             </div>
                                         </div>
 
-                                        {/* Before & After States */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-xl border border-border bg-background">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-6 rounded-2xl border border-border shadow-inner relative overflow-hidden group">
                                             {generationMode === 'only_after' ? (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
-                                                        <FileImage size={18} />
-                                                        Foto do Antes (sua foto real)
+                                                    <Label className="text-[10px] font-black text-amber-500 uppercase flex items-center gap-2">
+                                                        <FileImage size={14} /> Foto Antes (Original)
                                                     </Label>
                                                     <div
                                                         onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
+                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
                                                     >
                                                         {referencePhotoUrl ? (
-                                                            <div className="relative w-full h-full flex items-center justify-center">
-                                                                <img src={referencePhotoUrl} alt="Antes" className="max-h-full max-w-full object-contain rounded-md" />
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
-                                                            </div>
-                                                        ) : (
                                                             <>
-                                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto original</p>
+                                                                <img src={referencePhotoUrl} alt="Antes" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <RotateCcw className="text-white size-8" />
+                                                                </div>
+                                                                <Button size="icon" variant="destructive" className="absolute top-2 right-2 size-6 rounded-full" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl(""); }}><X size={12} /></Button>
                                                             </>
+                                                        ) : (
+                                                            <div className="flex flex-col items-center gap-2">
+                                                                <Upload size={28} className="text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                                                                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Upload Inicial</span>
+                                                            </div>
                                                         )}
                                                         <input ref={referencePhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferencePhotoUpload} />
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-red-500 flex items-center gap-1.5">
-                                                        <Warning size={18} />
-                                                        Estado "Antes"
+                                                    <Label className="text-[10px] font-black text-red-500 uppercase flex items-center gap-2">
+                                                        <Warning size={14} /> Estado: Antes (Problema)
                                                     </Label>
                                                     <Select value={stateBefore} onValueChange={setStateBefore}>
-                                                        <SelectTrigger className="w-full border-red-200 focus:ring-red-500">
-                                                            <SelectValue placeholder="Selecione o estado..." />
+                                                        <SelectTrigger className="border-red-500/20 bg-background focus:ring-red-500/20">
+                                                            <SelectValue />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="extremely dirty, covered in grime and stains">Extremamente sujo e manchado</SelectItem>
-                                                            <SelectItem value="broken, damaged and worn out">Quebrado, danificado e desgastado</SelectItem>
-                                                            <SelectItem value="overgrown with weeds and mess">Tomado por mato e bagunça</SelectItem>
-                                                            <SelectItem value="old, outdated and peeling">Velho, datado e descascando</SelectItem>
-                                                            <SelectItem value="rusty and oxidized">Enferrujado e oxidado</SelectItem>
-                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                            <SelectItem value="extremely dirty, covered in grime and stains">Sujo / Manchado</SelectItem>
+                                                            <SelectItem value="broken, damaged and worn out">Quebrado / Desgastado</SelectItem>
+                                                            <SelectItem value="old, outdated and peeling">Velho / Descascando</SelectItem>
+                                                            <SelectItem value="other">Outro (Custom)</SelectItem>
                                                         </SelectContent>
                                                     </Select>
-                                                    {stateBefore === 'other' && (
-                                                        <Input placeholder="Especifique o estado antes..." value={stateBeforeOther} onChange={e => setStateBeforeOther(e.target.value)} className="mt-2 border-red-200" />
-                                                    )}
+                                                    {stateBefore === 'other' && <Input placeholder="Prompt de problemas..." value={stateBeforeOther} onChange={e => setStateBeforeOther(e.target.value)} className="mt-2 text-xs" />}
                                                 </div>
                                             )}
 
                                             {generationMode === 'only_before' ? (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
-                                                        <FileImage size={18} />
-                                                        Foto do Depois (sua foto real)
+                                                    <Label className="text-[10px] font-black text-amber-500 uppercase flex items-center gap-2">
+                                                        <FileImage size={14} /> Foto Depois (Resultado)
                                                     </Label>
                                                     <div
                                                         onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
+                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
                                                     >
                                                         {referencePhotoUrl ? (
-                                                            <div className="relative w-full h-full flex items-center justify-center">
-                                                                <img src={referencePhotoUrl} alt="Depois" className="max-h-full max-w-full object-contain rounded-md" />
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
-                                                            </div>
-                                                        ) : (
                                                             <>
-                                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto final</p>
+                                                                <img src={referencePhotoUrl} alt="Depois" className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <RotateCcw className="text-white size-8" />
+                                                                </div>
+                                                                <Button size="icon" variant="destructive" className="absolute top-2 right-2 size-6 rounded-full" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl(""); }}><X size={12} /></Button>
                                                             </>
+                                                        ) : (
+                                                            <div className="flex flex-col items-center gap-2">
+                                                                <Upload size={28} className="text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                                                                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Upload Final</span>
+                                                            </div>
                                                         )}
                                                         <input ref={referencePhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferencePhotoUpload} />
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-emerald-500 flex items-center gap-1.5">
-                                                        <CheckCircle size={18} />
-                                                        Estado "Depois"
+                                                    <Label className="text-[10px] font-black text-emerald-500 uppercase flex items-center gap-2">
+                                                        <CheckCircle size={14} /> Estado: Depois (Sucesso)
                                                     </Label>
                                                     <Select value={stateAfter} onValueChange={setStateAfter}>
-                                                        <SelectTrigger className="w-full border-emerald-200 focus:ring-emerald-500">
-                                                            <SelectValue placeholder="Selecione o estado..." />
+                                                        <SelectTrigger className="border-emerald-500/20 bg-background focus:ring-emerald-500/20">
+                                                            <SelectValue />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="spotless, shining like new and pristine">Impecável, brilhando como novo</SelectItem>
-                                                            <SelectItem value="fully repaired, professional finish">Totalmente reparado, acabamento pro</SelectItem>
-                                                            <SelectItem value="perfectly manicured and organized">Perfeitamente aparado e organizado</SelectItem>
-                                                            <SelectItem value="modern, fresh and beautiful">Moderno, renovado e bonito</SelectItem>
-                                                            <SelectItem value="polished, smooth and clean">Polido, liso e limpo</SelectItem>
-                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                            <SelectItem value="spotless, shining like new and pristine">Brilhando / Novo</SelectItem>
+                                                            <SelectItem value="fully repaired, professional finish">Reparado / Pro</SelectItem>
+                                                            <SelectItem value="modern, fresh and beautiful">Moderno / Renovado</SelectItem>
+                                                            <SelectItem value="other">Outro (Custom)</SelectItem>
                                                         </SelectContent>
                                                     </Select>
-                                                    {stateAfter === 'other' && (
-                                                        <Input placeholder="Especifique o estado depois..." value={stateAfterOther} onChange={e => setStateAfterOther(e.target.value)} className="mt-2 border-emerald-200" />
-                                                    )}
+                                                    {stateAfter === 'other' && <Input placeholder="Prompt de solução..." value={stateAfterOther} onChange={e => setStateAfterOther(e.target.value)} className="mt-2 text-xs" />}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="space-y-6">
-                                        {/* Custom Niche/Focus */}
-                                        <div className="grid grid-cols-1 gap-6">
+                                    <div className="space-y-6 animate-fade-in">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label className="font-semibold text-foreground">Nicho / Indústria <span className="text-red-500">*</span></Label>
-                                                <Input placeholder="Ex: House Cleaning, Auto Detailing, Roof Repair..." value={nicheAdv} onChange={e => setNicheAdv(e.target.value)} />
-                                                <p className="text-xs text-muted-foreground">Contexto geral para a IA entender o cenário.</p>
+                                                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Indústria <span className="text-red-500">*</span></Label>
+                                                <Input placeholder="Ex: Kitchen Remodel, Power Washing..." value={nicheAdv} onChange={e => setNicheAdv(e.target.value)} className="bg-card h-12" />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label className="font-semibold text-foreground">Elemento em Foco <span className="text-red-500">*</span></Label>
-                                                <Input placeholder="Ex: Kitchen countertop, Suburban lawn, Car interior..." value={focusAdv} onChange={e => setFocusAdv(e.target.value)} />
-                                                <p className="text-xs text-muted-foreground">O que está sendo transformado na imagem?</p>
+                                                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">Elemento <span className="text-red-500">*</span></Label>
+                                                <Input placeholder="Ex: Backyard deck, car seats..." value={focusAdv} onChange={e => setFocusAdv(e.target.value)} className="bg-card h-12" />
                                             </div>
                                         </div>
 
-                                        {/* Custom States */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 rounded-xl border border-border bg-background">
-                                            {generationMode === 'only_after' ? (
+                                        <div className="bg-muted p-6 rounded-2xl border border-border space-y-4">
+                                            {generationMode !== 'only_after' && (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
-                                                        <FileImage size={18} />
-                                                        Foto do Antes (Reference) <span className="text-red-500">*</span>
-                                                    </Label>
-                                                    <div
-                                                        onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
-                                                    >
-                                                        {referencePhotoUrl ? (
-                                                            <div className="relative w-full h-full flex items-center justify-center">
-                                                                <img src={referencePhotoUrl} alt="Antes" className="max-h-full max-w-full object-contain rounded-md" />
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto original</p>
-                                                            </>
-                                                        )}
-                                                        <input ref={referencePhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferencePhotoUpload} />
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    <Label className="font-semibold text-red-500 flex items-center gap-1.5">
-                                                        <Warning size={18} />
-                                                        Estado "Antes" (Problema) <span className="text-red-500">*</span>
-                                                    </Label>
-                                                    <Textarea
-                                                        placeholder="Ex: Sujo de graxa preta, aspecto terrível, parede descascada..."
-                                                        className="resize-none border-red-200 focus-visible:ring-red-500"
-                                                        rows={3}
-                                                        value={stateBeforeAdv}
-                                                        onChange={e => setStateBeforeAdv(e.target.value)}
-                                                    />
+                                                    <Label className="text-[10px] font-black text-red-500 uppercase px-1">Descrição do Problema <span className="text-red-500">*</span></Label>
+                                                    <Textarea placeholder="Prompt do estado ANTES..." value={stateBeforeAdv} onChange={e => setStateBeforeAdv(e.target.value)} className="bg-card min-h-[80px]" />
                                                 </div>
                                             )}
-                                            {generationMode === 'only_before' ? (
+                                            {generationMode !== 'only_before' && (
                                                 <div className="space-y-2">
-                                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
-                                                        <FileImage size={18} />
-                                                        Foto do Depois (Reference) <span className="text-red-500">*</span>
-                                                    </Label>
-                                                    <div
-                                                        onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
-                                                    >
-                                                        {referencePhotoUrl ? (
-                                                            <div className="relative w-full h-full flex items-center justify-center">
-                                                                <img src={referencePhotoUrl} alt="Depois" className="max-h-full max-w-full object-contain rounded-md" />
-                                                                <button type="button" onClick={(e) => { e.stopPropagation(); setReferencePhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto original</p>
-                                                            </>
-                                                        )}
-                                                        <input ref={referencePhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferencePhotoUpload} />
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    <Label className="font-semibold text-emerald-500 flex items-center gap-1.5">
-                                                        <CheckCircle size={18} />
-                                                        Estado "Depois" (Solução) <span className="text-red-500">*</span>
-                                                    </Label>
-                                                    <Textarea
-                                                        placeholder="Ex: Limpo, brilhando como novo, pintura fresca e sem falhas..."
-                                                        className="resize-none border-emerald-200 focus-visible:ring-emerald-500"
-                                                        rows={3}
-                                                        value={stateAfterAdv}
-                                                        onChange={e => setStateAfterAdv(e.target.value)}
-                                                    />
+                                                    <Label className="text-[10px] font-black text-emerald-500 uppercase px-1">Descrição da Solução <span className="text-red-500">*</span></Label>
+                                                    <Textarea placeholder="Prompt do estado DEPOIS..." value={stateAfterAdv} onChange={e => setStateAfterAdv(e.target.value)} className="bg-card min-h-[80px]" />
                                                 </div>
                                             )}
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <Label className="font-semibold text-foreground">Prompt Negativo (O que NÃO deve aparecer)</Label>
-                                            <Textarea
-                                                placeholder="Ex: Text, before and after labels, distorted surfaces, low resolution..."
-                                                className="resize-none"
-                                                rows={2}
-                                                value={negativeAdv}
-                                                onChange={e => setNegativeAdv(e.target.value)}
-                                            />
+                                            <div className="space-y-2 pt-2">
+                                                <Label className="text-[10px] font-black text-muted-foreground uppercase px-1 opacity-60">Negativo (Não ter)</Label>
+                                                <Textarea placeholder="Ex: text, messy floors..." value={negativeAdv} onChange={e => setNegativeAdv(e.target.value)} className="bg-card min-h-[60px] text-xs" />
+                                            </div>
                                         </div>
                                     </div>
                                 )}
 
-                                {/* Shared Styles */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                                     <div className="space-y-2">
-                                        <Label className="font-semibold text-foreground">
-                                            Ângulo de Câmera <span className="text-muted-foreground font-normal">(Opcional)</span>
-                                        </Label>
+                                        <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Perspectiva</Label>
                                         <Select value={cameraAngle} onValueChange={setCameraAngle}>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Selecione..." />
-                                            </SelectTrigger>
+                                            <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
                                             <SelectContent>
                                                 {CAMERA_ANGLE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                     </div>
-
                                     <div className="space-y-2">
-                                        <Label htmlFor="style" className="font-semibold text-foreground">
-                                        Estilo Fotográfico Adicional <span className="text-muted-foreground font-normal">(Opcional)</span>
-                                    </Label>
-                                    <Select value={style} onValueChange={setStyle}>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Selecione..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="photorealistic, highly detailed, captured with DSLR camera">Padrão - Fotorrealista e Limpo</SelectItem>
-                                            <SelectItem value="raw street photography style, high contrast, iphone photo">Estilo UGC (Foto de Celular Crua)</SelectItem>
-                                            <SelectItem value="commercial bright lighting, studio quality, sharp focus">Comercial Brilhante</SelectItem>
-                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {style === 'other' && (
-                                        <Input placeholder="Especifique o estilo..." value={styleOther} onChange={e => setStyleOther(e.target.value)} className="mt-2" />
-                                    )}
+                                        <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Estilo Fotográfico</Label>
+                                        <Select value={style} onValueChange={setStyle}>
+                                            <SelectTrigger className="bg-card"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="photorealistic, highly detailed, captured with DSLR camera">Fotorrealista (DSLR)</SelectItem>
+                                                <SelectItem value="raw street photography style, high contrast, iphone photo">UGC Style (iPhone Raw)</SelectItem>
+                                                <SelectItem value="commercial bright lighting, sharp focus">Comercial / Estúdio</SelectItem>
+                                                <SelectItem value="other">Outro (Custom)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="pt-6 pb-2">
+                                {/* Action Button */}
+                                <div className="pt-6">
                                     <Button
                                         onClick={handleGenerate}
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
                                         disabled={isGenerating}
-                                        className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-black shadow-[0_0_20px_rgba(255,184,0,0.3)] transition-all active:scale-[0.98]"
                                     >
-                                        {isGenerating ? (
-                                            <div className="flex items-center gap-2">
-                                                <MagicWand size={20} className="animate-spin text-black" />
-                                                GERANDO...
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2">
-                                                <MagicWand size={20} className="text-black" />
-                                                GERAR PROMPT
-                                            </div>
-                                        )}
+                                        {isGenerating ? <RotateCcw className="animate-spin size-6" /> : "Gerar Comparação"}
                                     </Button>
+                                    <div className="flex justify-center mt-4 gap-4">
+                                        <button onClick={handleClear} className="text-[10px] font-black uppercase text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 tracking-widest">
+                                            <X size={12} /> Limpar campos
+                                        </button>
+                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 tracking-widest">
+                                            <Info size={12} /> Mostrar Manual
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Output Column */}
-                    <div className="lg:col-span-5 relative animate-fade-up" style={{ animationDelay: '160ms' }}>
-                        <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
-                            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
-                                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <TerminalWindow size={24} className="text-primary" />
-                                    Prompt Gerado
-                                </h2>
-                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
-                                    PRONTO PARA IA
-                                </span>
+                    <div className="lg:col-span-5 relative">
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden sticky top-24 animate-fade-up" style={{ animationDelay: '300ms' }}>
+                            <CardHeader className="px-6 py-5 bg-muted/50 relative border-none">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                                        <TerminalWindow size={24} className="text-primary" />
+                                        Prompt Final
+                                    </CardTitle>
+                                    <Badge className="bg-primary/20 text-primary border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                        ADS READY
+                                    </Badge>
+                                </div>
+                            </CardHeader>
+
+                            <div className="bg-primary/10 border-b border-primary/20 p-4 flex items-start gap-3">
+                                <span className="text-2xl mt-0.5 animate-pulse">📷</span>
+                                <div>
+                                    <h3 className="text-primary font-bold text-sm tracking-tight mb-1">Como usar no Midjourney?</h3>
+                                    <p className="text-muted-foreground text-xs leading-relaxed font-medium">
+                                        Use este prompt no <strong className="text-foreground">MJ v6.1</strong> com a tag <code className="bg-muted px-1 rounded">--ar 16:9</code> ou <code className="bg-muted px-1 rounded">--ar 4:5</code> dependendo do formato do anúncio.
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="p-6 min-h-[300px] flex flex-col">
+                            <CardContent className="p-6 min-h-[300px] flex flex-col">
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-base p-4 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-xl custom-scrollbar"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[250px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-xl custom-scrollbar leading-relaxed"
                                             readOnly
                                             value={generatedPrompt}
                                         />
@@ -783,14 +687,15 @@ function AntesEDepoisContent() {
                                         <div className="grid grid-cols-2 gap-3 mt-6">
                                             <Button
                                                 variant="secondary"
-                                                onClick={handleClear}
-                                                className="bg-input hover:bg-gray-700 text-muted-foreground border-none"
+                                                onClick={() => {}} // Integration for favorites if available
+                                                className="bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none"
                                             >
-                                                Limpar
+                                                <Star size={18} className="mr-2" />
+                                                Favoritar
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
-                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
+                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted font-bold'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar Prompt'}
@@ -799,130 +704,19 @@ function AntesEDepoisContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Images size={48} className="text-primary mb-4" />
-                                        <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
+                                        <Sparkles size={48} className="text-primary mb-4" />
+                                        <p className="text-muted-foreground max-w-[250px] text-sm font-medium">
+                                            Configure as fotos e clique em <strong>Gerar Comparação</strong> para ver o prompt estruturado.
                                         </p>
                                     </div>
                                 )}
-                            </div>
-
-                            <div className="bg-amber-500/10 border-t border-amber-500/20 p-4">
-                                <h3 className="text-amber-500 font-bold text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                                    <WarningCircle size={16} />
-                                    Restrições de Texto na IA
-                                </h3>
-                                <p className="text-muted-foreground text-xs leading-relaxed">
-                                    A IA frequentemente gera deformações se forçarmos ela a escrever "Before" e "After" na foto. O prompt gerado garante que a imagem sairá 100% limpa (NO TEXT), deixando livre para você adicionar a tipografia depois no Canva.
-                                </p>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
-                {/* Popup Workflow Copiar Prompt + Imagem */}
-                {showImagePopup && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
-                        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowImagePopup(false)} />
-                        
-                        <div className="relative w-full max-w-4xl bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl flex flex-col outline-none z-10 animate-in zoom-in-95 duration-200">
-                            {/* Header */}
-                            <div className="bg-primary px-6 py-4 flex items-center justify-between shrink-0">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-black/10 flex items-center justify-center">
-                                        <Sparkle size={24} className="text-black" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-xl font-black text-black uppercase tracking-tight leading-none">
-                                            Integração Final
-                                        </h2>
-                                        <p className="text-black/60 text-[10px] font-bold uppercase tracking-wider mt-1">
-                                            Cole na IA o prompt e a imagem
-                                        </p>
-                                    </div>
-                                </div>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="text-black hover:bg-black/10 rounded-full h-10 w-10" 
-                                    onClick={() => setShowImagePopup(false)}
-                                >
-                                    <X size={24} />
-                                </Button>
-                            </div>
-
-                            <div className={cn(
-                                "grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-zinc-800",
-                                referencePhotoUrl ? "md:grid-cols-2" : "md:grid-cols-1"
-                            )}>
-                                {/* PASSO 1: TEXTO */}
-                                <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950">
-                                    <div className="flex items-center gap-4">
-                                        <div className="size-10 rounded-full bg-primary text-black flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20 shrink-0">1</div>
-                                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Copiar Prompt</h3>
-                                    </div>
-                                    
-                                    <div className="flex-1 min-h-[200px] relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 shadow-inner group">
-                                        <Textarea
-                                            className="absolute inset-0 w-full h-full bg-transparent border-none text-[13px] text-zinc-300 font-mono p-5 leading-relaxed focus-visible:ring-0 resize-none custom-scrollbar"
-                                            readOnly 
-                                            value={generatedPrompt}
-                                        />
-                                    </div>
-
-                                    <Button
-                                        onClick={() => {
-                                            copy(generatedPrompt);
-                                            setCopiedType("prompt");
-                                            setTimeout(() => setCopiedType(null), 2000);
-                                        }}
-                                        className={cn(
-                                            "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
-                                            copiedType === "prompt" ? "bg-green-600 text-white hover:bg-green-700" : "bg-primary hover:bg-orange-500 text-black"
-                                        )}
-                                    >
-                                        {copiedType === "prompt" ? <Check size={20} /> : <Copy size={20} />}
-                                        <span>{copiedType === "prompt" ? "Copiado!" : "Copiar Prompt"}</span>
-                                    </Button>
-                                </div>
-
-                                {/* PASSO 2: FOTO (se houver) */}
-                                {referencePhotoUrl && (
-                                    <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-900/20">
-                                        <div className="flex items-center gap-4">
-                                            <div className="size-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/20 shrink-0">2</div>
-                                            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Imagem Referência</h3>
-                                        </div>
-
-                                        <div className="flex-1 flex flex-col gap-6">
-                                            <div className="relative flex-1 min-h-[200px] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 flex items-center justify-center p-3 shadow-xl">
-                                                <img 
-                                                    src={referencePhotoUrl} 
-                                                    alt="Referência" 
-                                                    className="max-w-full max-h-full object-contain rounded-lg"
-                                                />
-                                            </div>
-
-                                            <Button 
-                                                onClick={() => copyImageToClipboard(referencePhotoUrl)}
-                                                className={cn(
-                                                    "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
-                                                    copiedType === "photo" ? "bg-green-600 text-white" : "bg-blue-500 hover:bg-blue-600 text-white"
-                                                )}
-                                            >
-                                                {copiedType === "photo" ? <Check size={20} /> : <Copy size={20} />}
-                                                <span>{copiedType === "photo" ? "Foto Copiada!" : "Copiar Imagem"}</span>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* History Section - Full Width */}
-                <div className="mt-6">
+                {/* History Section */}
+                <div className="mt-8 animate-fade-up" style={{ animationDelay: '450ms' }}>
                     <GenerationHistory
                         history={history}
                         onRestore={handleRestore}
@@ -931,15 +725,38 @@ function AntesEDepoisContent() {
                 </div>
             </div>
 
-            <FloatingHelpButton pageTitle="Antes e Depois" />
+            <FloatingHelpButton pageTitle="Antes & Depois" />
+            <TutorialDialog 
+                open={isTutorialOpen} 
+                onOpenChange={setIsTutorialOpen}
+                title="Manual de Comparações"
+                steps={[
+                    { title: "Define o Nicho", description: "Escolha o serviço (ex: Pintura, Limpeza) para a IA entender o contexto." },
+                    { title: "Escolha o Modo", description: "Split Screen gera duas fotos juntas. Modos individuais usam sua foto real como base." },
+                    { title: "Estilo Fotográfico", description: "Use 'UGC Style' para parecer uma foto tirada por um cliente real, gera mais confiança." }
+                ]}
+            />
         </div>
-    )
+    );
 }
 
 export default function AntesEDepoisPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+        <Suspense fallback={
+            <div className="max-w-[1400px] mx-auto px-6 mt-32 space-y-12 text-center">
+                <Skeleton className="h-12 w-1/3 mx-auto rounded-xl" />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-7 space-y-6">
+                        <Skeleton className="h-[200px] w-full rounded-[24px]" />
+                        <Skeleton className="h-[600px] w-full rounded-[24px]" />
+                    </div>
+                    <div className="lg:col-span-5">
+                        <Skeleton className="h-[500px] w-full rounded-[24px]" />
+                    </div>
+                </div>
+            </div>
+        }>
             <AntesEDepoisContent />
         </Suspense>
-    )
+    );
 }

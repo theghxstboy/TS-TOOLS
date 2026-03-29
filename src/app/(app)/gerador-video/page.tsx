@@ -16,7 +16,12 @@ import {
     Upload,
     X,
     FileImage,
-    ImagePlus
+    ImagePlus,
+    MonitorPlay,
+    Share2,
+    History as HistoryIcon,
+    ArrowRightCircle,
+    RotateCcw
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { useFavorites } from "@/hooks/useFavorites"
@@ -30,9 +35,23 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_VIDEO } from "@/constants/presets"
 import { toast } from "sonner"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 
 function toBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -88,8 +107,6 @@ interface VideoPayload {
 function GeradorVideoContent() {
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
-    useEffect(() => {
-    }, [])
     const [selectedPreset, setSelectedPreset] = useState<string>("")
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
     const [videoType, setVideoType] = useState<"normal" | "timelapse" | "before_after" | "ken_burns">("normal")
@@ -195,6 +212,9 @@ function GeradorVideoContent() {
         setKbMoodOther(p.kbMoodOther || "");
         setKbDuration(p.kbDuration || "5s");
         setKbDurationOther(p.kbDurationOther || "");
+        
+        setGeneratedPrompt(item.prompt || "");
+        setSelectedPreset("");
     };
 
     // Handle Restore Effect
@@ -347,548 +367,474 @@ function GeradorVideoContent() {
     }
 
     return (
-        <div className="flex-1 w-full bg-input/50 min-h-screen font-sans">
-            <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+        <div className="flex-1 w-full bg-input/50 relative font-sans">
+            <div className="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8 md:py-12">
                 {/* Hero */}
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 animate-fade-up">
                     <div className="flex items-center gap-4 justify-center mb-4">
-                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-orange-400 to-primary flex items-center justify-center text-black shadow-lg relative group">
-                            <TerminalWindow size={28} />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground mb-1">
-                                    Gerador de <span className="text-primary text-xl">Vídeo ↓</span>
-                                </h1>
-                            </div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">DIRECTOR MODE SYSTEM</p>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                        <MonitorPlay size={32} />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>Director Engine</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <div className="text-left">
+                            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                                Video <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-400">Generator</span>
+                            </h1>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">AI SCENE DIRECTOR SYSTEM</p>
                         </div>
                     </div>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
-                        Gere roteiros técnicos e prompts de cena otimizados para <span className="text-foreground">Luma, Kling e Runway Gen-3</span>.
+                        Gere roteiros técnicos e prompts de cena otimizados para <span className="text-foreground font-bold">Luma, Kling e Runway Gen-3</span>.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    {/* Left Column Wrapper */}
-                    <div className="lg:col-span-7 flex flex-col gap-6">
+                    {/* Inputs Column */}
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
 
                         {/* Presets Gallery */}
-                        <div className="bg-card border border-border rounded-[2rem] p-6 md:p-8 shadow-2xl overflow-hidden relative">
-                            <div className="flex justify-between items-center mb-6 relative z-10">
-                                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Cenas Prontas (Presets) <span className="text-blue-500 text-xl">↓</span>
-                                </h2>
-                                <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">
-                                    Preenche Auto
-                                </span>
-                            </div>
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                                    Cenas Prontas <span className="text-orange-500 text-xl">↓</span>
+                                </CardTitle>
+                                <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-bold uppercase tracking-wider text-[10px]">
+                                    AUTO
+                                </Badge>
+                            </CardHeader>
 
-                            <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar relative z-10 snap-x snap-mandatory">
-                                {PRESETS_VIDEO.map((preset) => (
-                                    <button
-                                        key={preset.id}
-                                        onClick={() => handlePresetClick(preset.id)}
-                                        className={cn(
-                                            "relative w-[145px] h-[110px] shrink-0 rounded-2xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                            selectedPreset === preset.id ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
-                                        )}
-                                    >
-                                        <img
-                                            src={preset.image}
-                                            alt={preset.title}
-                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        />
-                                        <div className="absolute inset-[-1px] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                            <CardContent className="p-6 md:p-8">
+                                <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar snap-x snap-mandatory perspective-1000">
+                                    {PRESETS_VIDEO.map((preset) => (
+                                        <button
+                                            key={preset.id}
+                                            onClick={() => handlePresetClick(preset.id)}
+                                            className={cn(
+                                                "relative w-[155px] h-[120px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
+                                                selectedPreset === preset.id ? "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                            )}
+                                        >
+                                            <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                                                <FilmStrip size={32} className="text-muted-foreground opacity-50" />
+                                            </div>
+                                            <img
+                                                src={preset.image}
+                                                alt={preset.title}
+                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                            <div className="absolute inset-[-1px] bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
 
-                                        <div className={cn(
-                                            "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                            selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
-                                        )}>
-                                            {selectedPreset === preset.id && <Check size={14} />}
-                                        </div>
+                                            <div className={cn(
+                                                "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
+                                                selectedPreset === preset.id ? "bg-orange-500 border-orange-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                            )}>
+                                                {selectedPreset === preset.id && <Check size={14} />}
+                                            </div>
 
-                                        <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
-                                            {preset.title}
-                                        </p>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                                            <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
+                                                {preset.title}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                        {/* Direction Board */}
-                        <div className="bg-card border border-border rounded-[2rem] p-6 md:p-10 shadow-2xl overflow-hidden relative">
-                            <div className="absolute top-0 right-0 p-8 opacity-5">
-                                <Video size={120} />
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 relative z-10">
+                        {/* Storyboarding Section */}
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg shadow-primary/20">
+                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
                                         <FilmStrip size={28} />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black tracking-tight leading-none uppercase">Storyboarding</h2>
-                                        <p className="text-xs text-muted-foreground mt-1 font-bold">CONFIGURAÇÃO DE CENA <span className="bg-primary/20 text-primary px-2 py-0.5 rounded ml-2 text-[10px]">LEGACY ENGINE</span></p>
+                                        <CardTitle className="text-xl font-black tracking-tight leading-none uppercase">Storyboarding</CardTitle>
+                                        <CardDescription className="text-xs text-muted-foreground mt-1 font-bold italic tracking-wider uppercase">CONFIGURAÇÃO DE CENA</CardDescription>
                                     </div>
                                 </div>
 
-                                <div className="flex bg-muted p-1 rounded-2xl">
+                                <div className="flex items-center bg-muted p-1 rounded-2xl">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-orange-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Automático
+                                        Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'advanced' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Expert
+                                        Expert
                                     </button>
                                 </div>
-                            </div>
+                            </CardHeader>
 
-                            <div className="space-y-10 relative z-10">
-                                <div className="space-y-4 bg-muted/30 p-5 rounded-2xl border border-border/50 shadow-inner">
+                            <CardContent className="p-6 md:p-8 space-y-8">
+                                {/* Video Type Selector */}
+                                <div className="space-y-4">
                                     <div className="flex items-center gap-2">
-                                        <FilmStrip size={18} className="text-blue-500" />
-                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Tipo de Vídeo</h3>
+                                        <Badge variant="outline" className="text-[10px] font-bold border-orange-500/20 text-orange-500 uppercase">Fase 1</Badge>
+                                        <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Tipo de Produção</Label>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         {[
                                             { id: "normal", label: "Cena Normal", icon: Play },
                                             { id: "timelapse", label: "Timelapse", icon: TerminalWindow },
                                             { id: "before_after", label: "Antes & Depois", icon: CheckCircle },
-                                            { id: "ken_burns", label: "Foto Ganhando Vida", icon: MagicWand },
+                                            { id: "ken_burns", label: "Foto Animada", icon: MagicWand },
                                         ].map((opt) => (
                                             <button
                                                 key={opt.id}
                                                 onClick={() => setVideoType(opt.id as any)}
-                                                className={cn("flex flex-col items-center justify-center p-4 rounded-xl border transition-all", videoType === opt.id ? "bg-blue-500/10 border-blue-500/50 text-blue-500 shadow-sm" : "bg-input/20 border-border hover:bg-input/40 text-muted-foreground")}
+                                                className={cn(
+                                                    "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2",
+                                                    videoType === opt.id ? "bg-orange-500/5 border-orange-500 text-orange-500 shadow-sm scale-105" : "bg-card border-border hover:border-border/80 text-muted-foreground"
+                                                )}
                                             >
-                                                <opt.icon size={24} className="mb-2" />
-                                                <span className="text-xs font-bold uppercase tracking-wider text-center">{opt.label}</span>
+                                                <opt.icon size={24} className={cn(videoType === opt.id ? "animate-pulse" : "opacity-50")} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-center">{opt.label}</span>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {videoType === 'normal' && (
-                                    <div className="space-y-10">
-                                        <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <Play size={18} className="text-primary" fill="currentColor" />
-                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">O que acontece na cena? (Ação)</h3>
-                                    </div>
-                                    <Textarea
-                                        placeholder="Descreva a ação em até 10 segundos. Ex: O pintor profissional com camisa azul rola a tinta branca na parede em movimento contínuo da direita para a esquerda."
-                                        className="min-h-[120px] bg-input border-border focus:border-primary rounded-2xl p-5 text-base font-medium"
-                                        value={action}
-                                        onChange={(e) => setAction(e.target.value)}
-                                    />
-                                    <p className="text-xs text-muted-foreground font-semibold">IAs de vídeo preferem ações únicas, contínuas e hiper-descritivas para durar de 5 a 10 segundos.</p>
-                                </div>
+                                <Separator />
 
-                                {mode === 'simple' ? (
+                                {/* Dynamic Content Layer */}
+                                {videoType === 'normal' && (
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <Label htmlFor="niche" className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ambiente / Contexto</Label>
-                                            <select
-                                                id="niche"
-                                                value={niche}
-                                                onChange={(e) => setNiche(e.target.value)}
-                                                className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                            >
-                                                <option value="residential interior">Interior Residencial Limpo</option>
-                                                <option value="outdoor residential">Exterior Residencial (Jardim/Telhado)</option>
-                                                <option value="commercial building">Prédio Comercial / Estúdio</option>
-                                                <option value="garage workshop">Garagem / Oficina</option>
-                                                <option value="construction site">Canteiro de Obras (EUA)</option>
-                                                <option value="other">Outro (Personalizado)</option>
-                                            </select>
-                                            {niche === 'other' && (
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Especifique o ambiente..."
-                                                    value={nicheOther}
-                                                    onChange={(e) => setNicheOther(e.target.value)}
-                                                    className="mt-2 bg-input/50"
-                                                />
-                                            )}
+                                            <Label htmlFor="action" className="font-semibold text-foreground flex items-center gap-2">
+                                                <Play size={16} className="text-orange-500" />
+                                                O que acontece na cena?
+                                            </Label>
+                                            <Textarea
+                                                id="action"
+                                                placeholder="Descreva a ação em até 10 segundos. Ex: O pintor profissional com camisa azul rola a tinta branca na parede..."
+                                                className="min-h-[120px] bg-input border-border focus:border-orange-500/50 rounded-2xl p-5 text-base font-medium resize-none shadow-inner"
+                                                value={action}
+                                                onChange={(e) => setAction(e.target.value)}
+                                            />
+                                            <p className="text-[10px] text-muted-foreground font-semibold italic text-right px-2">• Use verbos de ação e descreva cores e texturas.</p>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="motion" className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Movimento de Câmera</Label>
-                                                <select
-                                                    id="motion"
-                                                    value={motion}
-                                                    onChange={(e) => setMotion(e.target.value)}
-                                                    className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                                >
-                                                    <option value="Slow Dolly Push-in">Push-in (Aproximação Dramática)</option>
-                                                    <option value="Slow Pan Right">Pan Right (Giro para a Direita)</option>
-                                                    <option value="Slow Pan Left">Pan Left (Giro para a Esquerda)</option>
-                                                    <option value="Static Tripod Shot">Estático / Tripé (Ideal p/ Detalhes)</option>
-                                                    <option value="Smooth Drone Tracking">Tracking de Drone (Aéreo/Seguindo)</option>
-                                                    <option value="Handheld Documentary Style">Câmera na mão (Estilo Documentário/UGC)</option>
-                                                    <option value="other">Outro (Personalizado)</option>
-                                                </select>
-                                                {motion === 'other' && (
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Especifique o movimento..."
-                                                        value={motionOther}
-                                                        onChange={(e) => setMotionOther(e.target.value)}
-                                                        className="mt-2 bg-input/50"
-                                                    />
-                                                )}
-                                            </div>
+                                        {mode === 'simple' ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Contexto / Nicho</Label>
+                                                    <Select value={niche} onValueChange={setNiche}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Ambiente..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="residential interior">Interior Residencial Limpo</SelectItem>
+                                                            <SelectItem value="outdoor residential">Exterior Residencial (Jardim/Telhado)</SelectItem>
+                                                            <SelectItem value="commercial building">Prédio Comercial / Estúdio</SelectItem>
+                                                            <SelectItem value="garage workshop">Garagem / Oficina</SelectItem>
+                                                            <SelectItem value="construction site">Canteiro de Obras (EUA)</SelectItem>
+                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {niche === 'other' && <Input placeholder="Especifique..." value={nicheOther} onChange={e => setNicheOther(e.target.value)} className="mt-2" />}
+                                                </div>
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="angle" className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ângulo</Label>
-                                                <select
-                                                    id="angle"
-                                                    value={angle}
-                                                    onChange={(e) => setAngle(e.target.value)}
-                                                    className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                                >
-                                                    <option value="Eye-level Angle">Nível dos Olhos (Eye-level)</option>
-                                                    <option value="Low Angle">De baixo (Low Angle - Heróico)</option>
-                                                    <option value="High Angle">De cima (High Angle - Overview)</option>
-                                                    <option value="Extreme Close-up Macro">Close-up / Detalhe Extremo</option>
-                                                    <option value="Wide Shot">Plano Aberto (Wide Shot)</option>
-                                                    <option value="other">Outro (Personalizado)</option>
-                                                </select>
-                                                {angle === 'other' && (
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Especifique o ângulo..."
-                                                        value={angleOther}
-                                                        onChange={(e) => setAngleOther(e.target.value)}
-                                                        className="mt-2 bg-input/50"
-                                                    />
-                                                )}
-                                            </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Câmera: Movimento</Label>
+                                                    <Select value={motion} onValueChange={setMotion}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Movimento..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Slow Dolly Push-in">Push-in (Aproximação Dramática)</SelectItem>
+                                                            <SelectItem value="Slow Pan Right">Pan Right (Giro para a Direita)</SelectItem>
+                                                            <SelectItem value="Slow Pan Left">Pan Left (Giro para a Esquerda)</SelectItem>
+                                                            <SelectItem value="Static Tripod Shot">Estático / Tripé (Ideal p/ Detalhes)</SelectItem>
+                                                            <SelectItem value="Smooth Drone Tracking">Tracking de Drone (Aéreo/Seguindo)</SelectItem>
+                                                            <SelectItem value="Handheld Documentary Style">Mão (Humanístico/UGC)</SelectItem>
+                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {motion === 'other' && <Input placeholder="Especifique..." value={motionOther} onChange={e => setMotionOther(e.target.value)} className="mt-2" />}
+                                                </div>
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="lens" className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Qualidade / Lente</Label>
-                                                <select
-                                                    id="lens"
-                                                    value={lens}
-                                                    onChange={(e) => setLens(e.target.value)}
-                                                    className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-semibold truncate"
-                                                >
-                                                    <option value="Cinematic 35mm lens, beautiful shallow depth of field, sharp focus">Cinematográfica 35mm (Fundo Desfocado)</option>
-                                                    <option value="GoPro action camera, ultra-wide angle">Câmera de Ação (GoPro / Ultra Wide)</option>
-                                                    <option value="iPhone 15 Pro Max footage, casual style">Gravação de Celular (iPhone 15 Pro)</option>
-                                                    <option value="other">Outro (Personalizado)</option>
-                                                </select>
-                                                {lens === 'other' && (
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Especifique a lente/qualidade..."
-                                                        value={lensOther}
-                                                        onChange={(e) => setLensOther(e.target.value)}
-                                                        className="mt-2 bg-input/50"
-                                                    />
-                                                )}
-                                            </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Câmera: Ângulo</Label>
+                                                    <Select value={angle} onValueChange={setAngle}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Ângulo..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Eye-level Angle">Nível dos Olhos (Eye-level)</SelectItem>
+                                                            <SelectItem value="Low Angle">De baixo (Heróico)</SelectItem>
+                                                            <SelectItem value="High Angle">De cima (Overview)</SelectItem>
+                                                            <SelectItem value="Extreme Close-up Macro">Macro / Detalhe Extremo</SelectItem>
+                                                            <SelectItem value="Wide Shot">Plano Aberto (Wide Shot)</SelectItem>
+                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {angle === 'other' && <Input placeholder="Especifique..." value={angleOther} onChange={e => setAngleOther(e.target.value)} className="mt-2" />}
+                                                </div>
 
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Ritmo / Velocidade</Label>
+                                                    <Select value={speed} onValueChange={setSpeed}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Ritmo..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Real-time default speed">Velocidade Normal</SelectItem>
+                                                            <SelectItem value="Cinematic 120fps Slow Motion, smooth">Slow Motion (Câmera Lenta)</SelectItem>
+                                                            <SelectItem value="Hyperlapse time-lapse video">Hyperlapse (Acelerado)</SelectItem>
+                                                            <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {speed === 'other' && <Input placeholder="Especifique..." value={speedOther} onChange={e => setSpeedOther(e.target.value)} className="mt-2" />}
+                                                </div>
+                                            </div>
+                                        ) : (
                                             <div className="space-y-2">
-                                                <Label htmlFor="speed" className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ritmo / Velocidade</Label>
-                                                <select
-                                                    id="speed"
-                                                    value={speed}
-                                                    onChange={(e) => setSpeed(e.target.value)}
-                                                    className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                                >
-                                                    <option value="Real-time default speed">Velocidade Normal (Real-Time)</option>
-                                                    <option value="Cinematic 120fps Slow Motion, smooth">Câmera Lenta (Slow Motion)</option>
-                                                    <option value="Hyperlapse time-lapse video">Hyperlapse (Acelerado)</option>
-                                                    <option value="other">Outro (Personalizado)</option>
-                                                </select>
-                                                {speed === 'other' && (
-                                                    <Input
-                                                        type="text"
-                                                        placeholder="Especifique o ritmo..."
-                                                        value={speedOther}
-                                                        onChange={(e) => setSpeedOther(e.target.value)}
-                                                        className="mt-2 bg-input/50"
-                                                    />
-                                                )}
+                                                <Label htmlFor="negative" className="font-semibold text-red-500">Negativo (Não ter no vídeo)</Label>
+                                                <Textarea
+                                                    id="negative"
+                                                    placeholder="Ex: text, watermarks, bad anatomy, distorted faces..."
+                                                    className="bg-red-500/5 border-red-500/20 focus:border-red-500 rounded-2xl p-4 text-sm"
+                                                    value={negative}
+                                                    onChange={(e) => setNegative(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {videoType === 'timelapse' && (
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="tlAction" className="font-semibold text-foreground flex items-center gap-2">
+                                                <TerminalWindow size={16} className="text-orange-500" />
+                                                O que está sendo construído?
+                                            </Label>
+                                            <Textarea
+                                                id="tlAction"
+                                                placeholder="Ex: instalação completa de piso de vinílico em sala de estar, pintura total de fachada..."
+                                                className="min-h-[100px] bg-input border-border focus:border-orange-500/50 rounded-2xl p-5 text-base font-medium shadow-inner"
+                                                value={tlAction}
+                                                onChange={(e) => setTlAction(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Velocidade</Label>
+                                                <Select value={tlSpeed} onValueChange={setTlSpeed}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="4x">4x (Rápido)</SelectItem>
+                                                        <SelectItem value="8x">8x (Muito Rápido)</SelectItem>
+                                                        <SelectItem value="Ultra-rápido">Hiper-lapse</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Ângulo</Label>
+                                                <Select value={tlAngle} onValueChange={setTlAngle}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Frontal fixo">Frontal fixo</SelectItem>
+                                                        <SelectItem value="Aéreo de cima">Aéreo (Dolphin)</SelectItem>
+                                                        <SelectItem value="Alternando ângulos">Vários Ângulos</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Visual</Label>
+                                                <Select value={tlStyle} onValueChange={setTlStyle}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Documental realista">Documental</SelectItem>
+                                                        <SelectItem value="Cinematográfico com color grade">Cinematográfico</SelectItem>
+                                                        <SelectItem value="Clean e minimalista">Clean</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="space-y-6">
-                                        <div className="space-y-3">
-                                            <h3 className="text-sm font-black text-red-500 uppercase tracking-widest">Negativo (Não ter no vídeo)</h3>
+                                )}
+
+                                {videoType === 'before_after' && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Nicho / Serviço</Label>
+                                                <Select value={baNiche} onValueChange={setBaNiche}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Construction">Construction</SelectItem>
+                                                        <SelectItem value="Kitchen Remodel">Kitchen Remodel</SelectItem>
+                                                        <SelectItem value="House Painting">House Painting</SelectItem>
+                                                        <SelectItem value="Roof Repair">Roof Repair</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Transição</Label>
+                                                <Select value={baTransition} onValueChange={setBaTransition}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Wipe horizontal (clássico)">Wipe Lateral</SelectItem>
+                                                        <SelectItem value="Reveal com cortina">Cortina / Reveal</SelectItem>
+                                                        <SelectItem value="Split screen animado">Split Screen</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="baDetail" className="font-semibold text-foreground">Ações específicas na cena</Label>
                                             <Textarea
-                                                placeholder="Ex: text, watermarks, bad anatomy, distorted faces, skipping frames..."
-                                                className="min-h-[100px] bg-input border-border focus:border-red-500/20 rounded-2xl p-5"
-                                                value={negative}
-                                                onChange={(e) => setNegative(e.target.value)}
+                                                id="baDetail"
+                                                placeholder="Ex: Mostrar o cliente sorrindo no final, focar no brilho do piso..."
+                                                className="bg-input border-border rounded-2xl p-5"
+                                                value={baDetail}
+                                                onChange={(e) => setBaDetail(e.target.value)}
                                             />
                                         </div>
                                     </div>
                                 )}
 
-                                <Button
-                                    onClick={handleGenerate}
-                                    disabled={isGenerating}
-                                    className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
-                                >
-                                    {isGenerating ? (
-                                        <div className="flex items-center gap-2">
-                                            <MagicWand size={24} className="animate-spin text-black" />
-                                            GERANDO...
-                                        </div>
-                                    ) : (
-                                        "Gerar Prompt"
-                                    )}
-                                </Button>
-                            </div>
-                        )}
-
-                        {videoType === 'timelapse' && (
-                            <div className="space-y-6">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <TerminalWindow size={18} className="text-blue-500" />
-                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">O que está sendo construído / executado</h3>
-                                    </div>
-                                    <Textarea
-                                        placeholder="Ex: instalação completa de piso de vinílico em sala de estar"
-                                        className="min-h-[120px] bg-input border-border focus:border-blue-500/50 rounded-2xl p-5 text-base font-medium"
-                                        value={tlAction}
-                                        onChange={(e) => setTlAction(e.target.value)}
-                                    />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Velocidade do Timelapse</Label>
-                                        <select value={tlSpeed} onChange={(e) => setTlSpeed(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="2x">2x</option>
-                                            <option value="4x">4x</option>
-                                            <option value="8x">8x</option>
-                                            <option value="Ultra-rápido (hiper-comprimido)">Ultra-rápido (hiper-comprimido)</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {tlSpeed === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={tlSpeedOther} onChange={(e) => setTlSpeedOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ângulo Principal</Label>
-                                        <select value={tlAngle} onChange={(e) => setTlAngle(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="Frontal fixo">Frontal fixo</option>
-                                            <option value="Aéreo de cima">Aéreo de cima</option>
-                                            <option value="Seguindo o profissional">Seguindo o profissional</option>
-                                            <option value="Alternando ângulos">Alternando ângulos</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {tlAngle === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={tlAngleOther} onChange={(e) => setTlAngleOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Estilo Visual</Label>
-                                        <select value={tlStyle} onChange={(e) => setTlStyle(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="Documental realista">Documental realista</option>
-                                            <option value="Cinematográfico com color grade">Cinematográfico com color grade</option>
-                                            <option value="Clean e minimalista">Clean e minimalista</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {tlStyle === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={tlStyleOther} onChange={(e) => setTlStyleOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {videoType === 'before_after' && (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Nicho / Serviço</Label>
-                                        <select value={baNiche} onChange={(e) => setBaNiche(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <optgroup label="🏗️ Construção & Reformas">
-                                                <option value="Construction">Construction (Construção)</option>
-                                                <option value="Kitchen Remodel">Kitchen Remodel (Cozinha)</option>
-                                                <option value="Bathroom Remodel">Bathroom (Banheiro)</option>
-                                            </optgroup>
-                                            <optgroup label="🎨 Acabamentos & Superfícies">
-                                                <option value="House Painting">House Painting (Pintura)</option>
-                                                <option value="Roof Repair">Roof Repair (Telhado)</option>
-                                                <option value="Siding Installation">Siding (Revestimento)</option>
-                                            </optgroup>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {baNiche === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={baNicheOther} onChange={(e) => setBaNicheOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Tipo de Transição</Label>
-                                        <select value={baTransition} onChange={(e) => setBaTransition(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="Wipe horizontal (clássico)">Wipe horizontal (clássico)</option>
-                                            <option value="Reveal com cortina">Reveal com cortina</option>
-                                            <option value="Split screen animado">Split screen animado</option>
-                                            <option value="Fade entre os dois estados">Fade entre os dois estados</option>
-                                            <option value="Zoom in que revela o depois">Zoom in que revela o depois</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {baTransition === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={baTransitionOther} onChange={(e) => setBaTransitionOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Ritmo da Transição</Label>
-                                        <select value={baPace} onChange={(e) => setBaPace(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="Lento e dramático">Lento e dramático</option>
-                                            <option value="Médio">Médio</option>
-                                            <option value="Rápido e impactante">Rápido e impactante</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {baPace === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={baPaceOther} onChange={(e) => setBaPaceOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Nível de Contraste</Label>
-                                        <select value={baContrast} onChange={(e) => setBaContrast(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-semibold">
-                                            <option value="Sutil">Sutil</option>
-                                            <option value="Médio">Médio</option>
-                                            <option value="Extremo (máximo impacto)">Extremo (máximo impacto)</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {baContrast === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={baContrastOther} onChange={(e) => setBaContrastOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <CheckCircle size={18} className="text-blue-500" />
-                                        <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Detalhe adicional da cena (Opcional)</h3>
-                                    </div>
-                                    <Textarea
-                                        placeholder="Ex: Mostrar o cliente sorrindo no final, focar no reflexo do chão limpo..."
-                                        className="min-h-[120px] bg-input border-border focus:border-blue-500/50 rounded-2xl p-5 text-base font-medium"
-                                        value={baDetail}
-                                        onChange={(e) => setBaDetail(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {videoType === 'ken_burns' && (
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label className="font-semibold text-amber-500 flex items-center gap-1.5">
-                                        <FileImage size={18} />
-                                        Foto base (opcional — para referência de estilo)
-                                    </Label>
-                                    <div
-                                        onClick={() => kbPhotoInputRef.current?.click()}
-                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[120px]"
-                                    >
-                                        {kbPhotoUrl ? (
-                                            <div className="relative w-full h-full flex items-center justify-center">
-                                                <img src={kbPhotoUrl} alt="Referência" className="max-h-full max-w-full object-contain rounded-md" />
-                                                <button type="button" onClick={(e) => { e.stopPropagation(); setKbPhotoUrl("") }} className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white shadow-md"><X size={12} /></button>
+                                {videoType === 'ken_burns' && (
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <Label className="font-semibold text-foreground flex items-center gap-1.5 uppercase text-[10px] tracking-widest text-orange-500">
+                                                <FileImage size={16} />
+                                                Input: Foto Base
+                                            </Label>
+                                            <div
+                                                onClick={() => kbPhotoInputRef.current?.click()}
+                                                className="border-2 border-dashed border-border hover:border-orange-500/50 bg-input/20 rounded-2xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center min-h-[160px]"
+                                            >
+                                                {kbPhotoUrl ? (
+                                                    <div className="relative w-full h-full flex items-center justify-center">
+                                                        <img src={kbPhotoUrl} alt="Preview" className="max-h-[120px] rounded-lg shadow-md mb-2" />
+                                                        <Button
+                                                            size="icon"
+                                                            variant="destructive"
+                                                            className="absolute -top-2 -right-2 rounded-full size-6"
+                                                            onClick={(e) => { e.stopPropagation(); setKbPhotoUrl(""); }}
+                                                        >
+                                                            <X size={12} />
+                                                        </Button>
+                                                        <p className="text-[10px] font-bold text-orange-500 uppercase mt-2">Clique para trocar</p>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <ImagePlus size={40} className="text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-bold text-foreground">Upload da Foto</p>
+                                                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">DRAG AND DROP OR CLICK</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    ref={kbPhotoInputRef}
+                                                    onChange={handleKbPhotoUpload}
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                />
                                             </div>
-                                        ) : (
-                                            <>
-                                                <Upload size={24} className="mb-2 text-muted-foreground group-hover:text-amber-500 transition-colors" />
-                                                <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Clique para anexar foto base</p>
-                                            </>
-                                        )}
-                                        <input ref={kbPhotoInputRef} type="file" accept="image/*" className="hidden" onChange={handleKbPhotoUpload} />
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Movimento Virtual</Label>
+                                                <Select value={kbMovement} onValueChange={setKbMovement}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Zoom in suave">Zoom in (Suave)</SelectItem>
+                                                        <SelectItem value="Smooth Pan Right">Slide Direita</SelectItem>
+                                                        <SelectItem value="Dolly Out slow">Dolly Out</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Mood / Clima</Label>
+                                                <Select value={kbMood} onValueChange={setKbMood}>
+                                                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Cálido / Golden Hour">Cálido (Golden Hour)</SelectItem>
+                                                        <SelectItem value="Moderno / Clean">Frio / Limpo</SelectItem>
+                                                        <SelectItem value="Neutro">Natural / Realista</SelectItem>
+                                                        <SelectItem value="other">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Tipo de Movimento</Label>
-                                        <select value={kbMovement} onChange={(e) => setKbMovement(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
-                                            <option value="Zoom in suave (Ken Burns clássico)">Zoom in suave (Ken Burns clássico)</option>
-                                            <option value="Zoom out revelador">Zoom out revelador</option>
-                                            <option value="Pan horizontal lento">Pan horizontal lento</option>
-                                            <option value="Pan vertical (de baixo para cima)">Pan vertical (de baixo para cima)</option>
-                                            <option value="Leve flutuação (parallax)">Leve flutuação (parallax)</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {kbMovement === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={kbMovementOther} onChange={(e) => setKbMovementOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Velocidade do Movimento</Label>
-                                        <select value={kbSpeed} onChange={(e) => setKbSpeed(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
-                                            <option value="Muito suave (realtor/luxury)">Muito suave (realtor/luxury)</option>
-                                            <option value="Suave">Suave</option>
-                                            <option value="Moderado">Moderado</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {kbSpeed === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={kbSpeedOther} onChange={(e) => setKbSpeedOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Clima da Cena</Label>
-                                        <select value={kbMood} onChange={(e) => setKbMood(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
-                                            <option value="Neutro">Neutro</option>
-                                            <option value="Dramático (luz intensa)">Dramático (luz intensa)</option>
-                                            <option value="Sereno (luz suave)">Sereno (luz suave)</option>
-                                            <option value="Premium">Premium</option>
-                                            <option value="Aconchegante">Aconchegante</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {kbMood === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={kbMoodOther} onChange={(e) => setKbMoodOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Duração</Label>
-                                        <select value={kbDuration} onChange={(e) => setKbDuration(e.target.value)} className="w-full bg-input border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 font-semibold">
-                                            <option value="5s">5s</option>
-                                            <option value="10s">10s</option>
-                                            <option value="15s">15s</option>
-                                            <option value="other">Outro (Personalizado)</option>
-                                        </select>
-                                        {kbDuration === 'other' && (
-                                            <Input type="text" placeholder="Especifique..." value={kbDurationOther} onChange={(e) => setKbDurationOther(e.target.value)} className="mt-2 bg-input/50" />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                                )}
 
-                            </div>
-                        </div>
+                                {/* Action Buttons */}
+                                <div className="pt-6">
+                                    <Button
+                                        onClick={handleGenerate}
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-orange-500 hover:bg-orange-600 text-black shadow-2xl shadow-orange-500/20 transition-all active:scale-[0.98]"
+                                    >
+                                        {isGenerating ? <RotateCcw className="animate-spin size-6" /> : "Gerar Prompt de Vídeo"}
+                                    </Button>
+                                    <div className="flex justify-center mt-4 gap-4">
+                                        <button onClick={handleClear} className="text-[10px] font-black uppercase text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 tracking-widest">
+                                            <X size={12} /> Limpar campos
+                                        </button>
+                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-orange-500 transition-colors flex items-center gap-1 tracking-widest">
+                                            <Info size={12} /> Tutorial rápido
+                                        </button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
-                    {/* Output Column (Stage Preview) */}
+                    {/* Output Column */}
                     <div className="lg:col-span-5 relative">
-                        <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24">
-                            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
-                                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <TerminalWindow size={24} className="text-primary" />
-                                    Prompt Gerado
-                                </h2>
-                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/20 text-primary">
-                                    PRONTO PARA IA
-                                </span>
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden sticky top-24 animate-fade-up" style={{ animationDelay: '300ms' }}>
+                            <CardHeader className="px-6 py-5 bg-muted/50 relative border-none">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                                        <TerminalWindow size={24} className="text-orange-500" />
+                                        Prompt Gerado
+                                    </CardTitle>
+                                    <Badge className="bg-orange-500/20 text-orange-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                        READY TO AI
+                                    </Badge>
+                                </div>
+                            </CardHeader>
+
+                            <div className="bg-orange-500/10 border-b border-orange-500/20 p-4 flex items-start gap-3">
+                                <span className="text-2xl mt-0.5 animate-pulse">🎬</span>
+                                <div>
+                                    <h3 className="text-orange-500 font-bold text-sm tracking-tight mb-1">Como utilizar?</h3>
+                                    <p className="text-muted-foreground text-xs leading-relaxed font-medium">
+                                        Copie o prompt e cole em ferramentas como <strong className="text-foreground">Luma (Dream Machine)</strong>, <strong className="text-foreground">Kling</strong> ou <strong className="text-foreground">Runway</strong> para transformar em vídeo.
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="p-6 min-h-[300px] flex flex-col">
+                            <CardContent className="p-6 min-h-[300px] flex flex-col">
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-base p-4 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-xl custom-scrollbar"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-orange-500/50 rounded-xl custom-scrollbar"
                                             readOnly
                                             value={generatedPrompt}
                                         />
@@ -897,8 +843,11 @@ function GeradorVideoContent() {
                                             <Button
                                                 variant="secondary"
                                                 onClick={() => toggleFavorite("gerador-video", {
-                                                    mode, niche, nicheOther, motion, motionOther, angle, angleOther, lens, lensOther, speed, speedOther, action, negative
-                                                }, generatedPrompt, `Vídeo ${action.substring(0, 20)}`)}
+                                                    videoType, niche, nicheOther, motion, motionOther, angle, angleOther, lens, lensOther, speed, speedOther, action, negative,
+                                                    tlAction, tlSpeed, tlSpeedOther, tlAngle, tlAngleOther, tlStyle, tlStyleOther,
+                                                    baNiche, baNicheOther, baTransition, baTransitionOther, baPace, baPaceOther, baContrast, baContrastOther, baDetail,
+                                                    kbMovement, kbMovementOther, kbSpeed, kbSpeedOther, kbMood, kbMoodOther, kbDuration, kbDurationOther, hasKbPhoto: !!kbPhotoUrl
+                                                }, generatedPrompt, `${videoType?.toUpperCase()} - ${action.substring(0, 20)}`)}
                                                 className={cn(
                                                     "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
                                                     isFavorited(generatedPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
@@ -909,7 +858,7 @@ function GeradorVideoContent() {
                                             </Button>
                                             <Button
                                                 onClick={handleCopy}
-                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted'}`}
+                                                className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted font-bold'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
                                                 {isCopied ? 'Copiado!' : 'Copiar Prompt'}
@@ -917,27 +866,20 @@ function GeradorVideoContent() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60 min-h-[200px]">
-                                        <FilmStrip size={48} className="text-primary mb-4" />
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+                                        <Video size={48} className="text-orange-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
-                                            Preencha os campos e clique em <strong>Gerar Prompt</strong>.
+                                            Configure sua cena e clique em <strong>Gerar Prompt de Vídeo</strong> para visualizar o roteiro.
                                         </p>
                                     </div>
                                 )}
-                            </div>
-
-                            <div className="bg-blue-500/10 border-t border-blue-500/20 p-4">
-                                <h3 className="text-blue-400 font-bold text-xs uppercase tracking-wider mb-1">Dica de Vídeo</h3>
-                                <p className="text-muted-foreground text-[10px] leading-relaxed">
-                                    IAs de vídeo preferem ações únicas. Evite descrever várias cenas. Foco em <span className="text-blue-400">um movimento de câmera</span> e <span className="text-blue-400">uma ação técnica</span>.
-                                </p>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
                 {/* History Section - Full Width */}
-                <div className="mt-6">
+                <div className="mt-8 animate-fade-up" style={{ animationDelay: '450ms' }}>
                     <GenerationHistory
                         history={history}
                         onRestore={handleRestore}
@@ -946,15 +888,41 @@ function GeradorVideoContent() {
                 </div>
             </div>
 
-            <FloatingHelpButton pageTitle="Gerador Vídeo" />
+            <FloatingHelpButton pageTitle="Gerador de Vídeo" />
+            <TutorialDialog 
+                open={isTutorialOpen} 
+                onOpenChange={setIsTutorialOpen}
+                title="Manual do Diretor"
+                steps={[
+                    { title: "Storyboarding", description: "Defina o tipo de vídeo (Normal, Timelapse, etc) e a ação principal." },
+                    { title: "Configuração de Câmera", description: "Escolha movimentos, ângulos e lentes para dar o tom cinematográfico." },
+                    { title: "Prompt Engine", description: "Copie o prompt gerado e use na sua ferramenta de IA de vídeo favorita." }
+                ]}
+            />
         </div>
-    )
+    );
 }
 
 export default function GeradorVideoPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+        <Suspense fallback={
+            <div className="max-w-[1400px] mx-auto px-6 mt-32 space-y-12">
+                <div className="space-y-4 text-center">
+                    <Skeleton className="h-12 w-1/3 mx-auto rounded-xl" />
+                    <Skeleton className="h-6 w-1/4 mx-auto rounded-xl" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-7">
+                        <Skeleton className="h-[200px] w-full rounded-[24px]" />
+                        <Skeleton className="h-[600px] w-full rounded-[24px] mt-6" />
+                    </div>
+                    <div className="lg:col-span-5">
+                        <Skeleton className="h-[500px] w-full rounded-[24px]" />
+                    </div>
+                </div>
+            </div>
+        }>
             <GeradorVideoContent />
         </Suspense>
-    )
+    );
 }

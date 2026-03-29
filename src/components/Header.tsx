@@ -14,7 +14,15 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { ListTodo, MonitorSmartphone } from "lucide-react"
 
 export default function Header() {
     const { data: session } = useSession()
@@ -35,20 +43,37 @@ export default function Header() {
                     )}>
                         <BackButton />
                     </div>
-                    <Link href="/" className={cn(
-                        "transition-all duration-500 ease-in-out hover:opacity-80 shrink-0",
-                        !isHome && "ml-2"
-                    )}>
-                        {/* Desktop Logo */}
-                        <img src="/logo/TS-TOOLS.svg" alt="TS TOOLS" className="h-[40px] md:h-[50px] w-auto hidden md:block transition-all duration-500" />
-                        {/* Mobile Logo */}
-                        <img src="/logo/ICONE.svg" alt="TS TOOLS" className="h-[35px] block md:hidden w-auto transition-all duration-500" />
-                    </Link>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Link href="/" className={cn(
+                                "transition-all duration-500 ease-in-out hover:opacity-80 shrink-0",
+                                !isHome && "ml-2"
+                            )}>
+                                {/* Desktop Logo */}
+                                <img src="/logo/TS-TOOLS.svg" alt="TS TOOLS" className="h-[40px] md:h-[50px] w-auto hidden md:block transition-all duration-500" />
+                                {/* Mobile Logo */}
+                                <img src="/logo/ICONE.svg" alt="TS TOOLS" className="h-[35px] block md:hidden w-auto transition-all duration-500" />
+                            </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Voltar ao Início</TooltipContent>
+                    </Tooltip>
                 </div>
 
                 {/* Center: Search Trigger */}
                 <div className="flex justify-center">
-                    <SearchTrigger />
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div>
+                                <SearchTrigger />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="flex items-center gap-2">
+                            <span>Busca Rápida</span>
+                            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 italic">
+                              ctrl+k
+                            </kbd>
+                        </TooltipContent>
+                    </Tooltip>
                 </div>
 
                 {/* Right Side: User Area */}
@@ -77,16 +102,27 @@ export default function Header() {
                                 <DropdownMenuItem className="cursor-pointer">
                                     <Link href="/ferramentas" className="w-full">Hub de Ferramentas</Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" asChild>
+                                    <Link href="/meu-checklist" className="flex items-center w-full">
+                                        <ListTodo size={14} className="mr-2 opacity-70" />
+                                        Meu Checklist
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" asChild>
+                                    <Link href="/checklist-webdesign" className="flex items-center w-full">
+                                        <MonitorSmartphone size={14} className="mr-2 opacity-70" />
+                                        Checklist Webdesign
+                                    </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 {session.user.role === "admin" && (
                                     <>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem className="cursor-pointer text-red-500 font-bold">
+                                        <DropdownMenuItem className="cursor-pointer">
                                             <Link href="/admin/ferramentas" className="w-full">Painel Admin</Link>
                                         </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
                                     </>
                                 )}
-                                <DropdownMenuSeparator />
                                 <DropdownMenuItem 
                                     className="cursor-pointer text-destructive font-semibold"
                                     onClick={() => signOut()}

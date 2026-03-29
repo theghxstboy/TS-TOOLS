@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Separator } from "@/components/ui/separator"
 import { Wand2 as MagicWand, ArrowRight, ClipboardList as ClipboardText, Bot as Robot, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -52,7 +53,9 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                     {/* Tutorial Steps Visual Flow */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative mb-10">
                         {/* Connecting Lines (Desktop) */}
-                        <div className="hidden md:block absolute top-[45px] left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-primary/50 via-primary/10 to-primary/50 z-0" />
+                        <div className="hidden md:block absolute top-[45px] left-[20%] right-[20%] h-0.5 z-0">
+                            <Separator className="bg-gradient-to-r from-primary/50 via-primary/10 to-primary/50" />
+                        </div>
 
                         {/* Step 1 */}
                         <div className="flex flex-col items-center text-center gap-4 relative z-10">
@@ -88,7 +91,8 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-border">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 relative">
+                        <Separator className="absolute top-0 left-0 right-0 bg-border" />
                         <div className="flex items-center space-x-2 cursor-pointer group">
                             <Checkbox
                                 id="dontShow"

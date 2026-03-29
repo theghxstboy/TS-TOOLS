@@ -34,8 +34,12 @@ import {
   Braces,
   PackageSearch,
 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 // DND Kit Imports
@@ -252,10 +256,15 @@ function SortableCard({ item, index }: { item: Tool; index: number }) {
   const accent = ACCENT_CLASSES[item.accentColor || 'primary']
 
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
-      className="relative group h-full touch-none"
+      className={cn(
+        "relative group h-full touch-none p-0 overflow-hidden transition-all duration-300 rounded-2xl animate-fade-up",
+        !isDragging && "bg-card border-border shadow-sm hover:shadow-xl hover:scale-[1.02]",
+        !isDragging && accent.hover,
+        isDragging && "border-2 border-dashed bg-transparent border-border/50 shadow-none scale-100"
+      )}
     >
       {/* Drag Handle */}
       <button
@@ -270,25 +279,23 @@ function SortableCard({ item, index }: { item: Tool; index: number }) {
       <Link
         href={item.href}
         style={{ animationDelay: `${index * 60}ms` }}
-        className={cn(
-          "flex flex-col p-6 rounded-2xl h-full w-full relative min-h-[300px] overflow-hidden animate-fade-up",
-          !isDragging && "bg-card border border-border shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300",
-          !isDragging && accent.hover,
-          isDragging && "border-2 border-dashed bg-transparent border-border/50" // clean slot indicator without text
-        )}
+        className="flex flex-col p-6 h-full w-full relative min-h-[300px]"
       >
         <div className="w-full flex items-start justify-end mb-4 min-h-[28px]">
           {/* Badge */}
           {item.badge && (
-            <span className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto opacity-70", item.badgeColor)}>
+            <Badge 
+              variant="outline"
+              className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto opacity-70 border-none", item.badgeColor)}
+            >
               {item.badge}
-            </span>
+            </Badge>
           )}
         </div>
 
         <div className="flex flex-col items-center flex-1 mt-auto justify-center px-1">
           {/* Icon */}
-          <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shrink-0 transition-transform duration-300", accent.icon)}>
+          <div className={cn("size-16 rounded-2xl flex items-center justify-center mb-6 shrink-0 transition-transform duration-300", accent.icon)}>
             {item.icon}
           </div>
 
@@ -300,32 +307,35 @@ function SortableCard({ item, index }: { item: Tool; index: number }) {
           </p>
         </div>
       </Link>
-    </div>
+    </Card>
   )
 }
 
 function DragOverlayCard({ item }: { item: Tool }) {
   const accent = ACCENT_CLASSES[item.accentColor || 'primary']
   return (
-    <div
+    <Card
       className={cn(
-        "flex flex-col p-6 bg-card border-2 border-primary rounded-2xl shadow-2xl h-full w-full relative min-h-[300px] overflow-hidden rotate-2 scale-105 cursor-grabbing"
+        "flex flex-col bg-card border-2 border-primary rounded-2xl shadow-2xl h-full w-full relative min-h-[300px] overflow-hidden rotate-2 scale-105 cursor-grabbing"
       )}
     >
       <div className="absolute top-4 left-4 p-2 text-primary bg-primary/10 rounded-lg shadow-sm z-30">
         <DotsSixVertical size={20} />
       </div>
 
-      <div className="w-full flex items-start justify-end mb-4 min-h-[28px]">
+      <div className="w-full flex items-start justify-end mb-4 min-h-[28px] px-6 pt-6">
         {item.badge && (
-          <span className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto", item.badgeColor)}>
+          <Badge 
+            variant="outline"
+            className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto border-none", item.badgeColor)}
+          >
             {item.badge}
-          </span>
+          </Badge>
         )}
       </div>
 
-      <div className="flex flex-col items-center flex-1 mt-auto justify-center px-1">
-        <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shrink-0 transition-transform duration-300 scale-110", accent.icon)}>
+      <div className="flex flex-col items-center flex-1 mt-auto justify-center px-1 pb-6">
+        <div className={cn("size-16 rounded-2xl flex items-center justify-center mb-6 shrink-0 transition-transform duration-300 scale-110", accent.icon)}>
           {item.icon}
         </div>
         <h2 className="text-lg md:text-xl font-extrabold mb-3 text-foreground text-center line-clamp-2 leading-tight tracking-tight">
@@ -335,7 +345,7 @@ function DragOverlayCard({ item }: { item: Tool }) {
           {item.description}
         </p>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -670,7 +680,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(activeDepartment === "Todos" ? DEFAULT_TOOLS : DEFAULT_TOOLS.filter(t => t.departments.includes(activeDepartment))).map((tool) => (
-                <div key={tool.id} className="h-[280px] bg-card border border-border rounded-2xl animate-pulse" />
+                <Skeleton key={tool.id} className="h-[280px] rounded-2xl" />
               ))}
             </div>
           </section>
@@ -684,7 +694,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(activeDepartment === "Todos" ? DEFAULT_KNOWLEDGE : DEFAULT_KNOWLEDGE.filter(k => k.departments.includes(activeDepartment))).map((item) => (
-                <div key={item.id} className="h-[300px] bg-card border border-border rounded-2xl animate-pulse" />
+                <Skeleton key={item.id} className="h-[300px] rounded-2xl" />
               ))}
             </div>
           </section>
@@ -716,31 +726,33 @@ export default function Home() {
               <p className="text-sm text-muted-foreground mt-1">Confira as novidades do sistema</p>
             </DialogHeader>
 
-            <div className="max-h-[380px] overflow-y-auto pr-2 space-y-6 custom-scrollbar">
-              <div className="space-y-2">
-                <span className="inline-block text-[0.65rem] font-extrabold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">Hoje</span>
-                <h4 className="font-semibold text-foreground">📚 Manual de Nichos 2.0</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">Documentação expandida para 15+ nichos dos EUA. Glossário técnico, guia de workflow e dicas de criativos integrados.</p>
-              </div>
+            <ScrollArea className="h-[380px] pr-4">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="inline-block text-[0.65rem] font-extrabold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">Hoje</span>
+                  <h4 className="font-semibold text-foreground">📚 Manual de Nichos 2.0</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Documentação expandida para 15+ nichos dos EUA. Glossário técnico, guia de workflow e dicas de criativos integrados.</p>
+                </div>
 
-              <div className="space-y-2">
-                <span className="inline-block text-[0.65rem] font-extrabold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">Hoje</span>
-                <h4 className="font-semibold text-foreground">🔍 Busca Inteligente</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">Encontre qualquer nicho ou documentação instantaneamente com o novo campo de pesquisa no Hub de Docs.</p>
-              </div>
+                <div className="space-y-2">
+                  <span className="inline-block text-[0.65rem] font-extrabold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">Hoje</span>
+                  <h4 className="font-semibold text-foreground">🔍 Busca Inteligente</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Encontre qualquer nicho ou documentação instantaneamente com o novo campo de pesquisa no Hub de Docs.</p>
+                </div>
 
-              <div className="space-y-2">
-                <span className="inline-block text-[0.65rem] font-extrabold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded">Recentemente</span>
-                <h4 className="font-semibold text-foreground">⚡ Geradores Otimizados</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">Selects de nichos agora agrupados por categoria (Pisos, Reformas, Exterior) para facilitar sua navegação.</p>
-              </div>
+                <div className="space-y-2">
+                  <span className="inline-block text-[0.65rem] font-extrabold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded">Recentemente</span>
+                  <h4 className="font-semibold text-foreground">⚡ Geradores Otimizados</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Selects de nichos agora agrupados por categoria (Pisos, Reformas, Exterior) para facilitar sua navegação.</p>
+                </div>
 
-              <div className="space-y-2">
-                <span className="inline-block text-[0.65rem] font-extrabold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded">Recentemente</span>
-                <h4 className="font-semibold text-foreground">🎨 Refinamento Visual</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">Interface do Hub e Academy refinada para uma experiência mais limpa e focada na produtividade.</p>
+                <div className="space-y-2">
+                  <span className="inline-block text-[0.65rem] font-extrabold text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded">Recentemente</span>
+                  <h4 className="font-semibold text-foreground">🎨 Refinamento Visual</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Interface do Hub e Academy refinada para uma experiência mais limpa e focada na produtividade.</p>
+                </div>
               </div>
-            </div>
+            </ScrollArea>
 
             <div className="mt-8 pt-6 border-t border-border flex items-center justify-between">
               <div className="flex items-center space-x-2">

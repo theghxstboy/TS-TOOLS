@@ -17,7 +17,16 @@ import {
     Code2 as Code,
     Star,
     Bot as Robot,
-    Zap as Lightning
+    Zap as Lightning,
+    Info,
+    RefreshCcw,
+    Plus,
+    RotateCcw,
+    Upload,
+    Download,
+    MessageSquareText,
+    Scale,
+    ListTodo
 } from "lucide-react"
 import { useGenerationHistory } from "@/hooks/useGenerationHistory"
 import { HistoryItem } from "@/types/generator"
@@ -41,6 +50,11 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { PRESETS_WEBDESIGN } from "@/constants/presets-webdesign"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 
 interface WebDesignPayload {
     mode: "simple" | "expert";
@@ -181,19 +195,16 @@ function GeradorWebDesignContent() {
         const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         const colorCounts: Record<string, number> = {};
 
-        // Simple dominant color detection
-        // Sampling every 10th pixel for performance
         for (let i = 0; i < data.length; i += 40) {
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 4];
 
-            if (a < 128) continue; // Skip semi-transparent
+            if (a < 128) continue;
 
             const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
 
-            // Skip whites and blacks (approximate)
             const sum = r + g + b;
             if (sum > 700 || sum < 50) continue;
 
@@ -324,6 +335,7 @@ Utilize a seguinte estrutura de seções:
         setTimeout(() => {
             setIsGenerating(false)
             saveHistory({
+                mode,
                 pageType,
                 niche, nicheOther,
                 primaryColor, secondaryColor, bgColor, textColor,
@@ -331,7 +343,7 @@ Utilize a seguinte estrutura de seções:
                 copyTone, keyFeature,
                 productName, promise,
                 conversionLink, assetFiles,
-                mode, targetAI
+                targetAI
             }, promptTemplate)
         }, 800)
     }
@@ -365,89 +377,96 @@ Utilize a seguinte estrutura de seções:
         <div className="flex-1 w-full relative font-sans">
             <div className="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8 md:py-12">
                 {/* Hero */}
-                <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="text-center mb-12 animate-fade-up">
                     <div className="flex items-center gap-4 justify-center mb-4">
-                        <div className="size-12 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-lg relative group">
-                            <Code size={28} />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                    Web Design <span className="text-blue-500">Generator</span>
-                                </h1>
-                            </div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest text-left">FRONT-END PROMPT SYSTEM</p>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                        <Code size={32} />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>Prompt Engine</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <div className="text-left">
+                            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                                Web Design <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-500">Generator</span>
+                            </h1>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">FRONT-END PROMPT SYSTEM</p>
                         </div>
                     </div>
                     <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
-                        Estruture prompts de código de alta conversão para IAs (Lovable, v0, Bolt) criarem LPs <span className="text-foreground">perfeitas</span>.
+                        Estruture prompts de código de alta conversão para IAs (Lovable, v0, Bolt) criarem LPs <span className="text-foreground font-bold">perfeitas</span>.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     {/* Inputs Column */}
-                    <div className="lg:col-span-7 flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-
+                    <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
 
                         {/* Presets Gallery */}
-                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-xl font-black tracking-tight leading-none uppercase flex items-center gap-2">
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
                                     Templates Prontos <span className="text-blue-500 text-xl">↓</span>
-                                </h2>
-                                <span className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">
-                                    Preenche Auto
-                                </span>
-                            </div>
+                                </CardTitle>
+                                <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold uppercase tracking-wider text-[10px]">
+                                    AUTO
+                                </Badge>
+                            </CardHeader>
 
-                            <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar snap-x snap-mandatory perspective-1000">
-                                {PRESETS_WEBDESIGN.map((preset) => (
-                                    <button
-                                        key={preset.id}
-                                        onClick={() => handlePresetClick(preset.id)}
-                                        className={cn(
-                                            "relative w-[135px] h-[160px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                            selectedPreset === preset.id ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
-                                        )}
-                                    >
-                                        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                                            <PaintBrush size={32} className="text-muted-foreground opacity-50" />
-                                        </div>
-                                        {/* Image placeholder for future mapping */}
-                                        {preset.image && (
-                                            <img
-                                                src={preset.image}
-                                                alt={preset.title}
-                                                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-40 mix-blend-overlay"
-                                            />
-                                        )}
-                                        <div className="absolute inset-[-1px] bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
+                            <CardContent className="p-6 md:p-8">
+                                <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar snap-x snap-mandatory perspective-1000">
+                                    {PRESETS_WEBDESIGN.map((preset) => (
+                                        <button
+                                            key={preset.id}
+                                            onClick={() => handlePresetClick(preset.id)}
+                                            className={cn(
+                                                "relative w-[135px] h-[160px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
+                                                selectedPreset === preset.id ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                            )}
+                                        >
+                                            <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                                                <PaintBrush size={32} className="text-muted-foreground opacity-50" />
+                                            </div>
+                                            {preset.image && (
+                                                <img
+                                                    src={preset.image}
+                                                    alt={preset.title}
+                                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-40 mix-blend-overlay"
+                                                />
+                                            )}
+                                            <div className="absolute inset-[-1px] bg-gradient-to-t from-black/95 via-black/60 to-black/10 pointer-events-none" />
 
-                                        <div className={cn(
-                                            "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                            selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
-                                        )}>
-                                            {selectedPreset === preset.id && <Check size={14} />}
-                                        </div>
+                                            <div className={cn(
+                                                "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
+                                                selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                            )}>
+                                                {selectedPreset === preset.id && <Check size={14} />}
+                                            </div>
 
-                                        <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
-                                            {preset.title}
-                                        </p>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                                            <p className="text-[12px] font-bold text-white leading-tight mt-auto relative z-10 px-1 drop-shadow-md">
+                                                {preset.title}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
 
                         {/* Engine Config */}
-                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
                                     <div className="size-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
                                         <Code size={28} />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black tracking-tight leading-none uppercase">Configuração Base</h2>
-                                        <p className="text-xs text-muted-foreground mt-1 font-bold italic tracking-wider">ESTRUTURA & DESIGN SYSTEM</p>
+                                        <CardTitle className="text-xl font-black tracking-tight leading-none uppercase">Configuração Base</CardTitle>
+                                        <CardDescription className="text-xs text-muted-foreground mt-1 font-bold italic tracking-wider uppercase">ESTRUTURA & DESIGN SYSTEM</CardDescription>
                                     </div>
                                 </div>
 
@@ -456,18 +475,18 @@ Utilize a seguinte estrutura de seções:
                                         onClick={() => setMode("simple")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-blue-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Automático
+                                        Automático
                                     </button>
                                     <button
                                         onClick={() => setMode("expert")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'expert' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Modo Expert
+                                        Expert
                                     </button>
                                 </div>
-                            </div>
+                            </CardHeader>
 
-                            <div className="space-y-6">
+                            <CardContent className="p-6 md:p-8 space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="pageType" className="font-semibold text-foreground">Tipo de Projeto</Label>
@@ -723,22 +742,25 @@ Utilize a seguinte estrutura de seções:
                                         {isGenerating ? <CheckCircle size={28} /> : "Gerar Prompt de Código"}
                                     </Button>
                                 </div>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* Output Column */}
                     <div className="lg:col-span-5 relative">
-                        <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden sticky top-24 animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
-                            <div className="px-6 py-5 border-b border-border flex items-center justify-between bg-muted/50">
-                                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <TerminalWindow size={24} className="text-blue-500" />
-                                    Prompt Gerado
-                                </h2>
-                                <span className="text-[0.65rem] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-sm bg-blue-500/20 text-blue-500">
-                                    PRONTO PARA IA
-                                </span>
-                            </div>
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden sticky top-24 animate-fade-up" style={{ animationDelay: '300ms' }}>
+                            <CardHeader className="px-6 py-5 bg-muted/50 relative border-none">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                                        <TerminalWindow size={24} className="text-blue-500" />
+                                        Prompt Gerado
+                                    </CardTitle>
+                                    <Badge className="bg-blue-500/20 text-blue-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                        PRONTO PARA IA
+                                    </Badge>
+                                </div>
+                            </CardHeader>
 
                             {/* ALERTA IMPORTANTE PARA IMAGEM */}
                             <div className="bg-blue-500/10 border-b border-blue-500/20 p-4 flex items-start gap-3">
@@ -751,7 +773,7 @@ Utilize a seguinte estrutura de seções:
                                 </div>
                             </div>
 
-                            <div className="p-6 min-h-[300px] flex flex-col">
+                            <CardContent className="p-6 min-h-[300px] flex flex-col">
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
@@ -791,13 +813,13 @@ Utilize a seguinte estrutura de seções:
                                         </p>
                                     </div>
                                 )}
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
                 {/* History Section - Full Width */}
-                <div className="mt-6">
+                <div className="mt-8">
                     <GenerationHistory
                         history={history}
                         onRestore={handleRestore}
@@ -807,14 +829,30 @@ Utilize a seguinte estrutura de seções:
             </div>
 
             <FloatingHelpButton pageTitle="Gerador Front-end" />
-        </div >
-    )
+        </div>
+    );
 }
 
 export default function GeradorWebDesignPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando gerador...</div>}>
+        <Suspense fallback={
+            <div className="max-w-[1400px] mx-auto px-6 mt-32 space-y-12">
+                <div className="space-y-4 text-center">
+                    <Skeleton className="h-12 w-1/3 mx-auto rounded-xl" />
+                    <Skeleton className="h-6 w-1/4 mx-auto rounded-xl" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-7">
+                        <Skeleton className="h-[200px] w-full rounded-[24px]" />
+                        <Skeleton className="h-[600px] w-full rounded-[24px] mt-6" />
+                    </div>
+                    <div className="lg:col-span-5">
+                        <Skeleton className="h-[500px] w-full rounded-[24px]" />
+                    </div>
+                </div>
+            </div>
+        }>
             <GeradorWebDesignContent />
         </Suspense>
-    )
-} 
+    );
+}

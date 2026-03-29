@@ -15,6 +15,11 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 type TaskItem = {
@@ -314,9 +319,16 @@ function MeuChecklistContent() {
         <div className="flex-1 w-full min-h-screen bg-background text-foreground selection:bg-primary/30 pb-20 font-sans">
             <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12 text-center animate-fade-up">
                 <div className="inline-flex items-center gap-3 mb-4">
-                    <div className="size-12 rounded-2xl bg-gradient-to-tr from-primary to-primary/60 flex items-center justify-center text-primary-foreground shadow-lg">
-                        <ListTodo size={28} />
-                    </div>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="size-12 rounded-2xl bg-gradient-to-tr from-primary to-primary/60 flex items-center justify-center text-primary-foreground shadow-lg cursor-help transition-transform hover:scale-110">
+                                    <ListTodo size={28} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Organização de Tarefas</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">
                     Meu <span className="text-primary">Checklist</span>
@@ -329,20 +341,26 @@ function MeuChecklistContent() {
             <div className="max-w-[800px] mx-auto px-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div className="flex-1 w-full sm:max-w-[400px] flex items-center gap-2">
-                        <Button 
-                            variant="outline" size="icon" 
-                            onClick={() => {
-                                if (tasks.length === 0) {
-                                    toast.error("A lista atual está vazia. Adicione tarefas antes de salvar.");
-                                    return;
-                                }
-                                setIsSavingTemplate(true);
-                            }}
-                            className="shrink-0 h-9 w-9 text-primary border-primary/20 hover:bg-primary/10 transition-colors"
-                            title="Salvar Lista Atual como Template"
-                        >
-                            <Plus size={18} />
-                        </Button>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button 
+                                        variant="outline" size="icon" 
+                                        onClick={() => {
+                                            if (tasks.length === 0) {
+                                                toast.error("A lista atual está vazia. Adicione tarefas antes de salvar.");
+                                                return;
+                                            }
+                                            setIsSavingTemplate(true);
+                                        }}
+                                        className="shrink-0 h-9 w-9 text-primary border-primary/20 hover:bg-primary/10 transition-colors"
+                                    >
+                                        <Plus size={18} />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Salvar como Template</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                         <Select value={selectedTemplate} onValueChange={applyTemplate}>
                             <SelectTrigger className="h-9 w-full bg-card border-border">
                                 <SelectValue placeholder="Carregar Template..." />
@@ -380,29 +398,36 @@ function MeuChecklistContent() {
                     </div>
                 )}
 
-                <div className="bg-card rounded-[24px] border border-border shadow-xl p-6 lg:p-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-border">
+                <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                    <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 relative">
+                        <Separator className="absolute bottom-0 left-0 right-0 bg-border" />
                         <div>
-                            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                            <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
                                 <ListTodo size={24} className="text-primary" />
                                 Suas Tarefas
-                            </h2>
+                            </CardTitle>
                             {tasks.length > 0 && (
                                 <p className="text-sm font-medium text-muted-foreground mt-1">
-                                    Progresso: {progress}% ({completedCount}/{tasks.length})
+                                    Progresso: <Badge variant="secondary" className="bg-primary/10 text-primary border-none py-0 px-2 h-5 font-bold">{progress}%</Badge> ({completedCount}/{tasks.length})
                                 </p>
                             )}
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                             {selectedTemplate.startsWith("custom_") && (
-                                <Button 
-                                    variant="ghost" size="icon" 
-                                    onClick={() => setTemplateToDelete(selectedTemplate)} 
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors mr-2"
-                                    title="Excluir Lista Salva"
-                                >
-                                    <Trash2 size={16} />
-                                </Button>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button 
+                                                variant="ghost" size="icon" 
+                                                onClick={() => setTemplateToDelete(selectedTemplate)} 
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors mr-2"
+                                            >
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>Excluir Template</TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             )}
                             <Button variant="ghost" size="sm" onClick={() => setIsClearDialogOpen(true)} className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive">
                                 <RotateCcw size={14} className="mr-1.5" /> Limpar
@@ -411,7 +436,9 @@ function MeuChecklistContent() {
                                 <SquareDashed size={14} className="mr-1.5" /> Desmarcar
                             </Button>
                         </div>
-                    </div>
+                    </CardHeader>
+
+                    <CardContent className="p-6 lg:p-8">
 
                     <div className="flex flex-col gap-3 min-h-[100px]">
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
@@ -436,8 +463,9 @@ function MeuChecklistContent() {
                             <span className="font-bold text-sm uppercase tracking-widest">Nova Tarefa</span>
                         </button>
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
+        </div>
 
             {/* Dialogs and Alerts */}
             <ConfirmDialog 
@@ -487,7 +515,23 @@ function MeuChecklistContent() {
 
 export default function MeuChecklistPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando meu checklist...</div>}>
+        <Suspense fallback={
+            <div className="max-w-[800px] mx-auto px-6 mt-32 space-y-6">
+                <Skeleton className="h-12 w-3/4 mx-auto rounded-xl" />
+                <Skeleton className="h-6 w-1/2 mx-auto rounded-xl" />
+                <Card className="rounded-[24px] overflow-hidden border-border h-[400px]">
+                    <CardHeader className="space-y-4">
+                        <Skeleton className="h-8 w-1/3" />
+                        <Skeleton className="h-4 w-1/4" />
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <Skeleton className="h-16 w-full rounded-xl" />
+                        <Skeleton className="h-16 w-full rounded-xl" />
+                        <Skeleton className="h-16 w-full rounded-xl" />
+                    </CardContent>
+                </Card>
+            </div>
+        }>
             <MeuChecklistContent />
         </Suspense>
     );

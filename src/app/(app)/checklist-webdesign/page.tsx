@@ -29,6 +29,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Types
 type TaskItem = {
@@ -418,9 +423,16 @@ function ChecklistWebDesignContent() {
             {/* Hero Section */}
             <div className="max-w-[1400px] mx-auto px-6 py-8 md:py-12 text-center animate-fade-up">
                 <div className="inline-flex items-center gap-3 mb-4">
-                    <div className="size-12 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-black shadow-lg">
-                        <CheckSquare size={28} />
-                    </div>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="size-12 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-black shadow-lg cursor-help transition-transform hover:scale-110">
+                                    <CheckSquare size={28} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>Checklist de Entrega</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
                 <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">
                     Checklist & <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Setup Web</span>
@@ -433,245 +445,267 @@ function ChecklistWebDesignContent() {
             {/* Main Content */}
             <div className="max-w-[1400px] mx-auto px-6">
                 <div className="flex justify-end gap-3 mb-6">
-                    <Button variant="outline" size="sm" onClick={handleExport} className="h-9 px-4">
-                        <Download size={16} className="mr-2" /> Exportar
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleImport} className="h-9 px-4">
-                        <Upload size={16} className="mr-2" /> Importar
-                    </Button>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={handleExport} className="h-9 px-4">
+                                    <Download size={16} className="mr-2" /> Exportar
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Backup local em JSON</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={handleImport} className="h-9 px-4">
+                                    <Upload size={16} className="mr-2" /> Importar
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Restaurar do arquivo</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* LEFT COLUMN: Checklist */}
                     <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '80ms' }}>
-                        <div className="bg-card rounded-[24px] border border-border shadow-xl p-6 lg:p-8">
-                            <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
-                                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
+                                <Separator className="absolute bottom-0 left-0 right-0" />
+                                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
                                     <ListTodo size={24} className="text-cyan-500" />
                                     Tarefas da Migração
-                                </h2>
+                                </CardTitle>
                                 <div className="flex items-center gap-2">
                                     <Button variant="ghost" size="sm" onClick={() => setIsResetDialogOpen(true)} className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive">
                                         <RotateCcw size={14} className="mr-1.5" /> Resetar
                                     </Button>
-                                    <Button size="sm" onClick={() => { setIsAddingTask(true); }} className="h-8 bg-cyan-500 hover:bg-cyan-600 text-black font-bold">
+                                    <Button size="sm" onClick={() => { setIsAddingTask(true); }} className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold h-8">
                                         <Plus size={16} className="mr-1.5" /> Novo
                                     </Button>
                                 </div>
-                            </div>
+                            </CardHeader>
 
-                            <div className="mb-6 flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/20 px-4 py-3 rounded-lg text-sm">
-                                <Info size={16} className="shrink-0" />
-                                Todas as alterações são salvas automaticamente no navegador.
-                            </div>
+                            <CardContent className="p-6 lg:p-8">
+                                <div className="mb-6 flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/20 px-4 py-3 rounded-lg text-sm">
+                                    <Info size={16} className="shrink-0" />
+                                    Todas as alterações são salvas automaticamente no navegador.
+                                </div>
 
-                            <div className="flex flex-col gap-3 min-h-[200px]">
-                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
-                                    <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                                        {tasks.map((task, i) => (
-                                            <SortableTask
-                                                key={task.id} task={task} index={i}
-                                                onToggle={toggleTask} onEdit={editTask} onDelete={deleteTask}
-                                            />
-                                        ))}
-                                    </SortableContext>
-                                </DndContext>
+                                <div className="flex flex-col gap-3 min-h-[200px]">
+                                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
+                                        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                                            {tasks.map((task, i) => (
+                                                <SortableTask
+                                                    key={task.id} task={task} index={i}
+                                                    onToggle={toggleTask} onEdit={editTask} onDelete={deleteTask}
+                                                />
+                                            ))}
+                                        </SortableContext>
+                                    </DndContext>
 
-                                {tasks.length === 0 && (
-                                    <div className="text-center py-10 opacity-50">
-                                        <ListTodo size={48} className="mx-auto mb-4" />
-                                        <p>Nenhuma tarefa restante.</p>
+                                    {tasks.length === 0 && (
+                                        <div className="text-center py-10 opacity-50">
+                                            <ListTodo size={48} className="mx-auto mb-4" />
+                                            <p>Nenhuma tarefa restante.</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {isAddingTask && (
+                                    <div className="mt-4 flex gap-3 animate-fade-up border border-cyan-500/30 bg-cyan-500/5 p-4 rounded-xl">
+                                        <Input
+                                            placeholder="Escreva a nova tarefa..."
+                                            value={newTaskText}
+                                            onChange={e => setNewTaskText(e.target.value)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTask(); }}
+                                            className="flex-1 bg-background"
+                                            autoFocus
+                                        />
+                                        <Button onClick={handleSaveTask} className="bg-cyan-500 hover:bg-cyan-600 text-black">Salvar</Button>
+                                        <Button variant="outline" onClick={() => { setIsAddingTask(false); setNewTaskText(""); }}>Cancelar</Button>
                                     </div>
                                 )}
-                            </div>
-
-                            {isAddingTask && (
-                                <div className="mt-4 flex gap-3 animate-fade-up border border-cyan-500/30 bg-cyan-500/5 p-4 rounded-xl">
-                                    <Input
-                                        placeholder="Escreva a nova tarefa..."
-                                        value={newTaskText}
-                                        onChange={e => setNewTaskText(e.target.value)}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTask(); }}
-                                        className="flex-1 bg-background"
-                                        autoFocus
-                                    />
-                                    <Button onClick={handleSaveTask} className="bg-cyan-500 hover:bg-cyan-600 text-black">Salvar</Button>
-                                    <Button variant="outline" onClick={() => { setIsAddingTask(false); setNewTaskText(""); }}>Cancelar</Button>
-                                </div>
-                            )}
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     {/* RIGHT COLUMN: Output Generators */}
                     <div className="lg:col-span-5 animate-fade-up" style={{ animationDelay: '160ms' }}>
                         <div className="sticky top-6 flex flex-col gap-6">
 
-                        {/* MESSAGE GENERATOR CARD */}
-                        <div className="bg-card rounded-[24px] border border-border shadow-xl p-6 lg:p-8">
-                            <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-6 border-b border-border pb-4">
-                                <MessageSquareText size={24} className="text-cyan-500" />
-                                Mensagem Modelo
-                            </h2>
+                            {/* MESSAGE GENERATOR CARD */}
+                            <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                                <CardHeader className="pb-4 relative">
+                                    <Separator className="absolute bottom-0 left-0 right-0" />
+                                    <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                                        <MessageSquareText size={24} className="text-cyan-500" />
+                                        Mensagem Modelo
+                                    </CardTitle>
+                                </CardHeader>
 
-                            <div className="space-y-5">
-                                <div className="space-y-3">
-                                    <Label className="text-muted-foreground font-semibold">Tipo do email WordPress</Label>
-                                    <RadioGroup
-                                        className="flex gap-4 p-3 bg-input/50 rounded-xl border border-border"
-                                        value={formState.emailMode}
-                                        onValueChange={(v: string) => updateForm("emailMode", v)}
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="prof" id="r-prof" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="r-prof" className="cursor-pointer text-sm font-medium">Email Titan/Hostinger</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="gmail" id="r-gmail" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="r-gmail" className="cursor-pointer text-sm font-medium">Gmail Pessoal</Label>
-                                        </div>
-                                    </RadioGroup>
-                                </div>
-
-                                <div>
-                                    <Label className="block mb-2 font-semibold">Nome do Cliente</Label>
-                                    <Input
-                                        placeholder="Ex: House Carpentry MA"
-                                        value={formState.clientName}
-                                        onChange={e => updateForm("clientName", e.target.value)}
-                                        className="bg-input border-border"
-                                    />
-                                </div>
-
-                                <div>
-                                    <Label className="block mb-2 font-semibold">URL do Site Principal</Label>
-                                    <Input
-                                        placeholder="Ex: housecarpentryma.com"
-                                        value={formState.siteUrl}
-                                        onChange={e => updateForm("siteUrl", e.target.value)}
-                                        className="bg-input border-border"
-                                    />
-                                </div>
-
-                                <div>
-                                    <Label className="block mb-2 font-semibold">Email / Gmail do Cliente</Label>
-                                    <Input
-                                        placeholder="Ex: joao@gmail.com"
-                                        value={formState.clientGmail}
-                                        onChange={e => updateForm("clientGmail", e.target.value)}
-                                        className="bg-input border-border"
-                                    />
-                                </div>
-
-                                <div className="pt-4 border-t border-border">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <Label className="font-bold text-foreground">Resultado Gerado</Label>
+                                <CardContent className="p-6 lg:p-8 space-y-5">
+                                    <div className="space-y-3">
+                                        <Label className="text-muted-foreground font-semibold">Tipo do email WordPress</Label>
+                                        <RadioGroup
+                                            className="flex gap-4 p-3 bg-input/50 rounded-xl border border-border"
+                                            value={formState.emailMode}
+                                            onValueChange={(v: string) => updateForm("emailMode", v)}
+                                        >
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="prof" id="r-prof" className="text-cyan-500 border-cyan-500" />
+                                                <Label htmlFor="r-prof" className="cursor-pointer text-sm font-medium">Email Titan/Hostinger</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="gmail" id="r-gmail" className="text-cyan-500 border-cyan-500" />
+                                                <Label htmlFor="r-gmail" className="cursor-pointer text-sm font-medium">Gmail Pessoal</Label>
+                                            </div>
+                                        </RadioGroup>
                                     </div>
-                                    <Textarea
-                                        readOnly
-                                        value={messageModel}
-                                        className="h-[200px] bg-input border-border resize-y font-mono text-xs text-muted-foreground focus-visible:ring-cyan-500 custom-scrollbar mb-4"
-                                    />
-                                    <Button
-                                        onClick={handleCopyMsg}
-                                        className={cn("w-full font-bold transition-all shadow-md", isMsgCopied ? "bg-green-600 hover:bg-green-700 text-black" : "bg-cyan-500 hover:bg-cyan-600 text-black")}
-                                    >
-                                        {isMsgCopied ? <Check size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />}
-                                        Copiar Mensagem
-                                    </Button>
-                                    <div className="mt-2 text-center text-xs text-muted-foreground">
-                                        Isso salvará um Snapshot da sua checklist no Histórico abaixo.
+
+                                    <div>
+                                        <Label className="block mb-2 font-semibold">Nome do Cliente</Label>
+                                        <Input
+                                            placeholder="Ex: House Carpentry MA"
+                                            value={formState.clientName}
+                                            onChange={e => updateForm("clientName", e.target.value)}
+                                            className="bg-input border-border"
+                                        />
                                     </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* LEGAL GENERATOR CARD */}
-                        <div className="bg-card rounded-[24px] border border-border shadow-xl p-6 lg:p-8">
-                            <h2 className="text-xl font-bold text-foreground flex items-center gap-2 mb-6 border-b border-border pb-4">
-                                <Scale size={24} className="text-cyan-500" />
-                                Políticas e Termos
-                            </h2>
+                                    <div>
+                                        <Label className="block mb-2 font-semibold">URL do Site Principal</Label>
+                                        <Input
+                                            placeholder="Ex: housecarpentryma.com"
+                                            value={formState.siteUrl}
+                                            onChange={e => updateForm("siteUrl", e.target.value)}
+                                            className="bg-input border-border"
+                                        />
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-5">
-                                <div>
-                                    <Label className="block mb-2 text-muted-foreground font-semibold">Idioma</Label>
-                                    <RadioGroup
-                                        className="flex flex-col gap-3 p-3 bg-input/50 rounded-xl border border-border"
-                                        value={formState.legalLang}
-                                        onValueChange={(v: string) => updateForm("legalLang", v)}
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="en" id="l-en" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="l-en" className="cursor-pointer text-sm">Inglês</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="pt" id="l-pt" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="l-pt" className="cursor-pointer text-sm">Português BR</Label>
-                                        </div>
-                                    </RadioGroup>
-                                </div>
-                                <div>
-                                    <Label className="block mb-2 text-muted-foreground font-semibold">Documento</Label>
-                                    <RadioGroup
-                                        className="flex flex-col gap-3 p-3 bg-input/50 rounded-xl border border-border"
-                                        value={formState.legalType}
-                                        onValueChange={(v: string) => updateForm("legalType", v)}
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="privacy" id="t-priv" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="t-priv" className="cursor-pointer text-sm">Privacidade</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <RadioGroupItem value="terms" id="t-term" className="text-cyan-500 border-cyan-500" />
-                                            <Label htmlFor="t-term" className="cursor-pointer text-sm">Termos</Label>
-                                        </div>
-                                    </RadioGroup>
-                                </div>
-                            </div>
+                                    <div>
+                                        <Label className="block mb-2 font-semibold">Email / Gmail do Cliente</Label>
+                                        <Input
+                                            placeholder="Ex: joao@gmail.com"
+                                            value={formState.clientGmail}
+                                            onChange={e => updateForm("clientGmail", e.target.value)}
+                                            className="bg-input border-border"
+                                        />
+                                    </div>
 
-                            <div className="pt-2">
-                                <div className="flex items-center justify-between mb-3">
-                                    <Label className="font-bold text-foreground">Apresentação</Label>
-                                    <RadioGroup
-                                        className="flex gap-4"
-                                        value={formState.legalView}
-                                        onValueChange={(v: string) => updateForm("legalView", v)}
-                                    >
-                                        <div className="flex items-center space-x-1.5">
-                                            <RadioGroupItem value="preview" id="v-prev" className="text-cyan-500 border-cyan-500 w-3 h-3" />
-                                            <Label htmlFor="v-prev" className="cursor-pointer text-xs">Preview</Label>
+                                    <div className="pt-4 border-t border-border">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <Label className="font-bold text-foreground">Resultado Gerado</Label>
                                         </div>
-                                        <div className="flex items-center space-x-1.5">
-                                            <RadioGroupItem value="code" id="v-code" className="text-cyan-500 border-cyan-500 w-3 h-3" />
-                                            <Label htmlFor="v-code" className="cursor-pointer text-xs">Código HTML</Label>
+                                        <Textarea
+                                            readOnly
+                                            value={messageModel}
+                                            className="h-[200px] bg-input border-border resize-y font-mono text-xs text-muted-foreground focus-visible:ring-cyan-500 custom-scrollbar mb-4"
+                                        />
+                                        <Button
+                                            onClick={handleCopyMsg}
+                                            className={cn("w-full font-bold transition-all shadow-md", isMsgCopied ? "bg-green-600 hover:bg-green-700 text-black" : "bg-cyan-500 hover:bg-cyan-600 text-black")}
+                                        >
+                                            {isMsgCopied ? <Check size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />}
+                                            Copiar Mensagem
+                                        </Button>
+                                        <div className="mt-2 text-center text-xs text-muted-foreground">
+                                            Isso salvará um Snapshot da sua checklist no Histórico abaixo.
                                         </div>
-                                    </RadioGroup>
-                                </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                                {formState.legalView === "preview" ? (
-                                    <div
-                                        className="h-[200px] overflow-y-auto bg-input/50 border border-border p-4 rounded-xl text-sm prose prose-invert max-w-none custom-scrollbar mb-4"
-                                        dangerouslySetInnerHTML={{ __html: legalPreview }}
-                                    />
-                                ) : (
-                                    <Textarea
-                                        readOnly
-                                        value={legalPreview}
-                                        className="h-[200px] bg-input border-border resize-none font-mono text-xs text-muted-foreground focus-visible:ring-cyan-500 custom-scrollbar mb-4"
-                                    />
-                                )}
+                            {/* LEGAL GENERATOR CARD */}
+                            <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
+                                <CardHeader className="pb-4 relative">
+                                    <Separator className="absolute bottom-0 left-0 right-0" />
+                                    <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                                        <Scale size={24} className="text-cyan-500" />
+                                        Políticas e Termos
+                                    </CardTitle>
+                                </CardHeader>
 
-                                <Button
-                                    onClick={handleCopyLegalHtml}
-                                    variant="secondary"
-                                    className={cn("w-full transition-all border-none font-semibold", isLegalCopied ? "bg-green-600 hover:bg-green-700 text-black" : "bg-input hover:bg-muted-foreground/20")}
-                                >
-                                    {isLegalCopied ? <Check size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />}
-                                    Copiar HTML
-                                </Button>
-                            </div>
+                                <CardContent className="p-6 lg:p-8">
+                                    <div className="grid grid-cols-2 gap-4 mb-5">
+                                        <div>
+                                            <Label className="block mb-2 text-muted-foreground font-semibold">Idioma</Label>
+                                            <RadioGroup
+                                                className="flex flex-col gap-3 p-3 bg-input/50 rounded-xl border border-border"
+                                                value={formState.legalLang}
+                                                onValueChange={(v: string) => updateForm("legalLang", v)}
+                                            >
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="en" id="l-en" className="text-cyan-500 border-cyan-500" />
+                                                    <Label htmlFor="l-en" className="cursor-pointer text-sm">Inglês</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="pt" id="l-pt" className="text-cyan-500 border-cyan-500" />
+                                                    <Label htmlFor="l-pt" className="cursor-pointer text-sm">Português BR</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+                                        <div>
+                                            <Label className="block mb-2 text-muted-foreground font-semibold">Documento</Label>
+                                            <RadioGroup
+                                                className="flex flex-col gap-3 p-3 bg-input/50 rounded-xl border border-border"
+                                                value={formState.legalType}
+                                                onValueChange={(v: string) => updateForm("legalType", v)}
+                                            >
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="privacy" id="t-priv" className="text-cyan-500 border-cyan-500" />
+                                                    <Label htmlFor="t-priv" className="cursor-pointer text-sm">Privacidade</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="terms" id="t-term" className="text-cyan-500 border-cyan-500" />
+                                                    <Label htmlFor="t-term" className="cursor-pointer text-sm">Termos</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+                                    </div>
 
-                        </div>
+                                    <div className="pt-2">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <Label className="font-bold text-foreground">Apresentação</Label>
+                                            <RadioGroup
+                                                className="flex gap-4"
+                                                value={formState.legalView}
+                                                onValueChange={(v: string) => updateForm("legalView", v)}
+                                            >
+                                                <div className="flex items-center space-x-1.5">
+                                                    <RadioGroupItem value="preview" id="v-prev" className="text-cyan-500 border-cyan-500 w-3 h-3" />
+                                                    <Label htmlFor="v-prev" className="cursor-pointer text-xs">Preview</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-1.5">
+                                                    <RadioGroupItem value="code" id="v-code" className="text-cyan-500 border-cyan-500 w-3 h-3" />
+                                                    <Label htmlFor="v-code" className="cursor-pointer text-xs">Código HTML</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+
+                                        {formState.legalView === "preview" ? (
+                                            <div
+                                                className="h-[200px] overflow-y-auto bg-input/50 border border-border p-4 rounded-xl text-sm prose prose-invert max-w-none custom-scrollbar mb-4"
+                                                dangerouslySetInnerHTML={{ __html: legalPreview }}
+                                            />
+                                        ) : (
+                                            <Textarea
+                                                readOnly
+                                                value={legalPreview}
+                                                className="h-[200px] bg-input border-border resize-none font-mono text-xs text-muted-foreground focus-visible:ring-cyan-500 custom-scrollbar mb-4"
+                                            />
+                                        )}
+
+                                        <Button
+                                            onClick={handleCopyLegalHtml}
+                                            variant="secondary"
+                                            className={cn("w-full transition-all border-none font-semibold", isLegalCopied ? "bg-green-600 hover:bg-green-700 text-black" : "bg-input hover:bg-muted-foreground/20")}
+                                        >
+                                            {isLegalCopied ? <Check size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />}
+                                            Copiar HTML
+                                        </Button>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 </div>
@@ -702,7 +736,23 @@ function ChecklistWebDesignContent() {
 
 export default function ChecklistWebDesignPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center">Carregando checklist...</div>}>
+        <Suspense fallback={
+            <div className="max-w-[1400px] mx-auto px-6 mt-32 space-y-12">
+                <div className="space-y-4 text-center">
+                    <Skeleton className="h-12 w-1/3 mx-auto rounded-xl" />
+                    <Skeleton className="h-6 w-1/4 mx-auto rounded-xl" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="lg:col-span-7">
+                        <Skeleton className="h-[600px] w-full rounded-[24px]" />
+                    </div>
+                    <div className="lg:col-span-5 space-y-6">
+                        <Skeleton className="h-[400px] w-full rounded-[24px]" />
+                        <Skeleton className="h-[300px] w-full rounded-[24px]" />
+                    </div>
+                </div>
+            </div>
+        }>
             <ChecklistWebDesignContent />
         </Suspense>
     );

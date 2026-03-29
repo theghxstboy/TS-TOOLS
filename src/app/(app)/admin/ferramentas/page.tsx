@@ -4,7 +4,11 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Tool } from "@/lib/tools"
-import { ShieldCheck, Check, X, Loader2 as CircleDashed, Link2 as LinkIcon } from "lucide-react"
+import { ShieldCheck, Check, X, Loader2 as CircleDashed, Link2 as LinkIcon, MonitorSmartphone } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
 export default function AdminFerramentasPage() {
@@ -76,30 +80,30 @@ export default function AdminFerramentasPage() {
 
     if (status === "loading" || isLoading) {
         return (
-            <div className="min-h-screen bg-input font-sans text-foreground pb-20">
+            <div className="min-h-screen bg-card font-sans text-foreground pb-20">
                 <div className="max-w-5xl mx-auto px-6 pt-16 md:pt-24">
                     <div className="flex items-center gap-4 mb-8 animate-fade-up">
-                        <div className="w-12 h-12 rounded-xl skeleton-shimmer" />
+                        <Skeleton className="size-12 rounded-xl" />
                         <div className="space-y-2">
-                            <div className="skeleton-shimmer h-7 w-56 rounded-md" />
-                            <div className="skeleton-shimmer h-4 w-72 rounded" />
+                            <Skeleton className="h-7 w-56 rounded-md" />
+                            <Skeleton className="h-4 w-72 rounded" />
                         </div>
                     </div>
                     <div className="grid gap-6">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="bg-card border border-border rounded-2xl p-6 animate-fade-up" style={{ animationDelay: `${i * 40}ms` }}>
+                            <Card key={i} className="rounded-2xl p-6 animate-fade-up border-border" style={{ animationDelay: `${i * 40}ms` }}>
                                 <div className="flex justify-between gap-6">
                                     <div className="flex-1 space-y-2">
-                                        <div className="skeleton-shimmer h-5 w-48 rounded-md" />
-                                        <div className="skeleton-shimmer h-3.5 w-full rounded" />
-                                        <div className="skeleton-shimmer h-3.5 w-4/5 rounded" />
+                                        <Skeleton className="h-5 w-48 rounded-md" />
+                                        <Skeleton className="h-3.5 w-full rounded" />
+                                        <Skeleton className="h-3.5 w-4/5 rounded" />
                                     </div>
                                     <div className="flex flex-col gap-2 w-28">
-                                        <div className="skeleton-shimmer h-10 w-full rounded-xl" />
-                                        <div className="skeleton-shimmer h-10 w-full rounded-xl" />
+                                        <Skeleton className="h-10 w-full rounded-xl" />
+                                        <Skeleton className="h-10 w-full rounded-xl" />
                                     </div>
                                 </div>
-                            </div>
+                            </Card>
                         ))}
                     </div>
                 </div>
@@ -108,7 +112,7 @@ export default function AdminFerramentasPage() {
     }
 
     return (
-        <div className="min-h-screen bg-input font-sans text-foreground pb-20">
+        <div className="min-h-screen bg-card font-sans text-foreground pb-20">
             <div className="max-w-5xl mx-auto px-6 pt-16 md:pt-24">
                 <div className="flex items-start gap-4 mb-8 animate-fade-up">
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
@@ -139,14 +143,15 @@ export default function AdminFerramentasPage() {
                 ) : (
                     <div className="grid grid-cols-1 gap-4">
                         {pendingTools.map((tool, index) => (
-                            <div key={tool.id} className="bg-card border border-border rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm animate-fade-up" style={{ animationDelay: `${index * 40}ms` }}>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h3 className="text-xl font-bold text-foreground">{tool.title}</h3>
-                                        <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[0.65rem] font-bold uppercase tracking-wider">
-                                            {tool.category}
-                                        </span>
-                                    </div>
+                            <Card key={tool.id} className="border-border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm animate-fade-up overflow-hidden" style={{ animationDelay: `${index * 40}ms` }}>
+                                <CardContent className="flex-1 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h3 className="text-xl font-bold text-foreground">{tool.title}</h3>
+                                            <Badge variant="outline" className="bg-amber-500/10 border-amber-500/20 text-amber-500 text-[0.65rem] font-bold uppercase tracking-wider">
+                                                {tool.category}
+                                            </Badge>
+                                        </div>
                                     <p className="text-muted-foreground text-sm mb-4">
                                         {tool.description}
                                     </p>
@@ -162,25 +167,28 @@ export default function AdminFerramentasPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex sm:flex-col items-center gap-3 shrink-0 md:pl-6 md:border-l border-border pt-4 md:pt-0 border-t md:border-t-0">
-                                    <button
-                                        onClick={() => handleAction(tool.id, 'approved')}
-                                        disabled={processingId === tool.id}
-                                        className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 font-bold transition-colors disabled:opacity-50"
-                                    >
-                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <Check />}
-                                        Aprovar
-                                    </button>
-                                    <button
-                                        onClick={() => handleAction(tool.id, 'rejected')}
-                                        disabled={processingId === tool.id}
-                                        className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 font-bold transition-colors disabled:opacity-50"
-                                    >
-                                        {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <X />}
-                                        Rejeitar
-                                    </button>
-                                </div>
-                            </div>
+                                    <div className="flex sm:flex-col items-center gap-3 shrink-0 md:pl-6 relative pt-4 md:pt-0">
+                                        <Separator orientation="vertical" className="hidden md:block absolute left-0 top-6 bottom-6 h-auto" />
+                                        <Separator orientation="horizontal" className="md:hidden absolute top-0 left-0 right-0" />
+                                        <button
+                                            onClick={() => handleAction(tool.id, 'approved')}
+                                            disabled={processingId === tool.id}
+                                            className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 font-bold transition-colors disabled:opacity-50"
+                                        >
+                                            {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <Check />}
+                                            Aprovar
+                                        </button>
+                                        <button
+                                            onClick={() => handleAction(tool.id, 'rejected')}
+                                            disabled={processingId === tool.id}
+                                            className="flex-1 sm:flex-none w-full flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 font-bold transition-colors disabled:opacity-50"
+                                        >
+                                            {processingId === tool.id ? <CircleDashed className="animate-spin" /> : <X />}
+                                            Rejeitar
+                                        </button>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 )}

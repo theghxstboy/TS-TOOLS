@@ -11,9 +11,11 @@ import {
     Building2 as Buildings,
     BookOpen as BookOpenText,
     PackageSearch,
+    History as ClockCounterClockwise,
+    ListTodo,
+    MonitorSmartphone,
     Star,
-    ArrowRight,
-    History as ClockCounterClockwise
+    ArrowRight
 } from "lucide-react"
 import {
     Dialog,
@@ -57,6 +59,30 @@ const STATIC_ACTIONS: CommandAction[] = [
         description: "Prompts de pessoas ultra-realistas",
         icon: <UserFocus size={20} />,
         href: "/gerador-humano",
+        category: "Ferramentas"
+    },
+    {
+        id: "meu-checklist",
+        title: "Meu Checklist",
+        description: "Organize suas tarefas de operação",
+        icon: <ListTodo size={20} />,
+        href: "/meu-checklist",
+        category: "Utilidades"
+    },
+    {
+        id: "checklist-webdesign",
+        title: "Checklist Webdesign",
+        description: "Setup completo para entrega de LPs",
+        icon: <MonitorSmartphone size={20} />,
+        href: "/checklist-webdesign",
+        category: "Utilidades"
+    },
+    {
+        id: "gerador-webdesign",
+        title: "Web Design Generator",
+        description: "Prompts de código para v0, Lovable e Bolt",
+        icon: <MagicWand size={20} className="text-blue-500" />,
+        href: "/gerador-webdesign",
         category: "Ferramentas"
     },
     {
