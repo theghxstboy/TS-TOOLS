@@ -23,7 +23,8 @@ import {
     History as HistoryIcon,
     RotateCcw,
     Sparkles,
-    Split
+    Split,
+    Info
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { GenerationHistory } from "@/components/GenerationHistory"
