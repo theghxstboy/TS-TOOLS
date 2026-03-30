@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
     Dialog,
     DialogContent,
@@ -11,16 +11,47 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { Wand2 as MagicWand, ArrowRight, ClipboardList as ClipboardText, Bot as Robot, X } from "lucide-react"
+import { Wand2 as MagicWand, ClipboardList as ClipboardText, Bot as Robot } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+interface TutorialStep {
+    title: string
+    description: string
+}
 
 interface TutorialDialogProps {
     isOpen: boolean
     onOpenChange: (open: boolean) => void
     pageTitle: string
+    title?: string
+    steps?: TutorialStep[]
 }
 
-export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDialogProps) {
+const DEFAULT_STEPS: TutorialStep[] = [
+    { title: "Escolha", description: "Selecione um nicho e configure os detalhes desejados." },
+    { title: "Sistema Gera", description: "Nossa IA otimiza e estrutura o prompt perfeito para você." },
+    { title: "Cole na IA", description: "Copie o resultado e cole no Midjourney, Kling ou Flux." },
+]
+
+function StepIcon({ index }: { index: number }) {
+    const icons = [
+        <MagicWand key="wand" size={32} className="text-primary" />,
+        <Robot key="robot" size={32} />,
+        <ClipboardText key="clip" size={32} className="text-primary" />,
+    ]
+    const wrappers = [
+        "size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg",
+        "size-16 rounded-2xl bg-primary text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.3)]",
+        "size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg",
+    ]
+    return (
+        <div className={wrappers[index % wrappers.length]}>
+            {icons[index % icons.length]}
+        </div>
+    )
+}
+
+export function TutorialDialog({ isOpen, onOpenChange, pageTitle, title, steps }: TutorialDialogProps) {
     const [dontShowAgain, setDontShowAgain] = useState(false)
 
     const handleClose = () => {
@@ -30,65 +61,53 @@ export function TutorialDialog({ isOpen, onOpenChange, pageTitle }: TutorialDial
         onOpenChange(false)
     }
 
+    const activeSteps = steps ?? DEFAULT_STEPS
+    const gridCols =
+        activeSteps.length === 2 ? "md:grid-cols-2" :
+        activeSteps.length === 3 ? "md:grid-cols-3" :
+        "md:grid-cols-4"
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px] bg-card border-border shadow-2xl p-0 overflow-hidden rounded-[2rem]">
                 <div className="p-8">
                     <DialogHeader className="mb-8">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <MagicWand size={24} />
-                                </div>
-                                <DialogTitle className="text-2xl font-bold tracking-tight">
-                                    Como funciona o <span className="text-primary">{pageTitle}</span>
-                                </DialogTitle>
+                        <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                <MagicWand size={24} />
                             </div>
+                            <DialogTitle className="text-2xl font-bold tracking-tight">
+                                {title ?? (
+                                    <>Como funciona o <span className="text-primary">{pageTitle}</span></>
+                                )}
+                            </DialogTitle>
                         </div>
                         <DialogDescription className="text-muted-foreground mt-2">
-                            Siga estes 3 passos simples para obter os melhores resultados cinematográficos.
+                            Siga {activeSteps.length === 1 ? "este passo" : `estes ${activeSteps.length} passos`} para obter os melhores resultados.
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* Tutorial Steps Visual Flow */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative mb-10">
-                        {/* Connecting Lines (Desktop) */}
-                        <div className="hidden md:block absolute top-[45px] left-[20%] right-[20%] h-0.5 z-0">
-                            <Separator className="bg-gradient-to-r from-primary/50 via-primary/10 to-primary/50" />
-                        </div>
+                    {/* Tutorial Steps */}
+                    <div className={cn("grid grid-cols-1 gap-6 relative mb-10", gridCols)}>
+                        {activeSteps.length > 1 && (
+                            <div className="hidden md:block absolute top-[45px] left-[20%] right-[20%] h-0.5 z-0">
+                                <Separator className="bg-gradient-to-r from-primary/50 via-primary/10 to-primary/50" />
+                            </div>
+                        )}
 
-                        {/* Step 1 */}
-                        <div className="flex flex-col items-center text-center gap-4 relative z-10">
-                            <div className="size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg group-hover:scale-110 transition-transform">
-                                <MagicWand size={32} className="text-primary" />
+                        {activeSteps.map((step, i) => (
+                            <div key={i} className="flex flex-col items-center text-center gap-4 relative z-10">
+                                <StepIcon index={i} />
+                                <div>
+                                    <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">
+                                        {i + 1}. {step.title}
+                                    </h4>
+                                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                        {step.description}
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">1. Escolha</h4>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">Selecione um nicho e configure os detalhes desejados.</p>
-                            </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="flex flex-col items-center text-center gap-4 relative z-10">
-                            <div className="size-16 rounded-2xl bg-primary text-black flex items-center justify-center shadow-[0_0_20px_rgba(255,107,0,0.3)]">
-                                <Robot size={32} />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">2. Sistema Gera</h4>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">Nossa IA otimiza e estrutura o prompt perfeito para você.</p>
-                            </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="flex flex-col items-center text-center gap-4 relative z-10">
-                            <div className="size-16 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-lg">
-                                <ClipboardText size={32} className="text-primary" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">3. Cole na IA</h4>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">Copie o resultado e cole no Midjourney, Kling ou Flux.</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 relative">

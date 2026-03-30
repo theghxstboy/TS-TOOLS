@@ -28,6 +28,7 @@ import {
     Star
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { CopyWorkflowPopup } from "@/components/CopyWorkflowPopup"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
 import { useGenerationHistory } from "@/hooks/useGenerationHistory"
@@ -104,6 +105,7 @@ interface AntesDepoisPayload {
 function AntesEDepoisContent() {
     const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
+    const [showWorkflowPopup, setShowWorkflowPopup] = useState(false)
 
     const { history, saveHistory } = useGenerationHistory<AntesDepoisPayload>("antes-depois")
     const searchParams = useSearchParams()
@@ -278,7 +280,10 @@ function AntesEDepoisContent() {
         setSelectedPreset("")
     }
 
-    const handleCopy = () => copy(generatedPrompt)
+    const handleCopy = () => {
+        copy(generatedPrompt)
+        setShowWorkflowPopup(true)
+    }
 
     return (
         <div className="flex-1 w-full bg-input/50 relative font-sans">
@@ -728,13 +733,21 @@ function AntesEDepoisContent() {
             </div>
 
             <FloatingHelpButton pageTitle="Antes & Depois" />
+            <CopyWorkflowPopup
+                open={showWorkflowPopup}
+                onClose={() => setShowWorkflowPopup(false)}
+                prompt={generatedPrompt}
+                referenceImageUrl={referencePhotoUrl || undefined}
+                imageLabel={generationMode === 'only_before' ? 'Foto Depois (Resultado)' : generationMode === 'only_after' ? 'Foto Antes (Original)' : undefined}
+            />
             <TutorialDialog 
-                open={isTutorialOpen} 
+                isOpen={isTutorialOpen} 
                 onOpenChange={setIsTutorialOpen}
+                pageTitle="Antes & Depois"
                 title="Manual de Comparações"
                 steps={[
                     { title: "Define o Nicho", description: "Escolha o serviço (ex: Pintura, Limpeza) para a IA entender o contexto." },
-                    { title: "Escolha o Modo", description: "Split Screen gera duas fotos juntas. Modos individuais usam sua foto real como base." },
+                    { title: "Escolha o Modo", description: "Split Screen gera duas fotos juntas. Modos individuais usam sua foto real como base — copie o prompt E faça upload da imagem na ferramenta de IA." },
                     { title: "Estilo Fotográfico", description: "Use 'UGC Style' para parecer uma foto tirada por um cliente real, gera mais confiança." }
                 ]}
             />

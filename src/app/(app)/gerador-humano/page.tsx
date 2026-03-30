@@ -17,9 +17,11 @@ import {
     Star,
     Sparkles,
     UserCircle2,
-    CheckCircle2
+    CheckCircle2,
+    RotateCcw
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { CopyWorkflowPopup } from "@/components/CopyWorkflowPopup"
 import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { HistoryItem } from "@/types/generator"
@@ -49,6 +51,8 @@ import { PRESETS, CHECKBOX_COMMANDS, TABS, TabKey, OutputMode, GeneratorMode } f
 import { usePromptGenerator } from "@/hooks/usePromptGenerator"
 
 function GeradorHumanoContent() {
+    const [showWorkflowPopup, setShowWorkflowPopup] = useState(false)
+    const [isTutorialOpen, setIsTutorialOpen] = useState(false)
     const {
         mode, setMode,
         genMode, setGenMode,
@@ -409,24 +413,30 @@ function GeradorHumanoContent() {
                                 )}
 
                                 {/* Action Buttons */}
-                                <div className="pt-6">
-                                    <Button
-                                        onClick={handleClear}
-                                        variant="ghost"
-                                        className="w-full mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-red-500"
-                                    >
-                                        <RotateCcw className="mr-2 size-3" /> Limpar Configuração
-                                    </Button>
+                                    <div className="flex flex-col gap-3">
+                                        <Button
+                                            onClick={handleClear}
+                                            variant="ghost"
+                                            className="w-full text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-red-500"
+                                        >
+                                            <RotateCcw className="mr-2 size-3" /> Limpar Configuração
+                                        </Button>
+                                        <button 
+                                            onClick={() => setIsTutorialOpen(true)} 
+                                            className="w-full text-[10px] font-black uppercase text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1 tracking-widest"
+                                        >
+                                            <Info size={12} /> Mostrar Manual
+                                        </button>
+                                    </div>
                                     <Button
                                         onClick={() => {}} // Prompt generates automatically in the side panel via hook
-                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-orange-500 hover:bg-orange-600 text-black shadow-2xl shadow-orange-500/20 transition-all active:scale-[0.98]"
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-orange-500 hover:bg-orange-600 text-black shadow-2xl shadow-orange-500/20 transition-all active:scale-[0.98] mt-4"
                                         disabled={!finalPrompt}
                                     >
                                         Prompt Pronto
                                     </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
                     </div>
 
                     {/* Output Column */}
@@ -479,7 +489,10 @@ function GeradorHumanoContent() {
                                                 {isFavorited(finalPrompt) ? 'Favoritado' : 'Favoritar'}
                                             </Button>
                                             <Button
-                                                onClick={handleCopy}
+                                                onClick={() => {
+                                                    handleCopy();
+                                                    setShowWorkflowPopup(true);
+                                                }}
                                                 className={`font-semibold shadow-md border-none ${isCopied ? 'bg-green-600 hover:bg-green-700 text-black' : 'bg-card text-foreground hover:bg-muted font-bold'}`}
                                             >
                                                 {isCopied ? <Check size={20} className="mr-2" /> : <Copy size={20} className="mr-2" />}
@@ -511,6 +524,22 @@ function GeradorHumanoContent() {
             </div>
 
             <FloatingHelpButton pageTitle="Gerador Humano" />
+            <CopyWorkflowPopup 
+                open={showWorkflowPopup}
+                onClose={() => setShowWorkflowPopup(false)}
+                prompt={finalPrompt}
+            />
+            <TutorialDialog 
+                isOpen={isTutorialOpen} 
+                onOpenChange={setIsTutorialOpen}
+                pageTitle="Gerador de Realismo Humano"
+                title="Manual do Human Engine"
+                steps={[
+                    { title: "Defina o Perfil", description: "Escolha gênero, etnia e características para a IA focar no realismo de pele e texturas." },
+                    { title: "Check de Imperfeições", description: "Ative os comandos de 'Pele Imperfeita' e 'Cabelo Natural' para evitar o visual artificial de IA." },
+                    { title: "Luz e Ambiente", description: "Selecione presets como 'Elevador' ou 'Luz do Dia' para adicionar sombras realistas e profundidade." }
+                ]}
+            />
         </div>
     );
 }

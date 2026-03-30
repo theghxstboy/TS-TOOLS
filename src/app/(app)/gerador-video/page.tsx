@@ -24,6 +24,7 @@ import {
     RotateCcw
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
+import { CopyWorkflowPopup } from "@/components/CopyWorkflowPopup"
 import { useFavorites } from "@/hooks/useFavorites"
 import { GenerationHistory } from "@/components/GenerationHistory"
 import { FloatingHelpButton } from "@/components/FloatingHelpButton"
@@ -106,6 +107,7 @@ interface VideoPayload {
 
 function GeradorVideoContent() {
     const [isTutorialOpen, setIsTutorialOpen] = useState(false)
+    const [showWorkflowPopup, setShowWorkflowPopup] = useState(false)
 
     const [selectedPreset, setSelectedPreset] = useState<string>("")
     const [mode, setMode] = useState<"simple" | "advanced">("simple")
@@ -172,7 +174,7 @@ function GeradorVideoContent() {
 
         setMode(p.mode || "simple");
         setVideoType(p.videoType || "normal");
-        
+
         setNiche(p.niche || "residential interior");
         setNicheOther(p.nicheOther || "");
         setMotion(p.motion || "Slow Dolly Push-in");
@@ -212,7 +214,7 @@ function GeradorVideoContent() {
         setKbMoodOther(p.kbMoodOther || "");
         setKbDuration(p.kbDuration || "5s");
         setKbDurationOther(p.kbDurationOther || "");
-        
+
         setGeneratedPrompt(item.prompt || "");
         setSelectedPreset("");
     };
@@ -322,7 +324,10 @@ function GeradorVideoContent() {
         }, 800)
     }
 
-    const handleCopy = () => copy(generatedPrompt)
+    const handleCopy = () => {
+        copy(generatedPrompt)
+        setShowWorkflowPopup(true)
+    }
 
     const handleClear = () => {
         setNiche("residential interior")
@@ -889,14 +894,22 @@ function GeradorVideoContent() {
             </div>
 
             <FloatingHelpButton pageTitle="Gerador de Vídeo" />
-            <TutorialDialog 
-                open={isTutorialOpen} 
+            <CopyWorkflowPopup
+                open={showWorkflowPopup}
+                onClose={() => setShowWorkflowPopup(false)}
+                prompt={generatedPrompt}
+                referenceImageUrl={videoType === 'ken_burns' && kbPhotoUrl ? kbPhotoUrl : undefined}
+                imageLabel="Foto Base (Ken Burns)"
+            />
+            <TutorialDialog
+                isOpen={isTutorialOpen}
                 onOpenChange={setIsTutorialOpen}
+                pageTitle="Gerador de Vídeo"
                 title="Manual do Diretor"
                 steps={[
                     { title: "Storyboarding", description: "Defina o tipo de vídeo (Normal, Timelapse, etc) e a ação principal." },
                     { title: "Configuração de Câmera", description: "Escolha movimentos, ângulos e lentes para dar o tom cinematográfico." },
-                    { title: "Prompt Engine", description: "Copie o prompt gerado e use na sua ferramenta de IA de vídeo favorita." }
+                    { title: "Prompt Engine", description: "Para tipos com upload (Ken Burns, etc), copie o prompt E faça upload da imagem na ferramenta de IA de vídeo." }
                 ]}
             />
         </div>
