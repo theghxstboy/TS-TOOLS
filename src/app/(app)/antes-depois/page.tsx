@@ -24,7 +24,8 @@ import {
     RotateCcw,
     Sparkles,
     Split,
-    Info
+    Info,
+    Star
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { GenerationHistory } from "@/components/GenerationHistory"
