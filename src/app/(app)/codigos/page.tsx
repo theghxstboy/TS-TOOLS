@@ -248,40 +248,28 @@ export default function CodigosPage() {
     try {
       let finalImageUrl = newPostData.imageUrl;
 
-      // 1. If there's a file, upload DIRECTLY from client to Supabase to bypass Vercel limits (4.5MB)
+      // 1. If there's a file, upload via server-side API route (avoids NEXT_PUBLIC build-time dependency)
       if (newPostData.imageFile) {
-        const file = newPostData.imageFile;
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-        const filePath = `codigos/${fileName}`;
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || process.env.SUPABASE_ANON_KEY;
-
-        if (!supabaseUrl || !supabaseKey) {
-          throw new Error("Supabase URL or Key not configured");
-        }
-
         const toastId = toast.loading("Fazendo upload da imagem...");
 
-        const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/codigos/${filePath}`, {
+        const uploadForm = new FormData();
+        uploadForm.append("file", newPostData.imageFile);
+
+        const uploadResponse = await fetch('/api/codigos/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${supabaseKey}`,
-            'apikey': supabaseKey,
-            'Content-Type': file.type
-          },
-          body: file
+          body: uploadForm,
         });
+
+        toast.dismiss(toastId);
 
         if (!uploadResponse.ok) {
           const err = await uploadResponse.json().catch(() => ({}));
-          throw new Error(err.message || "Falha no upload para o Supabase");
+          throw new Error(err.error || "Falha no upload para o Supabase");
         }
 
-        // 2. Get Public URL
-        finalImageUrl = `${supabaseUrl}/storage/v1/object/public/codigos/${filePath}`;
-        toast.dismiss(toastId);
+        // 2. Get Public URL from server response
+        const { url } = await uploadResponse.json();
+        finalImageUrl = url;
       }
 
       // 3. Save to database via Server Action (now only sending metadata and URL)
