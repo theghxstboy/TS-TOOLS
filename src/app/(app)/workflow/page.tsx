@@ -19,6 +19,7 @@ import {
     MessageSquare,
     MousePointerClick,
     Info,
+    Wand2,
     History,
 } from "lucide-react"
 import {
@@ -328,6 +329,10 @@ function WorkflowContent() {
     const [newCustomColor, setNewCustomColor] = useState("#FFFFFF")
     const [colorsExtracted, setColorsExtracted] = useState(false)
 
+    // Magic Fill
+    const [showMagicFill, setShowMagicFill] = useState(false)
+    const [magicFillText, setMagicFillText] = useState("")
+
     // Output
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
@@ -502,6 +507,251 @@ function WorkflowContent() {
         setCurrentImageIndex(0)
     }
 
+    // ── Magic Fill ─────────────────────────────────────────────────────────────
+
+    const handleMagicFill = () => {
+        if (!magicFillText.trim()) return
+
+        const lines = magicFillText.split("\n")
+        const data: Record<string, string> = {}
+        let currentKey = ""
+        let currentBlock = ""
+
+        const keys = [
+            "SERVIÇO", "CIDADE", "ESTADO", "SELOS", "TOM", "CTA", "PREÇO",
+            "FORMATO", "LAYOUT", "FAIXA_ETARIA", "GENERO", "NIVEL_SOCIAL",
+            "SAZONALIDADE", "PLATAFORMA", "COPY", "OBSERVACOES"
+        ]
+
+        lines.forEach(line => {
+            const trimmed = line.trim()
+            if (!trimmed || trimmed.startsWith("═══")) return
+
+            const foundKey = keys.find(k => trimmed.startsWith(`${k}:`))
+            if (foundKey) {
+                if (currentKey === "COPY" || currentKey === "OBSERVACOES") {
+                    data[currentKey] = currentBlock.trim()
+                }
+                currentKey = foundKey
+                currentBlock = trimmed.substring(foundKey.length + 1).trim()
+                if (currentKey !== "COPY" && currentKey !== "OBSERVACOES") {
+                    data[currentKey] = currentBlock
+                }
+            } else if (currentKey) {
+                currentBlock += "\n" + line
+            }
+        })
+        if (currentKey === "COPY" || currentKey === "OBSERVACOES") {
+            data[currentKey] = currentBlock.trim()
+        }
+
+        // Apply preenchimento
+        if (data["SERVIÇO"]) {
+            const val = data["SERVIÇO"].trim()
+            // Tenta encontrar nos selects
+            const options = [
+                "Construction / Remodeling", "Carpentry", "Framing", "Additions",
+                "Painting", "Roofing", "Siding", "Insulation", "Countertops",
+                "Hardwood Flooring", "Luxury Vinyl Plank (LVP)", "Laminate Flooring",
+                "Sand & Refinish", "Epoxy Flooring", "Tile & Stone",
+                "Landscaping", "Cleaning / Maid Services", "HVAC", "Plumbing", "Electrical"
+            ]
+            if (options.some(o => val.toLowerCase().includes(o.toLowerCase()))) {
+                const matched = options.find(o => val.toLowerCase().includes(o.toLowerCase()))
+                setService(matched || "")
+            } else {
+                setService("other")
+                setServiceOther(val)
+            }
+        }
+
+        if (data["CIDADE"]) setCity(data["CIDADE"].trim())
+        
+        if (data["ESTADO"]) {
+            const val = data["ESTADO"].trim()
+            // Tenta dar match no label "Florida (FL)"
+            const stateMatch = val.match(/\((.*?)\)/)
+            const code = stateMatch ? stateMatch[1] : val
+            
+            const states = [["FL","Florida"],["TX","Texas"],["CA","California"],["NY","New York"],["GA","Georgia"],["NC","North Carolina"],["AZ","Arizona"],["NV","Nevada"],["OH","Ohio"],["IL","Illinois"],["PA","Pennsylvania"],["WA","Washington"],["CO","Colorado"],["MA","Massachusetts"],["NJ","New Jersey"],["VA","Virginia"],["TN","Tennessee"],["SC","South Carolina"],["MN","Minnesota"],["MO","Missouri"]]
+            const found = states.find(s => s[0] === code || val.includes(s[1]))
+            if (found) {
+                setState(`${found[1]} (${found[0]})`)
+            } else {
+                setState("other")
+                setStateOther(val)
+            }
+        }
+
+        if (data["SELOS"]) {
+            const parts = data["SELOS"].split("|").map(s => s.trim())
+            const newSeals: string[] = []
+            const newCustoms: string[] = []
+            
+            parts.forEach(p => {
+                const found = SEALS_OPTIONS.find(o => p.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === p)
+                if (found && found.value !== "other" && found.value !== "none") {
+                    newSeals.push(found.value)
+                } else {
+                    newCustoms.push(p)
+                }
+            })
+            setSeals(newSeals)
+            setCustomSeals(newCustoms)
+        }
+
+        if (data["TOM"]) {
+            const val = data["TOM"].trim()
+            const found = COPY_TONE_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setCopyTone(found.value)
+            else {
+                setCopyTone("other")
+                setCopyToneOther(val)
+            }
+        }
+
+        if (data["CTA"]) {
+            const val = data["CTA"].trim()
+            const found = CTA_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setCta(found.value)
+            else {
+                setCta("other")
+                setCtaOther(val)
+            }
+        }
+
+        if (data["PREÇO"]) setSpecificOffer(data["PREÇO"].trim())
+
+        if (data["FORMATO"]) {
+            const val = data["FORMATO"].trim()
+            const found = ASPECT_RATIO_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val || val.includes(o.value))
+            if (found) setAspectRatio(found.value)
+            else {
+                setAspectRatio("other")
+                setAspectRatioOther(val)
+            }
+        }
+
+        if (data["LAYOUT"]) {
+            const val = data["LAYOUT"].trim()
+            const found = ORIENTATION_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setOrientation(found.value)
+            else {
+                setOrientation("other")
+                setOrientationOther(val)
+            }
+        }
+
+        // Avançados
+        let hasAdvanced = false
+        if (data["FAIXA_ETARIA"]) {
+            const val = data["FAIXA_ETARIA"].trim()
+            const found = TARGET_AGE_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setTargetAge(found.value)
+            else {
+                setTargetAge("other")
+                setTargetAgeOther(val)
+            }
+            hasAdvanced = true
+        }
+
+        if (data["GENERO"]) {
+            const val = data["GENERO"].trim()
+            const found = TARGET_GENDER_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setTargetGender(found.value)
+            else {
+                setTargetGender("other")
+                setTargetGenderOther(val)
+            }
+            hasAdvanced = true
+        }
+
+        if (data["NIVEL_SOCIAL"]) {
+            const val = data["NIVEL_SOCIAL"].trim()
+            const found = SOCIOECONOMIC_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setSocioeconomicStatus(found.value)
+            else {
+                setSocioeconomicStatus("other")
+                setSocioeconomicStatusOther(val)
+            }
+            hasAdvanced = true
+        }
+
+        if (data["SAZONALIDADE"]) {
+            const val = data["SAZONALIDADE"].trim()
+            const found = CAMPAIGN_CONTEXT_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setCampaignContext(found.value)
+            else {
+                setCampaignContext("other")
+                setCampaignContextOther(val)
+            }
+            hasAdvanced = true
+        }
+
+        if (data["PLATAFORMA"]) {
+            const val = data["PLATAFORMA"].trim()
+            const found = PLATFORM_OPTIONS.find(o => val.toLowerCase().includes(o.label.toLowerCase().replace(/.*?\s/, "")) || o.value === val)
+            if (found) setPlatform(found.value)
+            else {
+                setPlatform("other")
+                setPlatformOther(val)
+            }
+            hasAdvanced = true
+        }
+
+        if (data["COPY"]) {
+            setSpecificCopy(data["COPY"].trim())
+            hasAdvanced = true
+        }
+
+        if (data["OBSERVACOES"]) setExtraNotes(data["OBSERVACOES"].trim())
+
+        if (hasAdvanced) setIsAdvancedMode(true)
+        setShowMagicFill(false)
+        setMagicFillText("")
+    }
+
+    const handleResetForm = () => {
+        setService("")
+        setServiceOther("")
+        setCity("")
+        setState("")
+        setSeals([])
+        setSealOther("")
+        setCustomSeals([])
+        setCopyTone("none")
+        setCopyToneOther("")
+        setCta("none")
+        setCtaOther("")
+        setSpecificOffer("")
+        setAspectRatio("none")
+        setAspectRatioOther("")
+        setOrientation("none")
+        setOrientationOther("")
+        setStateOther("")
+        setSpecificCopy("")
+        setTargetAge("none")
+        setTargetAgeOther("")
+        setTargetGender("none")
+        setTargetGenderOther("")
+        setSocioeconomicStatus("none")
+        setSocioeconomicStatusOther("")
+        setCampaignContext("none")
+        setCampaignContextOther("")
+        setPlatform("none")
+        setPlatformOther("")
+        setPhotos([])
+        setLogoFile(null)
+        setPhotoDesc("")
+        setExtraNotes("")
+        setPrimaryColor("#FF6B00")
+        setSecondaryColor("#1E1E1E")
+        setCustomColors([])
+        setColorsExtracted(false)
+        setIsAdvancedMode(false)
+        setGeneratedPrompt("")
+    }
+
     // ── Gerar Prompt ───────────────────────────────────────────────────────────
 
     const handleGenerate = () => {
@@ -663,9 +913,20 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                             Prompt Perfeito
                         </span>
                     </h1>
-                    <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+                    <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
                         Preencha o briefing completo e gere um prompt estruturado + imagens prontas para colar na IA.
                     </p>
+
+                    <div className="flex justify-center">
+                        <button 
+                            onClick={() => setShowMagicFill(true)}
+                            className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-600 text-black px-10 py-4 rounded-2xl text-sm font-black uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] border border-white/10 cursor-pointer"
+                        >
+                            <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <Wand2 size={20} className="group-hover:rotate-12 transition-transform duration-300" /> 
+                            Prompt Mágico
+                        </button>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -1223,12 +1484,21 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                                 className="flex-1 bg-input border-none text-foreground resize-none min-h-[220px] text-[12px] font-mono p-4 leading-relaxed focus-visible:ring-1 focus-visible:ring-primary/40 rounded-xl custom-scrollbar"
                                                 readOnly value={generatedPrompt}
                                             />
-                                            <Button
-                                                onClick={handleCopyPrompt}
-                                                className={cn("w-full font-bold transition-all mt-4", isCopied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-primary hover:bg-primary/90 text-black")}
-                                            >
-                                                {isCopied ? <><Check size={18} className="mr-2" /> Prompt Copiado!</> : <><Copy size={18} className="mr-2" /> Copiar Prompt</>}
-                                            </Button>
+                                            <div className="flex gap-2 mt-4">
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={handleResetForm}
+                                                    className="flex-1 font-bold border-border text-muted-foreground hover:text-red-400 hover:bg-red-400/5 transition-all h-11 rounded-xl"
+                                                >
+                                                    <X size={18} className="mr-2" /> Limpar Tudo
+                                                </Button>
+                                                <Button
+                                                    onClick={handleCopyPrompt}
+                                                    className={cn("flex-[2] font-bold transition-all h-11 rounded-xl", isCopied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-primary hover:bg-primary/90 text-black")}
+                                                >
+                                                    {isCopied ? <><Check size={18} className="mr-2" /> Copiado!</> : <><Copy size={18} className="mr-2" /> Copiar Prompt</>}
+                                                </Button>
+                                            </div>
                                         </>
                                     ) : (
                                         <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
@@ -1527,6 +1797,52 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 </div>
                 </div>
             )}
+
+            {/* Magic Fill Dialog */}
+            <Dialog open={showMagicFill} onOpenChange={setShowMagicFill}>
+                <DialogContent className="sm:max-w-[600px] bg-zinc-950 border-zinc-800 p-0 overflow-hidden shadow-2xl">
+                    <div className="p-6 md:p-8 space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="size-12 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-inner">
+                                <Sparkles size={28} />
+                            </div>
+                            <div>
+                                <DialogTitle className="text-2xl font-bold text-white tracking-tight">Magic Fill</DialogTitle>
+                                <DialogDescription className="text-zinc-400 text-sm">
+                                    Cole o bloco de texto estruturado para preencher o formulário automaticamente.
+                                </DialogDescription>
+                            </div>
+                        </div>
+
+                        <div className="relative group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-primary/20 rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+                            <Textarea
+                                placeholder="Cole aqui o briefing formatado...&#10;&#10;Exemplo:&#10;SERVIÇO: Hardwood Flooring&#10;CIDADE: Orlando&#10;..."
+                                className="relative bg-zinc-900/80 border-zinc-700 text-zinc-100 min-h-[300px] font-mono text-sm leading-relaxed focus-visible:ring-1 focus-visible:ring-amber-500/50 rounded-xl p-5 custom-scrollbar"
+                                value={magicFillText}
+                                onChange={(e) => setMagicFillText(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <Button 
+                                variant="outline" 
+                                className="flex-1 border-zinc-700 bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all rounded-xl h-12 font-bold"
+                                onClick={() => setMagicFillText("")}
+                            >
+                                Limpar
+                            </Button>
+                            <Button 
+                                className="flex-[2] bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] rounded-xl h-12 font-bold flex items-center gap-2"
+                                onClick={handleMagicFill}
+                                disabled={!magicFillText.trim()}
+                            >
+                                <Sparkles size={18} /> Preencher Formulário
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
