@@ -1800,7 +1800,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
 
             {/* Magic Fill Dialog */}
             <Dialog open={showMagicFill} onOpenChange={setShowMagicFill}>
-                <DialogContent className="sm:max-w-[600px] bg-zinc-950 border-zinc-800 p-0 overflow-hidden shadow-2xl">
+                <DialogContent className="sm:max-w-[600px] bg-zinc-950 border-zinc-800 p-0 shadow-2xl overflow-y-auto max-h-[95vh] custom-scrollbar">
                     <div className="p-6 md:p-8 space-y-6">
                         <div className="flex items-center gap-4">
                             <div className="size-12 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-inner">

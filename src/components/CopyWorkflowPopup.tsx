@@ -103,10 +103,10 @@ export function CopyWorkflowPopup({
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto">
-                    <div className={cn("grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-zinc-800 h-full min-h-[400px]", cols)}>
+                    <div className={cn("grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-zinc-800", cols)}>
 
                         {/* PASSO 1: PROMPT */}
-                        <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950 min-h-[400px]">
+                        <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-950">
                             <div className="flex items-center gap-4">
                                 <div className="size-10 rounded-full bg-primary text-black flex items-center justify-center font-black text-xl shadow-lg shadow-primary/20 shrink-0">
                                     1
@@ -114,9 +114,9 @@ export function CopyWorkflowPopup({
                                 <h3 className="text-lg font-bold text-white uppercase tracking-tight">Copiar Prompt</h3>
                             </div>
 
-                            <div className="flex-1 min-h-[250px] relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 shadow-inner group">
+                            <div className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 shadow-inner">
                                 <Textarea
-                                    className="absolute inset-0 w-full h-full bg-transparent border-none text-[12px] text-zinc-300 font-mono p-5 leading-relaxed focus-visible:ring-0 resize-none custom-scrollbar"
+                                    className="w-full min-h-[200px] max-h-[50vh] bg-transparent border-none text-[12px] text-zinc-300 font-mono p-5 leading-relaxed focus-visible:ring-0 resize-none custom-scrollbar overflow-y-auto"
                                     readOnly
                                     value={prompt}
                                 />
