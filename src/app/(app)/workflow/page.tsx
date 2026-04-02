@@ -87,6 +87,7 @@ interface WorkflowPayload {
     hasPhotos: boolean;
     hasLogo: boolean;
     hasReferencePhotos: boolean;
+    hasSealFiles?: boolean;
 }
 
 interface UploadedFile {
@@ -316,9 +317,11 @@ function WorkflowContent() {
     const [platform, setPlatform] = useState("none")
     const [platformOther, setPlatformOther] = useState("")
 
-    // Fotos e logo
+    // Fotos, logo e selos
     const [photos, setPhotos] = useState<UploadedFile[]>([])
     const [logoFile, setLogoFile] = useState<UploadedFile | null>(null)
+    const [sealFiles, setSealFiles] = useState<UploadedFile[]>([])
+    const [currentSealIndex, setCurrentSealIndex] = useState(0)
     const [photoDesc, setPhotoDesc] = useState("")
     const [extraNotes, setExtraNotes] = useState("")
 
@@ -402,17 +405,19 @@ function WorkflowContent() {
     const [showImagePopup, setShowImagePopup] = useState(false)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
     const [currentRefIndex, setCurrentRefIndex] = useState(0)
-    const [copiedType, setCopiedType] = useState<"prompt" | "photo" | "logo" | "ref" | null>(null)
+    const [copiedType, setCopiedType] = useState<"prompt" | "photo" | "logo" | "ref" | "seal" | null>(null)
 
     const allImages = [
         ...(logoFile ? [{ ...logoFile, type: "Logo" }] : []),
         ...photos.map((p, i) => ({ ...p, type: `Foto ${i + 1}` })),
+        ...sealFiles.map((p, i) => ({ ...p, type: `Selo ${i + 1}` })),
         ...(isAdvancedMode ? referencePhotos.map((p, i) => ({ ...p, type: `Ref ${i + 1}` })) : [])
     ]
 
     const { isCopied, copy } = useClipboard()
     const photoInputRef = useRef<HTMLInputElement>(null)
     const logoInputRef = useRef<HTMLInputElement>(null)
+    const sealFileInputRef = useRef<HTMLInputElement>(null)
 
     const finalService = service === "other" ? serviceOther : service
     const isReady = !!finalService
@@ -444,6 +449,15 @@ function WorkflowContent() {
         setPhotos((prev) => [...prev, ...newFiles])
     }
 
+    const handleSealsUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files
+        if (!files) return
+        const newFiles: UploadedFile[] = await Promise.all(
+            Array.from(files).map(async (file) => ({ file, previewUrl: await toBase64(file), name: file.name }))
+        )
+        setSealFiles((prev) => [...prev, ...newFiles])
+    }
+
     const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault()
         const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith("image/"))
@@ -460,7 +474,7 @@ function WorkflowContent() {
         if (logoInputRef.current) logoInputRef.current.value = ""
     }
 
-    const copyImageToClipboard = async (dataUrl: string, type: "photo" | "logo" | "ref") => {
+    const copyImageToClipboard = async (dataUrl: string, type: "photo" | "logo" | "ref" | "seal") => {
         try {
             // Criar imagem temporária para desenhar no Canvas (resolve suporte a JPEG)
             const img = new Image()
@@ -494,6 +508,10 @@ function WorkflowContent() {
             } else if (type === "ref" && referencePhotos.length > 1) {
                 setTimeout(() => {
                     setCurrentRefIndex((prev) => (prev + 1) % referencePhotos.length)
+                }, 800)
+            } else if (type === "seal" && sealFiles.length > 1) {
+                setTimeout(() => {
+                    setCurrentSealIndex((prev) => (prev + 1) % sealFiles.length)
                 }, 800)
             }
         } catch (err) {
@@ -742,6 +760,7 @@ function WorkflowContent() {
         setPlatformOther("")
         setPhotos([])
         setLogoFile(null)
+        setSealFiles([])
         setPhotoDesc("")
         setExtraNotes("")
         setPrimaryColor("#FF6B00")
@@ -750,6 +769,9 @@ function WorkflowContent() {
         setColorsExtracted(false)
         setIsAdvancedMode(false)
         setGeneratedPrompt("")
+        setCurrentSealIndex(0)
+        setCurrentRefIndex(0)
+        setCurrentImageIndex(0)
     }
 
     // ── Gerar Prompt ───────────────────────────────────────────────────────────
@@ -778,7 +800,10 @@ function WorkflowContent() {
         const predefinedSeals = seals.filter(s => s !== "none" && s !== "other");
         const activeSeals = [...predefinedSeals, ...customSeals].filter(Boolean);
 
-        const sealSection = activeSeals.length > 0 ? `\n🛡️ SELO(S) DE CREDIBILIDADE:\n→ Incluir destaque visual com: ${activeSeals.map(s => `"${s}"`).join(", ")}` : ""
+        const sealImagesSection = sealFiles.length > 0 
+            ? `\n🛡️ IMAGENS DE SELOS PERSONALIZADOS:\n${sealFiles.map((p, i) => `  • Selo ${i + 1}: ${p.name}`).join("\n")}` : ""
+
+        const sealSection = activeSeals.length > 0 ? `\n🛡️ SELO(S) DE CREDIBILIDADE (TEXTO):\n→ Incluir destaque visual com: ${activeSeals.map(s => `"${s}"`).join(", ")}` : ""
         
         let copySection = ""
         if (specificCopy && isAdvancedMode) {
@@ -812,6 +837,7 @@ ${photosSection}${photoDesc ? `\n  📝 Descrição: "${photoDesc}"` : ""}${refP
 🏷️ LOGO DO CLIENTE: ${logoInfo}
 
 ${colorSection}
+${sealImagesSection}
 ${sealSection}${copySection}${ctaSection}${aspectRatioSection}${orientationSection}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -879,7 +905,8 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                 customColors,
                 hasPhotos: photos.length > 0,
                 hasReferencePhotos: isAdvancedMode ? referencePhotos.length > 0 : false,
-                hasLogo: !!logoFile
+                hasLogo: !!logoFile,
+                hasSealFiles: sealFiles.length > 0
             }, prompt)
         }, 700)
     }
@@ -1101,6 +1128,20 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             </Button>
                                         </div>
                                     )}
+
+                                    {/* Upload de Selos Customizados */}
+                                    <div className="mt-4 pt-4 border-t border-border">
+                                        <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 block">Ou envie selos personalizados (Imagens)</Label>
+                                        <div 
+                                            onClick={() => sealFileInputRef.current?.click()}
+                                            className="border-2 border-dashed border-border hover:border-emerald-500/50 rounded-xl p-4 text-center cursor-pointer transition-all group hover:bg-emerald-500/5 mb-3"
+                                        >
+                                            <Upload size={20} className="mx-auto mb-2 text-muted-foreground group-hover:text-emerald-400 transition-colors" />
+                                            <p className="text-xs font-semibold text-muted-foreground group-hover:text-foreground">Upload de Selos em Imagem</p>
+                                            <input ref={sealFileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleSealsUpload} />
+                                        </div>
+                                        <ImagePreviewGrid files={sealFiles} onRemove={(i) => setSealFiles(prev => prev.filter((_, idx) => idx !== i))} />
+                                    </div>
                                 </div>
 
                                 {/* Tom da Copy */}
@@ -1533,9 +1574,15 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                                     <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] px-1 py-0.5 truncate">Foto {i + 1}</div>
                                                 </div>
                                             ))}
+                                            {sealFiles.map((p, i) => (
+                                                <div key={i} className="relative rounded-xl overflow-hidden border border-emerald-500/30 aspect-square bg-input cursor-grab">
+                                                    <img src={p.previewUrl} alt={p.name} className="w-full h-full object-cover" />
+                                                    <div className="absolute bottom-0 inset-x-0 bg-emerald-500/80 text-white text-[8px] font-bold px-1 py-0.5 text-center uppercase tracking-wide">Selo {i + 1}</div>
+                                                </div>
+                                            ))}
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-3 text-center">
-                                            {(photos.length + (logoFile ? 1 : 0))} imagem(ns) • Arraste-as para o chat da IA após colar o prompt
+                                            {(photos.length + (logoFile ? 1 : 0) + sealFiles.length)} imagem(ns) • Arraste-as para o chat da IA após colar o prompt
                                         </p>
                                     </div>
                                 </div>
@@ -1601,7 +1648,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                     <div className="flex-1 overflow-y-auto">
                         <div className={cn(
                             "grid grid-cols-1 divide-y md:divide-y-0 md:divide-x divide-zinc-800 h-full min-h-[400px]",
-                            (referencePhotos.length > 0 && isAdvancedMode) ? "md:grid-cols-4" : "md:grid-cols-3"
+                            (referencePhotos.length > 0 && isAdvancedMode) ? (sealFiles.length > 0 ? "md:grid-cols-5" : "md:grid-cols-4") : (sealFiles.length > 0 ? "md:grid-cols-4" : "md:grid-cols-3")
                         )}>
                             
                             {/* PASSO 1: TEXTO */}
@@ -1734,11 +1781,61 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                 </div>
                             </div>
 
-                            {/* PASSO 4: REFERÊNCIAS (OPCIONAL) */}
-                            {referencePhotos.length > 0 && isAdvancedMode && (
+                            {/* PASSO 4: SELOS (OPCIONAL) */}
+                            {sealFiles.length > 0 && (
                                 <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-900/40">
                                     <div className="flex items-center gap-4">
-                                        <div className="size-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-500/20 shrink-0">4</div>
+                                        <div className="size-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-emerald-500/20 shrink-0">{referencePhotos.length > 0 && isAdvancedMode ? "4" : "4"}</div>
+                                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Selos</h3>
+                                    </div>
+                                    <div className="flex-1 flex flex-col gap-6">
+                                        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900/50 flex items-center justify-center p-3 shadow-xl">
+                                            <img 
+                                                src={sealFiles[currentSealIndex]?.previewUrl} 
+                                                alt="Selo" 
+                                                className="max-w-full max-h-full object-contain rounded-lg"
+                                            />
+                                            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                                                Selo {currentSealIndex + 1} / {sealFiles.length}
+                                            </div>
+                                            
+                                            {sealFiles.length > 1 && (
+                                                <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); setCurrentSealIndex(p => (p === 0 ? sealFiles.length - 1 : p - 1)) }} 
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                    >
+                                                        <ChevronLeft size={20} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); setCurrentSealIndex(p => (p === sealFiles.length - 1 ? 0 : p + 1)) }} 
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                    >
+                                                        <ChevronRight size={20} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Button 
+                                            onClick={() => copyImageToClipboard(sealFiles[currentSealIndex]?.previewUrl, "seal")}
+                                            className={cn(
+                                                "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
+                                                copiedType === "seal" ? "bg-green-600 text-white" : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                            )}
+                                        >
+                                            {copiedType === "seal" ? <Check size={20} /> : <Copy size={20} />}
+                                            <span>{copiedType === "seal" ? "Selo Copiado!" : "Copiar Selo"}</span>
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* PASSO 5: REFERÊNCIAS (OPCIONAL) */}
+                            {referencePhotos.length > 0 && isAdvancedMode && (
+                                <div className="p-6 lg:p-10 flex flex-col gap-6 bg-zinc-900/60">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-xl shadow-lg shadow-orange-500/20 shrink-0">{sealFiles.length > 0 ? "5" : "4"}</div>
                                         <h3 className="text-lg font-bold text-white uppercase tracking-tight">Anexar Referências</h3>
                                     </div>
                                     <div className="flex-1 flex flex-col gap-6">
@@ -1748,7 +1845,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                                 alt="Referência" 
                                                 className="max-w-full max-h-full object-contain rounded-lg"
                                             />
-                                            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                                            <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-bold text-orange-400 border border-orange-500/20 uppercase tracking-widest">
                                                 Ref {currentRefIndex + 1} / {referencePhotos.length}
                                             </div>
                                             
@@ -1756,13 +1853,13 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                                 <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between pointer-events-none">
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); setCurrentRefIndex(p => (p === 0 ? referencePhotos.length - 1 : p - 1)) }} 
-                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-orange-500 transition-colors pointer-events-auto border border-white/10"
                                                     >
                                                         <ChevronLeft size={20} />
                                                     </button>
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); setCurrentRefIndex(p => (p === referencePhotos.length - 1 ? 0 : p + 1)) }} 
-                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-emerald-500 transition-colors pointer-events-auto border border-white/10"
+                                                        className="p-1.5 bg-black/80 rounded-lg text-white hover:bg-orange-500 transition-colors pointer-events-auto border border-white/10"
                                                     >
                                                         <ChevronRight size={20} />
                                                     </button>
@@ -1774,7 +1871,7 @@ ${extraNotes ? `\n📋 OBSERVAÇÕES DO CLIENTE:\n"${extraNotes}"\n` : ""}
                                             onClick={() => copyImageToClipboard(referencePhotos[currentRefIndex]?.previewUrl, "ref")}
                                             className={cn(
                                                 "w-full py-7 text-base font-bold uppercase transition-all shadow-xl rounded-xl flex items-center justify-center gap-3", 
-                                                copiedType === "ref" ? "bg-green-600 text-white" : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                                                copiedType === "ref" ? "bg-green-600 text-white" : "bg-orange-500 hover:bg-orange-600 text-white"
                                             )}
                                         >
                                             {copiedType === "ref" ? <Check size={20} /> : <Copy size={20} />}

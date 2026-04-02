@@ -34,6 +34,7 @@ import {
   Braces,
   PackageSearch,
   Sticker,
+  CalendarDays,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -169,7 +170,7 @@ const DEFAULT_TOOLS: Tool[] = [
   {
     id: "checklist-webdesign",
     href: "/checklist-webdesign",
-    label: "Checklist Migração",
+    label: "Checklist Webdesign",
     badge: "Webdesign",
     badgeColor: "bg-indigo-500/20 text-indigo-400",
     accentColor: "indigo",
@@ -198,6 +199,17 @@ const DEFAULT_TOOLS: Tool[] = [
     description: "O repositório oficial de softwares e recursos validados pela equipe TS.",
     icon: <PackageSearch size={32} strokeWidth={1.5} />,
     departments: ["Tráfego pago", "Audiovisual", "Social Media", "Design", "Webdesign"],
+  },
+  {
+    id: "calendario-de-ideias",
+    href: "/calendario-de-ideias",
+    label: "Calendário de Ideias",
+    badge: "SOCIAL MEDIA",
+    badgeColor: "bg-indigo-500/20 text-indigo-400 font-black",
+    accentColor: "indigo",
+    description: "Datas estratégicas, sazonalidade e feriados para Home Services nos EUA.",
+    icon: <CalendarDays size={32} strokeWidth={1.5} />,
+    departments: ["Social Media", "Tráfego pago"],
   }
 ]
 

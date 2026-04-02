@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { ListTodo, MonitorSmartphone, Sticker } from "lucide-react"
+import { ListTodo, PackageSearch } from "lucide-react"
 
 export default function Header() {
     const { data: session } = useSession()
@@ -99,25 +99,16 @@ export default function Header() {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="cursor-pointer">
-                                    <Link href="/ferramentas" className="w-full">Hub de Ferramentas</Link>
-                                </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer" asChild>
-                                    <Link href="/gerador-selos" className="flex items-center w-full">
-                                        <Sticker size={14} className="mr-2 opacity-70 text-rose-500" />
-                                        Gerador de Selos
+                                    <Link href="/ferramentas" className="flex items-center w-full">
+                                        <PackageSearch size={14} className="mr-2 opacity-70" />
+                                        Hub de Ferramentas
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer" asChild>
                                     <Link href="/meu-checklist" className="flex items-center w-full">
                                         <ListTodo size={14} className="mr-2 opacity-70" />
                                         Meu Checklist
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer" asChild>
-                                    <Link href="/checklist-webdesign" className="flex items-center w-full">
-                                        <MonitorSmartphone size={14} className="mr-2 opacity-70" />
-                                        Checklist Webdesign
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
