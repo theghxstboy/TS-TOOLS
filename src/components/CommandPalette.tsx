@@ -14,6 +14,7 @@ import {
     History as ClockCounterClockwise,
     ListTodo,
     MonitorSmartphone,
+    Sticker,
     Star,
     ArrowRight
 } from "lucide-react"
@@ -59,6 +60,14 @@ const STATIC_ACTIONS: CommandAction[] = [
         description: "Prompts de pessoas ultra-realistas",
         icon: <UserFocus size={20} />,
         href: "/gerador-humano",
+        category: "Ferramentas"
+    },
+    {
+        id: "gerador-selos",
+        title: "Gerador de Selos",
+        description: "Selos 3D e Vetoriais de alta conversão",
+        icon: <Sticker size={20} className="text-rose-500" />,
+        href: "/gerador-selos",
         category: "Ferramentas"
     },
     {

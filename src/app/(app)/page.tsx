@@ -33,6 +33,7 @@ import {
   ListTodo,
   Braces,
   PackageSearch,
+  Sticker,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -88,6 +89,17 @@ const DEPARTMENTS = [
 ]
 
 const DEFAULT_TOOLS: Tool[] = [
+  {
+    id: "gerador-selos",
+    href: "/gerador-selos",
+    label: "Gerador de Selos",
+    badge: "Ads & Web",
+    badgeColor: "bg-rose-500/20 text-rose-500 font-black",
+    accentColor: "rose",
+    description: "Selos 3D e Vetoriais de alta conversão para o mercado americano.",
+    icon: <Sticker size={32} strokeWidth={1.5} />,
+    departments: ["Webdesign", "Tráfego pago", "Design"],
+  },
   {
     id: "gerador",
     href: "/gerador",
@@ -150,7 +162,7 @@ const DEFAULT_TOOLS: Tool[] = [
     badge: "Tráfego Pago",
     badgeColor: "bg-emerald-500/20 text-emerald-500",
     accentColor: "emerald",
-    description: "Briefing completo com serviço, região, fotos e logo — gera o prompt perfeito.",
+    description: "Criativos perfeitos por nicho, região, fotos e logo gera o prompt perfeito.",
     icon: <WorkflowIcon size={32} strokeWidth={1.5} />,
     departments: ["Tráfego pago"],
   },
@@ -284,7 +296,7 @@ function SortableCard({ item, index }: { item: Tool; index: number }) {
         <div className="w-full flex items-start justify-end mb-4 min-h-[28px]">
           {/* Badge */}
           {item.badge && (
-            <Badge 
+            <Badge
               variant="outline"
               className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto opacity-70 border-none", item.badgeColor)}
             >
@@ -325,7 +337,7 @@ function DragOverlayCard({ item }: { item: Tool }) {
 
       <div className="w-full flex items-start justify-end mb-4 min-h-[28px] px-6 pt-6">
         {item.badge && (
-          <Badge 
+          <Badge
             variant="outline"
             className={cn("text-[0.65rem] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px] shadow-sm ml-auto border-none", item.badgeColor)}
           >
@@ -389,7 +401,7 @@ export default function Home() {
 
     let parsedAdded: Record<string, string[]> = {};
     if (storedAdded) {
-      try { parsedAdded = JSON.parse(storedAdded); } catch {}
+      try { parsedAdded = JSON.parse(storedAdded); } catch { }
     }
 
     try {
@@ -412,8 +424,8 @@ export default function Home() {
       initialTools = [...initialTools, ...missingTools];
       initialKnowledge = [...initialKnowledge, ...missingKnowledge];
     } catch {
-       localStorage.removeItem(ORDER_KEY)
-       localStorage.removeItem(KNOWLEDGE_ORDER_KEY)
+      localStorage.removeItem(ORDER_KEY)
+      localStorage.removeItem(KNOWLEDGE_ORDER_KEY)
     }
 
     // Apply externally added custom departments
@@ -486,7 +498,7 @@ export default function Home() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveId(null)
-    
+
     // Arrays were instantly reorganized in onDragOver natively by our updates!
     // So we just secure persistence from the freshest state.
     setTools(t => {
@@ -507,7 +519,7 @@ export default function Home() {
   const handleToggleDepartmentItem = (itemId: string) => {
     const isTool = tools.some(t => t.id === itemId);
     const setList = isTool ? setTools : setKnowledgeItems;
-    
+
     const currentItem = [...tools, ...knowledgeItems].find(t => t.id === itemId)!;
     const isAdding = !currentItem.departments.includes(activeDepartment);
 
@@ -522,7 +534,7 @@ export default function Home() {
     const stored = localStorage.getItem(ADDED_DEPARTMENTS_KEY);
     const parsed = stored ? JSON.parse(stored) : {};
     const existingArr = parsed[itemId] || [];
-    
+
     if (isAdding) parsed[itemId] = Array.from(new Set([...existingArr, activeDepartment]));
     else parsed[itemId] = existingArr.filter((d: string) => d !== activeDepartment);
 
@@ -530,8 +542,8 @@ export default function Home() {
   }
 
   const customizableItems = mounted ? [...tools, ...knowledgeItems].filter(item => {
-    const nativeItem = ALL_ITEMS.find(n => n.id === item.id);
-    return nativeItem && !nativeItem.departments.includes(activeDepartment);
+    // Show everything in management so user can manually hide/show even native cards
+    return true;
   }) : [];
 
   return (
@@ -550,9 +562,9 @@ export default function Home() {
       </div>
 
       <div className="flex justify-center mb-6 animate-fade-up" style={{ animationDelay: '50ms' }}>
-          <Link href="/meu-checklist" className="inline-flex items-center gap-2 text-[0.65rem] md:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-sm hover:shadow-primary/10">
-            <ListTodo size={14} className="opacity-80" /> Meu Checklist
-          </Link>
+        <Link href="/meu-checklist" className="inline-flex items-center gap-2 text-[0.65rem] md:text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 px-4 py-2 rounded-full transition-all duration-300 hover:scale-[1.03] shadow-sm hover:shadow-primary/10">
+          <ListTodo size={14} className="opacity-80" /> Meu Checklist
+        </Link>
       </div>
 
       {/* Departments Layer Section */}
@@ -613,15 +625,15 @@ export default function Home() {
                   <SortableCard key={tool.id} item={tool} index={i} />
                 ))}
                 {activeDepartment !== "Todos" && (
-                   <button
-                     onClick={() => setAddCardModalOpen(true)}
-                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/30 rounded-2xl min-h-[300px] bg-primary/5 text-primary/70 hover:text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 group"
-                   >
-                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                       <Plus size={24} />
-                     </div>
-                     <span className="font-bold text-sm uppercase tracking-widest text-center max-w-[120px]">Gerenciar Cards</span>
-                   </button>
+                  <button
+                    onClick={() => setAddCardModalOpen(true)}
+                    className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/30 rounded-2xl min-h-[300px] bg-primary/5 text-primary/70 hover:text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 group"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Plus size={24} />
+                    </div>
+                    <span className="font-bold text-sm uppercase tracking-widest text-center max-w-[120px]">Gerenciar Cards</span>
+                  </button>
                 )}
               </div>
             </SortableContext>
@@ -648,15 +660,15 @@ export default function Home() {
                   <SortableCard key={item.id} item={item} index={i} />
                 ))}
                 {activeDepartment !== "Todos" && (
-                   <button
-                     onClick={() => setAddCardModalOpen(true)}
-                     className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/30 rounded-2xl min-h-[300px] bg-primary/5 text-primary/70 hover:text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 group"
-                   >
-                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                       <Plus size={24} />
-                     </div>
-                     <span className="font-bold text-sm uppercase tracking-widest text-center max-w-[120px]">Gerenciar Cards</span>
-                   </button>
+                  <button
+                    onClick={() => setAddCardModalOpen(true)}
+                    className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-primary/30 rounded-2xl min-h-[300px] bg-primary/5 text-primary/70 hover:text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 group"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Plus size={24} />
+                    </div>
+                    <span className="font-bold text-sm uppercase tracking-widest text-center max-w-[120px]">Gerenciar Cards</span>
+                  </button>
                 )}
               </div>
             </SortableContext>
@@ -789,55 +801,55 @@ export default function Home() {
 
             <div className="max-h-[60vh] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
               {customizableItems.length === 0 ? (
-                 <div className="py-12 flex flex-col items-center justify-center opacity-60">
-                   <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                     <MagicWand size={32} className="text-muted-foreground" />
-                   </div>
-                   <p className="text-muted-foreground text-center font-medium">Não há outras ferramentas<br/>disponíveis para personalização.</p>
-                 </div>
+                <div className="py-12 flex flex-col items-center justify-center opacity-60">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <MagicWand size={32} className="text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground text-center font-medium">Não há outras ferramentas<br />disponíveis para personalização.</p>
+                </div>
               ) : (
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 {customizableItems.sort((a, b) => {
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {customizableItems.sort((a, b) => {
                     const aAdded = a.departments.includes(activeDepartment);
                     const bAdded = b.departments.includes(activeDepartment);
                     return (aAdded === bAdded) ? a.label.localeCompare(b.label) : (aAdded ? -1 : 1);
-                 }).map(item => {
-                   const isAdded = item.departments.includes(activeDepartment);
-                   return (
-                     <button 
-                       key={item.id}
-                       onClick={() => handleToggleDepartmentItem(item.id)}
-                       className={cn(
-                         "flex items-center cursor-pointer gap-4 p-4 border rounded-xl transition-all text-left group active:scale-[0.98]",
-                         isAdded ? "border-primary/50 bg-primary/5 hover:border-destructive hover:bg-destructive/5" : "border-border hover:border-primary hover:bg-primary/5"
-                       )}
-                     >
-                       <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-colors", 
+                  }).map(item => {
+                    const isAdded = item.departments.includes(activeDepartment);
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleToggleDepartmentItem(item.id)}
+                        className={cn(
+                          "flex items-center cursor-pointer gap-4 p-4 border rounded-xl transition-all text-left group active:scale-[0.98]",
+                          isAdded ? "border-primary/50 bg-primary/5 hover:border-destructive hover:bg-destructive/5" : "border-border hover:border-primary hover:bg-primary/5"
+                        )}
+                      >
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-colors",
                           isAdded ? "bg-primary/20 text-primary" : `bg-input ${ACCENT_CLASSES[item.accentColor || 'primary'].icon}`
-                       )}>
+                        )}>
                           {item.icon}
-                       </div>
-                       <div className="flex flex-col min-w-0">
-                         <h4 className="font-bold text-sm text-foreground truncate">{item.label}</h4>
-                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
-                       </div>
-                       <div className={cn("ml-auto flex items-center justify-center w-8 h-8 rounded-lg shadow-sm transition-all", 
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <h4 className="font-bold text-sm text-foreground truncate">{item.label}</h4>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
+                        </div>
+                        <div className={cn("ml-auto flex items-center justify-center w-8 h-8 rounded-lg shadow-sm transition-all",
                           isAdded ? "bg-primary text-primary-foreground group-hover:bg-destructive group-hover:text-destructive-foreground opacity-100 shadow-md" : "opacity-0 group-hover:opacity-100 bg-primary/10 text-primary"
-                       )}>
-                         {isAdded ? (
+                        )}>
+                          {isAdded ? (
                             <>
                               <Check size={18} className="block group-hover:hidden stroke-[3]" />
                               <X size={18} className="hidden group-hover:block stroke-[2.5]" />
                             </>
-                         ) : <Plus size={18} className="stroke-[2.5]" />}
-                       </div>
-                     </button>
-                   );
-                 })}
-                 </div>
+                          ) : <Plus size={18} className="stroke-[2.5]" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               )}
             </div>
-            
+
             <div className="mt-8 pt-4 border-t border-border flex justify-end">
               <button
                 onClick={() => setAddCardModalOpen(false)}

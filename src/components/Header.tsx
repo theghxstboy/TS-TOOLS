@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { ListTodo, MonitorSmartphone } from "lucide-react"
+import { ListTodo, MonitorSmartphone, Sticker } from "lucide-react"
 
 export default function Header() {
     const { data: session } = useSession()
@@ -101,6 +101,12 @@ export default function Header() {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="cursor-pointer">
                                     <Link href="/ferramentas" className="w-full">Hub de Ferramentas</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" asChild>
+                                    <Link href="/gerador-selos" className="flex items-center w-full">
+                                        <Sticker size={14} className="mr-2 opacity-70 text-rose-500" />
+                                        Gerador de Selos
+                                    </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer" asChild>
                                     <Link href="/meu-checklist" className="flex items-center w-full">
