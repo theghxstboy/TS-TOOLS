@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react"
 import USAMap from "@/components/USAMap"
 import StateDetails from "@/components/StateDetails"
+import StateCalendar from "@/components/StateCalendar"
 import { US_STATES_DATA } from "@/data/us-states-data"
 import { Search, ChevronDown, Map as MapIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -62,8 +63,8 @@ export default function CalendarioDeIdeias() {
             <div className="relative group">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-all" size={20} />
               <Input 
-                placeholder="BUSCAR ESTADO..."
-                className="pl-14 py-7 bg-zinc-900/40 border-zinc-800 focus:border-primary/40 rounded-full transition-all text-lg font-black uppercase italic tracking-tighter placeholder:text-zinc-800 shadow-xl backdrop-blur-md"
+                placeholder="Busque por um estado..."
+                className="pl-12 h-14 bg-zinc-900/40 border-zinc-800 focus:border-primary/40 rounded-xl transition-all text-base font-medium placeholder:text-zinc-600 shadow-xl backdrop-blur-md"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -114,10 +115,11 @@ export default function CalendarioDeIdeias() {
       {selectedState && (
         <section 
           id="state-details-section" 
-          className="min-h-screen px-8 py-24 bg-zinc-950 border-t border-zinc-900"
+          className="min-h-screen px-4 md:px-8 py-24 bg-zinc-950 border-t border-zinc-900"
         >
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-screen-2xl mx-auto space-y-16">
             {activeData && <StateDetails data={activeData} />}
+            <StateCalendar stateId={selectedState} />
           </div>
         </section>
       )}

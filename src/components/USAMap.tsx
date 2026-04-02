@@ -14,7 +14,7 @@ const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-albers-10m.json"
 
 const USAMap: React.FC<USAMapProps> = ({ onStateClick, selectedState }) => {
   const [geographies, setGeographies] = useState<any[]>([])
-  const [hoveredState, setHoveredState] = useState<string | null>(null)
+  const [hoveredState, setHoveredState] = useState<{ name: string, x: number, y: number } | null>(null)
 
   // us-atlas albers-10m is already projected. 
   // We use a null projection to avoid the "spaghetti" effect.
@@ -48,10 +48,12 @@ const USAMap: React.FC<USAMapProps> = ({ onStateClick, selectedState }) => {
             const stateName = geo.properties.name
             const abbr = STATE_TO_ABBR[stateName] || stateName
             const isSelected = selectedState === abbr
-            const isHovered = hoveredState === abbr
+            const isHovered = hoveredState?.name === stateName
             const pathData = pathGenerator(geo)
 
             if (!pathData) return null
+
+            const centroid = pathGenerator.centroid(geo)
 
             return (
               <path
@@ -61,11 +63,14 @@ const USAMap: React.FC<USAMapProps> = ({ onStateClick, selectedState }) => {
                 stroke={isSelected || isHovered ? "#FF6B00" : "rgba(255, 255, 255, 0.15)"}
                 strokeWidth={isSelected ? 1.5 : 0.8}
                 className={cn(
-                  "cursor-pointer transition-all duration-300 ease-out",
-                  isSelected ? "z-20 scale-[1.01]" : "z-10",
+                  "cursor-pointer transition-all duration-300 ease-out z-10",
                 )}
                 onClick={() => onStateClick(abbr)}
-                onMouseEnter={() => setHoveredState(abbr)}
+                onMouseEnter={() => {
+                  if (centroid && !isNaN(centroid[0])) {
+                    setHoveredState({ name: stateName, x: centroid[0], y: centroid[1] })
+                  }
+                }}
                 onMouseLeave={() => setHoveredState(null)}
               />
             )
@@ -83,7 +88,7 @@ const USAMap: React.FC<USAMapProps> = ({ onStateClick, selectedState }) => {
             if (!centroid || isNaN(centroid[0])) return null
 
             const isSelected = selectedState === abbr
-            const isHovered = hoveredState === abbr
+            const isHovered = hoveredState?.name === stateName
 
             return (
               <text
@@ -103,10 +108,21 @@ const USAMap: React.FC<USAMapProps> = ({ onStateClick, selectedState }) => {
         </g>
       </svg>
 
-      {/* Floating Indicator */}
+      {/* Dynamic Tooltip */}
       {hoveredState && (
-        <div className="absolute top-4 right-4 p-4 bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800 shadow-2xl animate-in fade-in zoom-in duration-200">
-           <span className="text-white text-3xl font-black uppercase tracking-tighter italic leading-none">{hoveredState}</span>
+        <div 
+          className="absolute pointer-events-none z-50 px-4 py-2 bg-zinc-900/95 backdrop-blur-xl rounded-xl border border-zinc-800 shadow-2xl animate-in fade-in zoom-in duration-200"
+          style={{
+            top: `${(hoveredState.y / 600) * 100}%`,
+            left: `${(hoveredState.x / 960) * 100}%`,
+            transform: 'translate(-50%, -100%) translateY(-15px)',
+          }}
+        >
+           <span className="text-white text-xs font-black uppercase tracking-tighter italic leading-none whitespace-nowrap">
+             {hoveredState.name}
+           </span>
+           {/* Tooltip Arrow */}
+           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px] border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-8 border-t-zinc-800" />
         </div>
       )}
     </div>
