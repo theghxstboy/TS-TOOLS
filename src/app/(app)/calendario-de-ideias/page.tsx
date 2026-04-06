@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 
 function CalendarioDeIdeiasContent() {
   const searchParams = useSearchParams()
-  const [selectedState, setSelectedState] = useState<string>("MA") 
+  const [selectedState, setSelectedState] = useState<string | null>(null) 
   const [searchQuery, setSearchQuery] = useState("")
 
   // Pre-select state from URL query param (e.g. coming from Ctrl+K)
@@ -38,12 +38,46 @@ function CalendarioDeIdeiasContent() {
   const handleStateSelect = (id: string) => {
     setSelectedState(id)
     setSearchQuery("")
+    
+    // Update URL without reloading to persist selection on F5
+    const url = new URL(window.location.href)
+    url.searchParams.set("state", id)
+    window.history.replaceState({}, "", url.toString())
+
     setTimeout(() => {
       document.getElementById("state-details-section")?.scrollIntoView({ behavior: "smooth" })
     }, 150)
   }
 
-  const activeData = US_STATES_DATA[selectedState]
+  const activeData = selectedState ? US_STATES_DATA[selectedState] : null
+
+  const [news, setNews] = useState<any[]>([])
+  const [loadingNews, setLoadingNews] = useState(false)
+
+  // Fetch real-time news when state is selected
+  useEffect(() => {
+    if (selectedState) {
+      setLoadingNews(true)
+      setNews([]) // Clear previous news immediately to avoid stale data
+      fetch(`/api/state-content/${selectedState.toLowerCase()}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.news) {
+            setNews(data.news)
+          } else {
+            setNews([])
+          }
+          setLoadingNews(false)
+        })
+        .catch(err => {
+          console.error("Fetch news error:", err)
+          setNews([])
+          setLoadingNews(false)
+        })
+    } else {
+      setNews([])
+    }
+  }, [selectedState])
 
   return (
     <div className="flex-1 bg-black min-h-screen text-white selection:bg-primary selection:text-black font-sans">
@@ -127,7 +161,7 @@ function CalendarioDeIdeiasContent() {
           className="min-h-screen px-4 md:px-8 py-24 bg-zinc-950 border-t border-zinc-900"
         >
           <div className="max-w-screen-2xl mx-auto space-y-16">
-            {activeData && <StateDetails data={activeData} />}
+            {activeData && <StateDetails data={activeData} news={news} loadingNews={loadingNews} />}
             <StateCalendar stateId={selectedState} />
           </div>
         </section>

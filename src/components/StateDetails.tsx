@@ -1,15 +1,17 @@
 "use client"
 
 import React, { useMemo } from "react"
-import { Calendar, CloudSun, Hammer, AlertTriangle, CheckCircle2, Wind, Snowflake, Sun, Zap, Star, ExternalLink, MapPin, PartyPopper, Home, Wrench, TreePine } from "lucide-react"
+import { Calendar, CloudSun, Hammer, AlertTriangle, CheckCircle2, Wind, Snowflake, Sun, Zap, Star, ExternalLink, MapPin, PartyPopper, Home, Wrench, TreePine, Newspaper } from "lucide-react"
 import { StateMarketingData } from "@/data/us-states-data"
 import { cn } from "@/lib/utils"
 
 interface StateDetailsProps {
   data: StateMarketingData
+  news?: any[]
+  loadingNews?: boolean
 }
 
-const StateDetails: React.FC<StateDetailsProps> = ({ data }) => {
+const StateDetails: React.FC<StateDetailsProps> = ({ data, news = [], loadingNews = false }) => {
   const currentYear = new Date().getFullYear()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -230,6 +232,97 @@ const StateDetails: React.FC<StateDetailsProps> = ({ data }) => {
               })}
             </ul>
           </div>
+        </div>
+      </div>
+      
+      {/* Mercado & Notícias Locais */}
+      <div className="max-w-6xl mx-auto mt-16 p-10 bg-zinc-900/10 rounded-[40px] border border-zinc-800/30">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div>
+            <h3 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic flex items-center gap-4">
+              <Newspaper className="text-primary size-8" />
+              Mercado & Notícias Locais
+            </h3>
+            <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em] mt-2 opacity-60 italic">
+              Nicho: Home Services • Insights em Tempo Real
+            </p>
+          </div>
+          {loadingNews && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full border border-primary/20 animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest">Atualizando...</span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loadingNews ? (
+            // Skeleton Loading
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-zinc-900/40 rounded-3xl p-6 border border-zinc-800/50 animate-pulse space-y-4">
+                <div className="w-full aspect-video bg-zinc-800 rounded-2xl" />
+                <div className="h-4 bg-zinc-800 rounded w-3/4" />
+                <div className="h-3 bg-zinc-800 rounded w-1/2" />
+              </div>
+            ))
+          ) : news && news.length > 0 ? (
+            news.map((item: any, i: number) => (
+              <a 
+                key={i} 
+                href={item.url} 
+                target="_blank" 
+                rel="noreferrer"
+                className="group/news bg-zinc-900/40 rounded-3xl p-6 border border-zinc-800/50 hover:border-primary/40 hover:bg-zinc-900/60 transition-all duration-500 flex flex-col h-full"
+              >
+                <div className="w-full aspect-video bg-zinc-800 rounded-2xl overflow-hidden mb-4 border border-zinc-800 group-hover/news:border-primary/20 transition-all flex items-center justify-center relative">
+                  {item.urlToImage ? (
+                    <img 
+                      src={item.urlToImage} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover group-hover/news:scale-110 transition-transform duration-700 opacity-60 group-hover/news:opacity-100"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className="absolute inset-0 bg-primary flex items-center justify-center p-4 text-center" 
+                    style={{ display: item.urlToImage ? "none" : "flex" }}
+                  >
+                    <span className="text-black font-black uppercase tracking-[0.2em] text-[10px] italic leading-tight">
+                      TS-TOOLS / INTELIGÊNCIA
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/70 bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
+                    {item.source}
+                  </span>
+                  <span className="text-[8px] font-black uppercase tracking-[0.2em] text-zinc-600">
+                    {new Date(item.publishedAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <h4 className="text-sm font-black text-white group-hover/news:text-primary transition-colors line-clamp-2 uppercase italic tracking-tight mb-2">
+                  {item.title}
+                </h4>
+                <p className="text-[10px] text-zinc-500 font-bold leading-relaxed line-clamp-3 mb-6">
+                  {item.description}
+                </p>
+                <div className="mt-auto pt-4 flex items-center justify-between border-t border-zinc-800/50 group-hover/news:border-primary/10 transition-colors">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-600 group-hover/news:text-primary">Leia mais</span>
+                  <ExternalLink size={10} className="text-zinc-700 group-hover/news:text-primary" />
+                </div>
+              </a>
+            ))
+          ) : (
+            <div className="col-span-full py-12 flex flex-col items-center justify-center text-zinc-700 space-y-4">
+              <Newspaper size={40} strokeWidth={1} />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] italic">Nenhuma notícia recente encontrada para este mercado.</p>
+            </div>
+          )}
         </div>
       </div>
 
