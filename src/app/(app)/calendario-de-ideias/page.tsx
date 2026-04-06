@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import USAMap from "@/components/USAMap"
 import StateDetails from "@/components/StateDetails"
 import StateCalendar from "@/components/StateCalendar"
@@ -10,8 +11,17 @@ import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
 export default function CalendarioDeIdeias() {
+  const searchParams = useSearchParams()
   const [selectedState, setSelectedState] = useState<string>("MA") 
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Pre-select state from URL query param (e.g. coming from Ctrl+K)
+  useEffect(() => {
+    const stateParam = searchParams.get("state")
+    if (stateParam && US_STATES_DATA[stateParam]) {
+      setSelectedState(stateParam)
+    }
+  }, [searchParams])
 
   const statesList = useMemo(() => {
     return Object.values(US_STATES_DATA).sort((a, b) => a.name.localeCompare(b.name))
@@ -58,13 +68,12 @@ export default function CalendarioDeIdeias() {
             </p>
           </div>
 
-          {/* Search Area - Clean & Minimal */}
           <div className="relative w-full max-w-md mx-auto">
             <div className="relative group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-primary transition-all" size={20} />
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-primary z-20 pointer-events-none drop-shadow-[0_0_12px_rgba(245,158,11,0.6)]" size={20} />
               <Input 
                 placeholder="Busque por um estado..."
-                className="pl-12 h-14 bg-zinc-900/40 border-zinc-800 focus:border-primary/40 rounded-xl transition-all text-base font-medium placeholder:text-zinc-600 shadow-xl backdrop-blur-md"
+                className="pl-12 h-14 bg-zinc-900/60 border-zinc-700 focus:border-primary/50 text-white rounded-xl transition-all text-base font-medium placeholder:text-zinc-500 shadow-xl backdrop-blur-md relative z-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

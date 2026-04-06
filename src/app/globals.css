@@ -162,78 +162,109 @@
 /* ── FullCalendar Shadcn Integration ── */
 .fc {
   --fc-page-bg-color: transparent;
-  --fc-neutral-bg-color: rgba(255, 255, 255, 0.05);
-  --fc-neutral-text-color: #94a3b8;
-  --fc-border-color: #2a2a2a;
+  --fc-neutral-bg-color: rgba(255, 255, 255, 0.02);
+  --fc-neutral-text-color: #64748b;
+  --fc-border-color: rgba(39, 39, 42, 0.5); /* zinc-800/50 */
   
   --fc-button-text-color: #f8fafc;
-  --fc-button-bg-color: #1a1a1a;
-  --fc-button-border-color: #2a2a2a;
-  --fc-button-hover-bg-color: #2a2a2a;
-  --fc-button-hover-border-color: #2a2a2a;
-  --fc-button-active-bg-color: #f59e0b;
-  --fc-button-active-border-color: #f59e0b;
+  --fc-button-bg-color: transparent;
+  --fc-button-border-color: #27272a;
+  --fc-button-hover-bg-color: #1a1a1a;
+  --fc-button-hover-border-color: #3f3f46;
+  --fc-button-active-bg-color: var(--color-primary);
+  --fc-button-active-border-color: var(--color-primary);
   --fc-button-active-text-color: #0a0a0a;
   
   --fc-event-bg-color: transparent;
   --fc-event-border-color: transparent;
   --fc-event-text-color: inherit;
-  --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
+  --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.2);
 
-  --fc-today-bg-color: rgba(245, 158, 11, 0.05);
+  --fc-today-bg-color: rgba(245, 158, 11, 0.03);
   font-family: inherit;
 }
 
 .fc-theme-standard .fc-scrollgrid {
-  border-radius: var(--radius-md);
+  border-radius: 1.5rem;
   overflow: hidden;
-  border-width: 1px;
+  border: 1px solid var(--fc-border-color) !important;
+}
+
+.fc .fc-toolbar {
+  margin-bottom: 2rem !important;
 }
 
 .fc .fc-toolbar-title {
-  font-size: 1.25rem !important;
-  font-weight: 800 !important;
+  font-size: 1.5rem !important;
+  font-weight: 900 !important;
   text-transform: uppercase;
   letter-spacing: -0.05em;
   font-style: italic;
+  color: #fff;
 }
 
 .fc .fc-button {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
-  border-radius: var(--radius-md);
-  box-shadow: none !important;
-  transition: all 0.2s;
-}
-
-.fc .fc-button-primary:not(:disabled):active, 
-.fc .fc-button-primary:not(:disabled).fc-button-active {
-  box-shadow: none !important;
+  border-radius: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  font-size: 0.7rem !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .fc-theme-standard th, .fc-theme-standard td {
-  border-color: var(--fc-border-color);
+  border-color: var(--fc-border-color) !important;
+}
+
+.fc-col-header-cell {
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .fc-col-header-cell-cushion {
-  color: var(--fc-neutral-text-color);
-  font-size: 0.75rem;
-  font-weight: 700;
+  color: #475569;
+  font-size: 0.65rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.75rem !important;
+  letter-spacing: 0.2em;
+  padding: 1rem !important;
 }
 
 .fc-daygrid-day-number {
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.5rem !important;
-  color: #f8fafc;
+  font-weight: 900 !important;
+  font-size: 1.1rem !important; /* Larger and Bolder */
+  padding: 0.75rem !important;
+  color: #94a3b8 !important;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: var(--color-primary) !important;
+  font-style: italic;
+  transform: scale(1.1);
+}
+
+.fc-daygrid-day:hover .fc-daygrid-day-number {
+  color: #fff !important;
 }
 
 .fc-day-other .fc-daygrid-day-number {
-  color: var(--fc-neutral-text-color);
-  opacity: 0.5;
-}
+  opacity: 0.1;
+}
+
+/* Event refinement: Larger yellow/primary rectangles */
+.fc-daygrid-event-harness {
+  margin: 4px 8px !important; /* Increased margin */
+}
+
+.fc-event {
+  cursor: pointer;
+  border-radius: 0.6rem !important;
+  padding: 4px 0 !important; /* Taller chips */
+}
+
+/* Fallback for full-cell logic if library allows - disabled for stability */
+.holiday-national, .holiday-state, .holiday-both {
+  background-color: transparent !important;
+}

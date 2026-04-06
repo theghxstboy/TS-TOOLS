@@ -16,7 +16,8 @@ import {
     MonitorSmartphone,
     Sticker,
     Star,
-    ArrowRight
+    ArrowRight,
+    Map
 } from "lucide-react"
 import {
     Dialog,
@@ -28,6 +29,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { useUI } from "@/hooks/useUI"
 import { CommandAction } from "@/types/generator"
 import { nichesData } from "@/data/niches"
+import { US_STATES_DATA } from "@/data/us-states-data"
 
 const STATIC_ACTIONS: CommandAction[] = [
     {
@@ -156,7 +158,16 @@ export function CommandPalette() {
         payload: fav
     })), [favorites, router])
 
-    const allActions = useMemo(() => [...favoriteActions, ...STATIC_ACTIONS, ...nicheActions], [favoriteActions, nicheActions])
+    const stateActions: CommandAction[] = useMemo(() => Object.values(US_STATES_DATA).map(state => ({
+        id: `state-${state.id}`,
+        title: state.name,
+        description: `Capital: ${state.capital} • ${state.majorCities.slice(0, 3).join(", ")}`,
+        icon: <Map size={20} className="text-primary/70" />,
+        href: `/calendario-de-ideias?state=${state.id}`,
+        category: "Calendário de Estados"
+    })), [])
+
+    const allActions = useMemo(() => [...favoriteActions, ...STATIC_ACTIONS, ...nicheActions, ...stateActions], [favoriteActions, nicheActions, stateActions])
 
     const filteredActions = useMemo(() =>
         allActions.filter(action =>
