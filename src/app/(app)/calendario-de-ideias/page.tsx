@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import USAMap from "@/components/USAMap"
 import StateDetails from "@/components/StateDetails"
@@ -10,7 +10,7 @@ import { Search, ChevronDown, Map as MapIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-export default function CalendarioDeIdeias() {
+function CalendarioDeIdeiasContent() {
   const searchParams = useSearchParams()
   const [selectedState, setSelectedState] = useState<string>("MA") 
   const [searchQuery, setSearchQuery] = useState("")
@@ -134,5 +134,19 @@ export default function CalendarioDeIdeias() {
       )}
 
     </div>
+  )
+}
+
+export default function CalendarioDeIdeias() {
+  return (
+    <Suspense fallback={
+      <div className="flex-1 bg-black min-h-screen text-white flex items-center justify-center">
+        <div className="text-primary animate-pulse font-black uppercase tracking-widest italic text-xl">
+          Carregando...
+        </div>
+      </div>
+    }>
+      <CalendarioDeIdeiasContent />
+    </Suspense>
   )
 }

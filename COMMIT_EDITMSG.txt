@@ -1,0 +1,48 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Your branch is up to date with 'origin/main'.
+#
+# Changes to be committed:
+#	new file:   .debug_scraper/debug_page.html
+#	new file:   .debug_scraper/debug_screenshot.png
+#	modified:   backend/__init__.py
+#	modified:   backend/__pycache__/__init__.cpython-313.pyc
+#	modified:   backend/__pycache__/main.cpython-313.pyc
+#	modified:   backend/__pycache__/models.cpython-313.pyc
+#	modified:   backend/__pycache__/schemas.cpython-313.pyc
+#	new file:   backend/__pycache__/state.cpython-313.pyc
+#	modified:   backend/ai/qualification_runner.py
+#	modified:   backend/enrichment/enrichment_runner.py
+#	modified:   backend/enrichment/site_checker.py
+#	modified:   backend/main.py
+#	modified:   backend/models.py
+#	modified:   backend/routers/__pycache__/pipeline.cpython-313.pyc
+#	modified:   backend/routers/pipeline.py
+#	modified:   backend/run_pipeline.py
+#	modified:   backend/run_scraper.py
+#	modified:   backend/scheduler/__pycache__/jobs.cpython-313.pyc
+#	modified:   backend/scheduler/jobs.py
+#	modified:   backend/schemas.py
+#	modified:   backend/scraper/__pycache__/ma_scraper.cpython-313.pyc
+#	modified:   backend/scraper/ma_scraper.py
+#	new file:   backend/scraper/ma_worker.py
+#	new file:   backend/state.py
+#	new file:   check_loop_debug.py
+#	modified:   data/leads.db
+#	new file:   debug_ma.py
+#	new file:   debug_ma_selectors.py
+#	modified:   inspect_ma.py
+#	new file:   prune_results.py
+#	modified:   requirements.txt
+#	new file:   run_server.py
+#	modified:   sobrenome.csv
+#	new file:   test_proactor_thread.py
+#	modified:   test_silva.py
+#	new file:   worker_log.txt
+#
+# Changes not staged for commit:
+#	modified:   frontend (modified content, untracked content)
+#
