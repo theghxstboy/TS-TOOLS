@@ -38,12 +38,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
-import { BANNER_NICHES, BANNER_STYLES, BANNER_RATIOS, BANNER_COMPOSITIONS } from "@/constants/presets-banners"
+import { BANNER_NICHES, BANNER_STYLES, BANNER_RATIOS, BANNER_COMPOSITIONS, BANNER_THEMES } from "@/constants/presets-banners"
 
 export default function GeradorBanners() {
     const [niche, setNiche] = useState("roofing")
     const [nicheOther, setNicheOther] = useState("")
     const [style, setStyle] = useState("photorealistic")
+    const [styleOther, setStyleOther] = useState("")
+    const [theme, setTheme] = useState("none")
+    const [themeOther, setThemeOther] = useState("")
     const [ratio, setRatio] = useState("desktop-hd")
     const [composition, setComposition] = useState("left")
     const [isGenerating, setIsGenerating] = useState(false)
@@ -54,12 +57,20 @@ export default function GeradorBanners() {
         setIsGenerating(true)
         
         const finalNiche = niche === 'other' ? nicheOther : BANNER_NICHES.find(n => n.id === niche)?.label || niche
+        const finalStyle = style === 'other' ? styleOther : BANNER_STYLES.find(s => s.id === style)?.label || style
+        const finalTheme = theme === 'other' ? themeOther : BANNER_THEMES.find(t => t.id === theme)?.label || theme
+        
         const selectedStyle = BANNER_STYLES.find(s => s.id === style)
         const selectedRatio = BANNER_RATIOS.find(r => r.id === ratio)
         const selectedComp = BANNER_COMPOSITIONS.find(c => c.id === composition)
 
         let prompt = `Professional background image for a commercial banner, niche: ${finalNiche}. `
-        prompt += `Style: ${selectedStyle?.label}. ${selectedStyle?.description} `
+        
+        if (theme !== 'none') {
+            prompt += `Seasonal Thematic: ${finalTheme}. `
+        }
+        
+        prompt += `Visual Style: ${finalStyle}. ${selectedStyle?.description || ""} `
         prompt += `Composition: ${selectedComp?.description} MUST LEAVE CLEAR EMPTY SPACE for text overlay. `
         prompt += `High-end quality, 8k resolution, cinematic lighting, professional photography. `
         prompt += `STRICT RULE: NO TEXT, NO LETTERS, NO WORDS, NO CHARACTERS, NO SIGNAGE, NO NUMBERS. Pure visual background only.`
@@ -86,6 +97,9 @@ export default function GeradorBanners() {
         setNiche("roofing")
         setNicheOther("")
         setStyle("photorealistic")
+        setStyleOther("")
+        setTheme("none")
+        setThemeOther("")
         setRatio("desktop-hd")
         setComposition("left")
         setGeneratedPrompt("")
@@ -96,27 +110,18 @@ export default function GeradorBanners() {
             <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 md:py-12">
                 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-fade-up">
-                    <div className="space-y-4">
-                        <Link 
-                            href="/" 
-                            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group"
-                        >
-                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                            Voltar ao Dashboard
-                        </Link>
-                        <div className="flex items-center gap-4">
-                            <div className="size-14 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-xl shadow-cyan-500/20">
-                                <ImageIcon size={32} />
-                            </div>
-                            <div>
-                                <h1 className="text-4xl font-black tracking-tight text-foreground uppercase">
-                                    Gerador de <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Banners</span>
-                                </h1>
-                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mt-1 italic">
-                                    BACKGROUND ENGINE FOR ELEMENTOR
-                                </p>
-                            </div>
+                <div className="flex flex-col items-center text-center gap-6 mb-16 animate-fade-up">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="size-20 rounded-[28px] bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-2xl shadow-cyan-500/30">
+                            <ImageIcon size={48} />
+                        </div>
+                        <div className="space-y-1">
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground uppercase">
+                                Gerador de <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Banners</span>
+                            </h1>
+                            <p className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-[0.3em] mt-1 italic opacity-70">
+                                BACKGROUND ENGINE FOR ELEMENTOR
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -139,51 +144,84 @@ export default function GeradorBanners() {
                             </CardHeader>
 
                             <CardContent className="p-6 md:p-8 space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    
-                                    {/* Niche Selection */}
-                                    <div className="space-y-3">
-                                        <Label className="text-sm font-bold text-foreground flex items-center gap-2">
-                                            <Layout size={16} className="text-cyan-500" />
-                                            Nicho do Projeto
-                                        </Label>
-                                        <Select value={niche} onValueChange={setNiche}>
-                                            <SelectTrigger className="bg-background/50 border-border/50 h-12 rounded-xl focus:ring-orange-500/20">
-                                                <SelectValue placeholder="Selecione o nicho..." />
-                                            </SelectTrigger>
-                                            <SelectContent className="rounded-xl border-border">
-                                                <SelectGroup>
-                                                    <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50">Exterior</SelectLabel>
-                                                    {BANNER_NICHES.filter(n => n.group === 'Exterior').map(n => (
-                                                        <SelectItem key={n.id} value={n.id} className="rounded-lg">{n.label}</SelectItem>
+                                <div className="space-y-10">
+                                    {/* Row 1: Basic Config */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        {/* Niche Selection */}
+                                        <div className="space-y-3">
+                                            <Label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                                <Layout size={16} className="text-cyan-500" />
+                                                Nicho do Projeto
+                                            </Label>
+                                            <Select value={niche} onValueChange={setNiche}>
+                                                <SelectTrigger className="bg-background/50 border-border/50 h-12 rounded-xl focus:ring-cyan-500/20">
+                                                    <SelectValue placeholder="Selecione o nicho..." />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-xl border-border">
+                                                    <SelectGroup>
+                                                        <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50">Exterior</SelectLabel>
+                                                        {BANNER_NICHES.filter(n => n.group === 'Exterior').map(n => (
+                                                            <SelectItem key={n.id} value={n.id} className="rounded-lg">{n.label}</SelectItem>
+                                                        ))}
+                                                        <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50 mt-2">Interior</SelectLabel>
+                                                        {BANNER_NICHES.filter(n => n.group === 'Interior').map(n => (
+                                                            <SelectItem key={n.id} value={n.id} className="rounded-lg">{n.label}</SelectItem>
+                                                        ))}
+                                                        <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50 mt-2">Personalizado</SelectLabel>
+                                                        <SelectItem value="other" className="rounded-lg font-bold text-cyan-500">Outro (Especifique)</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            {niche === 'other' && (
+                                                <Input 
+                                                    placeholder="Qual o nicho?" 
+                                                    value={nicheOther} 
+                                                    onChange={e => setNicheOther(e.target.value)}
+                                                    className="bg-background/30 border-cyan-500/30 h-11 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300"
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Theme Selection */}
+                                        <div className="space-y-3">
+                                            <Label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                                <Sparkles size={16} className="text-cyan-500" />
+                                                Temática Sazonal
+                                            </Label>
+                                            <Select value={theme} onValueChange={setTheme}>
+                                                <SelectTrigger className="bg-background/50 border-border/50 h-12 rounded-xl focus:ring-cyan-500/20">
+                                                    <SelectValue placeholder="Escolha um tema..." />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-xl border-border">
+                                                    {BANNER_THEMES.map(t => (
+                                                        <SelectItem key={t.id} value={t.id} className="rounded-lg">
+                                                            <div className="flex flex-col gap-0.5 py-1">
+                                                                <span className="font-bold text-sm tracking-tight">{t.label}</span>
+                                                                <span className="text-[10px] text-muted-foreground opacity-70 leading-none">{t.description}</span>
+                                                            </div>
+                                                        </SelectItem>
                                                     ))}
-                                                    <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50 mt-2">Interior</SelectLabel>
-                                                    {BANNER_NICHES.filter(n => n.group === 'Interior').map(n => (
-                                                        <SelectItem key={n.id} value={n.id} className="rounded-lg">{n.label}</SelectItem>
-                                                    ))}
-                                                    <SelectLabel className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-2 py-1.5 grayscale opacity-50 mt-2">Personalizado</SelectLabel>
-                                                    <SelectItem value="other" className="rounded-lg font-bold text-cyan-500">Outro (Especifique)</SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                        {niche === 'other' && (
-                                            <Input 
-                                                placeholder="Qual o nicho?" 
-                                                value={nicheOther} 
-                                                onChange={e => setNicheOther(e.target.value)}
-                                                className="bg-background/30 border-cyan-500/30 h-11 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300"
-                                            />
-                                        )}
+                                                </SelectContent>
+                                            </Select>
+                                            {theme === 'other' && (
+                                                <Input 
+                                                    placeholder="Qual a temática?" 
+                                                    value={themeOther} 
+                                                    onChange={e => setThemeOther(e.target.value)}
+                                                    className="bg-background/30 border-cyan-500/30 h-11 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300"
+                                                />
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {/* Style Selection */}
+                                    {/* Row 2: Visual Style (Full Width) */}
                                     <div className="space-y-3">
                                         <Label className="text-sm font-bold text-foreground flex items-center gap-2">
                                             <Palette size={16} className="text-cyan-500" />
                                             Estilo Visual
                                         </Label>
                                         <Select value={style} onValueChange={setStyle}>
-                                            <SelectTrigger className="bg-background/50 border-border/50 h-12 rounded-xl">
+                                            <SelectTrigger className="bg-background/50 border-border/50 h-12 rounded-xl focus:ring-cyan-500/20">
                                                 <SelectValue placeholder="Escolha o estilo..." />
                                             </SelectTrigger>
                                             <SelectContent className="rounded-xl border-border">
@@ -197,21 +235,29 @@ export default function GeradorBanners() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        {style === 'other' && (
+                                            <Input 
+                                                placeholder="Qual o estilo visual?" 
+                                                value={styleOther} 
+                                                onChange={e => setStyleOther(e.target.value)}
+                                                className="bg-background/30 border-cyan-500/30 h-11 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300"
+                                            />
+                                        )}
                                     </div>
 
-                                    {/* Ratio Selection */}
-                                    <div className="space-y-3">
+                                    {/* Row 3: Aspect Ratio Tiles (Full Width) */}
+                                    <div className="space-y-4">
                                         <Label className="text-sm font-bold text-foreground flex items-center gap-2">
                                             <Maximize size={16} className="text-cyan-500" />
                                             Aspect Ratio (Proporção)
                                         </Label>
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                             {BANNER_RATIOS.map(r => (
                                                 <button
                                                     key={r.id}
                                                     onClick={() => setRatio(r.id)}
                                                     className={cn(
-                                                        "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all group overflow-hidden relative min-h-[80px]",
+                                                        "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all group overflow-hidden relative min-h-[90px]",
                                                         ratio === r.id 
                                                             ? "border-cyan-500 bg-cyan-500/5 shadow-lg shadow-cyan-500/10" 
                                                             : "border-border/50 bg-background/30 hover:border-border hover:bg-background/50"
@@ -237,13 +283,16 @@ export default function GeradorBanners() {
                                         </div>
                                     </div>
 
-                                    {/* Composition / Negative Space */}
-                                    <div className="space-y-3">
-                                        <Label className="text-sm font-bold text-foreground flex items-center gap-2">
-                                            <MousePointer2 size={16} className="text-cyan-500" />
-                                            Espaço da Copy (Composição)
-                                        </Label>
-                                        <div className="grid grid-cols-3 gap-2">
+                                    {/* Row 4: Composition Tiles (Full Width) */}
+                                    <div className="space-y-4">
+                                        <div className="flex flex-col gap-1">
+                                            <Label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                                <MousePointer2 size={16} className="text-cyan-500" />
+                                                Espaço da Copy (Composição)
+                                            </Label>
+                                            <p className="text-[10px] text-muted-foreground font-medium italic">Define onde a IA deixará espaço limpo para o texto no WordPress.</p>
+                                        </div>
+                                        <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
                                             {BANNER_COMPOSITIONS.map(c => (
                                                 <button
                                                     key={c.id}
@@ -278,9 +327,7 @@ export default function GeradorBanners() {
                                                 </button>
                                             ))}
                                         </div>
-                                        <p className="text-[10px] text-muted-foreground font-medium italic">Define onde a IA deixará espaço limpo para o texto no WordPress.</p>
                                     </div>
-
                                 </div>
 
                                 <Separator className="bg-border/50" />

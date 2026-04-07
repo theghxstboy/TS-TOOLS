@@ -29,14 +29,21 @@ export const BANNER_STYLES = [
     { id: "industrial", label: "Industrial / Work", description: "Foco em ferramentas, mãos trabalhando, tom profissional." },
     { id: "abstract-tech", label: "Abstrato Tech", description: "Formas geométricas, luzes, focado em tecnologia/software." },
     { id: "luxury", label: "Luxo / Elegante", description: "Materiais nobres, acabamento refinado, tons sóbrios." },
+    { id: "other", label: "Outro (Personalizado)", description: "Especifique seu próprio estilo visual." },
+];
+
+export const BANNER_THEMES = [
+    { id: "none", label: "Nenhum (Padrão)", description: "Sem temática sazonal específica." },
+    { id: "thanksgiving", label: "Thanksgiving", description: "Cores outonais, abóboras, folhas secas, clima de gratidão." },
+    { id: "christmas", label: "Christmas", description: "Neve, luzes natalinas, tons de vermelho e verde, pinheiros." },
+    { id: "new-year", label: "New Year", description: "Fogos de artifício, brilho, relógios, tons de dourado e prata." },
+    { id: "other", label: "Outro (Personalizado)", description: "Especifique sua temática sazonal." },
 ];
 
 export const BANNER_RATIOS = [
     { id: "desktop-hd", label: "Desktop HD (16:9)", value: "1920x1080", ratio: "16/9" },
     { id: "desktop-standard", label: "Desktop Standard (1200x628)", value: "1200x628", ratio: "1.91/1" },
     { id: "mobile-tall", label: "Mobile Instagram/Story (9:16)", value: "1080x1920", ratio: "9/16" },
-    { id: "mobile-feed", label: "Mobile Feed (4:5)", value: "1080x1350", ratio: "4/5" },
-    { id: "square", label: "Quadrado (1:1)", value: "1080x1080", ratio: "1/1" },
 ];
 
 export const BANNER_COMPOSITIONS = [
