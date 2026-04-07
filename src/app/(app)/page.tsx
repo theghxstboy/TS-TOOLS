@@ -35,6 +35,7 @@ import {
   PackageSearch,
   Sticker,
   CalendarDays,
+  Image as ImageIcon,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -144,6 +145,17 @@ const DEFAULT_TOOLS: Tool[] = [
     description: "Prompts de pessoas extremamente realistas para fotos e vídeos por IA.",
     icon: <UserFocus size={32} strokeWidth={1.5} />,
     departments: ["Design", "Audiovisual"],
+  },
+  {
+    id: "gerador-banners",
+    href: "/gerador-banners",
+    label: "Gerador de Banners",
+    badge: "Web & Design",
+    badgeColor: "bg-cyan-500/20 text-cyan-400 font-black",
+    accentColor: "cyan",
+    description: "Fundo perfeito para Elementor: prompts de imagens limpas com espaço para copy estratégica.",
+    icon: <ImageIcon size={32} strokeWidth={1.5} />,
+    departments: ["Webdesign", "Design"],
   },
   {
     id: "gerador-webdesign",
