@@ -136,6 +136,17 @@ const DEFAULT_TOOLS: Tool[] = [
     departments: ["Audiovisual", "Tráfego pago"],
   },
   {
+    id: "gerador-takes",
+    href: "/gerador-takes",
+    label: "Gerador de Takes",
+    badge: "Ads & Video",
+    badgeColor: "bg-blue-600/20 text-blue-600 font-black",
+    accentColor: "blue",
+    description: "Estruture cenas, falas e direção visual para anúncios incríveis.",
+    icon: <Video size={32} strokeWidth={1.5} />,
+    departments: ["Audiovisual", "Tráfego pago"],
+  },
+  {
     id: "gerador-humano",
     href: "/gerador-humano",
     label: "Humanizador",

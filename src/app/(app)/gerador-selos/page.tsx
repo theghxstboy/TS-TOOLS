@@ -165,8 +165,9 @@ function GeradorSelosContent() {
         setGeneratedPrompt(item.prompt || "")
     }
 
-    // Handle Auto-Generation Effect
-    useEffect(() => {
+    const handleGenerate = useCallback(() => {
+        setIsGenerating(true);
+        
         const finalShape = shape === 'other' ? shapeOther : (SEAL_SHAPES.find(s => s.id === shape)?.label || shape);
         const finalMaterial = material === 'other' ? materialOther : (SEAL_MATERIALS.find(m => m.id === material)?.label || material);
         const finalIcon = iconName === 'other' ? iconOther : iconName;
@@ -211,8 +212,12 @@ REQUIREMENTS:
 5. 8k resolution, suitable for high-end creative ad assets.
 `.trim();
 
-        setGeneratedPrompt(promptTemplate);
-    }, [title, subtitle, iconName, iconOther, shape, shapeOther, material, materialOther, primaryColor, secondaryColor, textColor, mode, logoFile, customColors]);
+        setTimeout(() => {
+            setGeneratedPrompt(promptTemplate);
+            saveHistory({mode, title, subtitle, iconName, iconOther, primaryColor, secondaryColor, textColor, shape, shapeOther, material, materialOther}, promptTemplate);
+            setIsGenerating(false);
+        }, 600);
+    }, [title, subtitle, iconName, iconOther, shape, shapeOther, material, materialOther, primaryColor, secondaryColor, textColor, mode, logoFile, customColors, saveHistory]);
 
     const handlePresetClick = (id: string) => {
         setSelectedPreset(id)
@@ -307,6 +312,7 @@ REQUIREMENTS:
         setMaterialOther("")
         setLogoFile(null)
         setColorsExtracted(false)
+        setGeneratedPrompt("")
     }
 
     return (
@@ -607,11 +613,8 @@ REQUIREMENTS:
                             {/* Action Button */}
                             <div className="pt-6">
                                 <Button 
-                                    onClick={() => {
-                                        setIsGenerating(true);
-                                        saveHistory({mode, title, subtitle, iconName, iconOther, primaryColor, secondaryColor, textColor, shape, shapeOther, material, materialOther}, generatedPrompt);
-                                        setTimeout(() => setIsGenerating(false), 600);
-                                    }}
+                                    onClick={handleGenerate}
+                                    disabled={isGenerating}
                                     className="w-full py-9 text-xl font-black uppercase tracking-[0.2em] bg-amber-500 hover:bg-amber-600 text-white shadow-2xl shadow-amber-500/30 transition-all active:scale-[0.98] rounded-2xl flex items-center justify-center gap-4 group"
                                 >
                                     {isGenerating ? <Lightning className="animate-spin size-8" /> : (
@@ -656,11 +659,25 @@ REQUIREMENTS:
                         </div>
 
                         <CardContent className="p-6 min-h-[350px] flex flex-col">
-                            <Textarea 
-                                className="flex-1 bg-muted/20 border-border text-foreground font-mono text-[11px] p-5 leading-relaxed resize-none rounded-xl custom-scrollbar border-2"
-                                readOnly
-                                value={generatedPrompt}
-                            />
+                            <div className="flex-1 min-h-[350px] relative rounded-xl overflow-hidden border-2 border-border bg-muted/20">
+                                {generatedPrompt ? (
+                                    <Textarea 
+                                        className="absolute inset-0 w-full h-full bg-transparent border-none text-foreground font-mono text-[11px] p-5 leading-relaxed resize-none rounded-xl custom-scrollbar"
+                                        readOnly
+                                        value={generatedPrompt}
+                                    />
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center gap-4 text-muted-foreground opacity-50 p-6 text-center">
+                                        <div className="size-20 border-4 border-dashed border-muted-foreground/20 rounded-3xl flex items-center justify-center animate-pulse">
+                                            <Shield size={40} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <p className="text-sm font-black uppercase tracking-widest italic">Aguardando Estruturação...</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider leading-none">Configure os parâmetros e clique em Gerar</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
                                 <Button
