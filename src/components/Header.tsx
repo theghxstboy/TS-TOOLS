@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import { useSession, signOut, signIn } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BackButton } from "./BackButton"
 import { SearchTrigger } from "./SearchTrigger"
+import { BugReportModal } from "./BugReportModal"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,12 +24,13 @@ import {
 } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { ListTodo, PackageSearch } from "lucide-react"
+import { ListTodo, PackageSearch, Bug } from "lucide-react"
 
 export default function Header() {
     const { data: session } = useSession()
     const pathname = usePathname()
     const isHome = pathname === "/"
+    const [isBugModalOpen, setBugModalOpen] = useState(false)
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-card/90 backdrop-blur-md">
@@ -112,6 +115,13 @@ export default function Header() {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
+                                <DropdownMenuItem className="cursor-pointer" onSelect={() => setBugModalOpen(true)}>
+                                    <div className="flex items-center w-full">
+                                        <Bug size={14} className="mr-2 opacity-70" />
+                                        <span>Reportar Bug</span>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 {session.user.role === "admin" && (
                                     <>
                                         <DropdownMenuItem className="cursor-pointer">
@@ -138,6 +148,7 @@ export default function Header() {
                     )}
                 </div>
             </div>
+            {session && <BugReportModal isOpen={isBugModalOpen} onClose={() => setBugModalOpen(false)} />}
         </header>
     )
 }

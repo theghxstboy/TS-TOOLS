@@ -451,15 +451,7 @@ function GeradorContent() {
                     {/* Inputs Column */}
                     <div className="lg:col-span-7 flex flex-col gap-6 animate-fade-up" style={{ animationDelay: '150ms' }}>
                         
-                        {/* Navigation Actions */}
-                        <div className="flex items-center justify-between mb-2">
-                            <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-                                <Link href="/docs/nichos" className="flex items-center gap-2">
-                                    <BookOpen size={18} />
-                                    <span>Guia de Nichos & Vocabulário</span>
-                                </Link>
-                            </Button>
-                        </div>
+
 
                         {/* Presets Gallery */}
                         <Card className="rounded-[24px] border-border shadow-xl overflow-hidden">
