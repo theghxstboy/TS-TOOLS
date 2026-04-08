@@ -57,6 +57,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { useClipboard } from "@/hooks/useClipboard"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { HistoryItem } from "@/types/generator"
 import { PRESETS_SELOS, PresetSelo, SEAL_SHAPES, SEAL_MATERIALS, SEAL_ICONS } from "@/constants/presets-selos"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -141,6 +144,26 @@ function GeradorSelosContent() {
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const [isGenerating, setIsGenerating] = useState(false)
     const { isCopied, copy } = useClipboard()
+
+    const { history, saveHistory } = useGenerationHistory<any>("gerador-selos")
+
+    const handleRestore = (item: HistoryItem<any>) => {
+        const p = item.payload;
+        if (!p) return;
+        setMode(p.mode || "3d")
+        setTitle(p.title || "CERTIFIED")
+        setSubtitle(p.subtitle || "Professional")
+        setIconName(p.iconName || "ShieldCheck")
+        setIconOther(p.iconOther || "")
+        setPrimaryColor(p.primaryColor || "#000000")
+        setSecondaryColor(p.secondaryColor || "#D4AF37")
+        setTextColor(p.textColor || "#FFFFFF")
+        setShape(p.shape || "serrated")
+        setShapeOther(p.shapeOther || "")
+        setMaterial(p.material || "gold-foil")
+        setMaterialOther(p.materialOther || "")
+        setGeneratedPrompt(item.prompt || "")
+    }
 
     // Handle Auto-Generation Effect
     useEffect(() => {
@@ -586,6 +609,7 @@ REQUIREMENTS:
                                 <Button 
                                     onClick={() => {
                                         setIsGenerating(true);
+                                        saveHistory({mode, title, subtitle, iconName, iconOther, primaryColor, secondaryColor, textColor, shape, shapeOther, material, materialOther}, generatedPrompt);
                                         setTimeout(() => setIsGenerating(false), 600);
                                     }}
                                     className="w-full py-9 text-xl font-black uppercase tracking-[0.2em] bg-amber-500 hover:bg-amber-600 text-white shadow-2xl shadow-amber-500/30 transition-all active:scale-[0.98] rounded-2xl flex items-center justify-center gap-4 group"
@@ -658,6 +682,14 @@ REQUIREMENTS:
                         </CardContent>
                     </Card>
                 </div>
+            </div>
+
+            <div className="mt-8 animate-fade-up w-full col-span-full" style={{ animationDelay: '450ms' }}>
+                <GenerationHistory
+                    history={history}
+                    onRestore={handleRestore}
+                    generatorName="gerador-selos"
+                />
             </div>
 
             {/* Workflow Finishing Popup (Pattern from Creative Workflow) */}
@@ -782,6 +814,16 @@ REQUIREMENTS:
                     </div>
                 </div>
             )}
+
+            {/* Footer Padrão */}
+            <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                <div className="flex flex-col items-center gap-4">
+                    <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                    <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                        TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                    </p>
+                </div>
+            </footer>
         </div>
     )
 }

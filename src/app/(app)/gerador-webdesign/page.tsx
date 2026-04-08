@@ -382,7 +382,7 @@ Utilize a seguinte estrutura de seções:
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-blue-400 to-cyan-500 flex items-center justify-center text-white shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-cyan-400 to-cyan-500 flex items-center justify-center text-white shadow-xl relative group cursor-help transition-transform hover:scale-110">
                                         <Code size={32} />
                                     </div>
                                 </TooltipTrigger>
@@ -391,7 +391,7 @@ Utilize a seguinte estrutura de seções:
                         </TooltipProvider>
                         <div className="text-left">
                             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                Web Design <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-500">Generator</span>
+                                Web Design <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-cyan-500">Generator</span>
                             </h1>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">FRONT-END PROMPT SYSTEM</p>
                         </div>
@@ -410,9 +410,9 @@ Utilize a seguinte estrutura de seções:
                             <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Templates Prontos <span className="text-blue-500 text-xl">↓</span>
+                                    Templates Prontos <span className="text-cyan-500 text-xl">↓</span>
                                 </CardTitle>
-                                <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-blue-500/20 font-bold uppercase tracking-wider text-[10px]">
+                                <Badge variant="secondary" className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20 font-bold uppercase tracking-wider text-[10px]">
                                     AUTO
                                 </Badge>
                             </CardHeader>
@@ -425,7 +425,7 @@ Utilize a seguinte estrutura de seções:
                                             onClick={() => handlePresetClick(preset.id)}
                                             className={cn(
                                                 "relative w-[135px] h-[160px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                                selectedPreset === preset.id ? "border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                                selectedPreset === preset.id ? "border-cyan-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
                                             )}
                                         >
                                             <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
@@ -442,7 +442,7 @@ Utilize a seguinte estrutura de seções:
 
                                             <div className={cn(
                                                 "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                                selectedPreset === preset.id ? "bg-blue-500 border-blue-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                                selectedPreset === preset.id ? "bg-cyan-500 border-cyan-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                             )}>
                                                 {selectedPreset === preset.id && <Check size={14} />}
                                             </div>
@@ -461,7 +461,7 @@ Utilize a seguinte estrutura de seções:
                             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                                    <div className="size-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
                                         <Code size={28} />
                                     </div>
                                     <div>
@@ -473,15 +473,15 @@ Utilize a seguinte estrutura de seções:
                                 <div className="flex items-center bg-muted p-1 rounded-2xl">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-blue-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-cyan-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Automático
+                                        Básico
                                     </button>
                                     <button
                                         onClick={() => setMode("expert")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'expert' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Expert
+                                        Avançado
                                     </button>
                                 </div>
                             </CardHeader>
@@ -555,7 +555,7 @@ Utilize a seguinte estrutura de seções:
 
                                     <div className="space-y-2">
                                         <Label htmlFor="targetAI" className="font-semibold text-foreground flex items-center gap-2">
-                                            <Robot size={18} className="text-blue-500" />
+                                            <Robot size={18} className="text-cyan-500" />
                                             IA de Destino (Otimização)
                                         </Label>
                                         <Select value={targetAI} onValueChange={setTargetAI}>
@@ -660,7 +660,7 @@ Utilize a seguinte estrutura de seções:
                                 {mode === 'expert' && (
                                     <div className="space-y-6 pt-6 border-t border-border">
                                         <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                            <Sparkle size={20} className="text-blue-500" />
+                                            <Sparkle size={20} className="text-cyan-500" />
                                             Expert: Assets & Extração
                                         </h3>
 
@@ -737,7 +737,7 @@ Utilize a seguinte estrutura de seções:
                                 <div className="pt-6 pb-2">
                                     <Button
                                         onClick={handleGenerate}
-                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-blue-500 hover:bg-blue-600 text-white shadow-2xl shadow-blue-500/20 transition-all active:scale-[0.98]"
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-cyan-500 hover:bg-blue-600 text-white shadow-2xl shadow-cyan-500/20 transition-all active:scale-[0.98]"
                                     >
                                         {isGenerating ? <CheckCircle size={28} /> : "Gerar Prompt de Código"}
                                     </Button>
@@ -753,20 +753,20 @@ Utilize a seguinte estrutura de seções:
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                                        <TerminalWindow size={24} className="text-blue-500" />
+                                        <TerminalWindow size={24} className="text-cyan-500" />
                                         Prompt Gerado
                                     </CardTitle>
-                                    <Badge className="bg-blue-500/20 text-blue-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                    <Badge className="bg-cyan-500/20 text-cyan-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
                                         PRONTO PARA IA
                                     </Badge>
                                 </div>
                             </CardHeader>
 
                             {/* ALERTA IMPORTANTE PARA IMAGEM */}
-                            <div className="bg-blue-500/10 border-b border-blue-500/20 p-4 flex items-start gap-3">
+                            <div className="bg-cyan-500/10 border-b border-cyan-500/20 p-4 flex items-start gap-3">
                                 <span className="text-2xl mt-0.5 animate-pulse">🖼️</span>
                                 <div>
-                                    <h3 className="text-blue-500 font-bold text-sm tracking-tight mb-1">Passo Fundamental</h3>
+                                    <h3 className="text-cyan-500 font-bold text-sm tracking-tight mb-1">Passo Fundamental</h3>
                                     <p className="text-muted-foreground text-xs leading-relaxed font-medium">
                                         Para o resultado perfeito, <strong className="text-foreground">copie o prompt abaixo e anexe uma ou mais imagens de referência de design</strong> na sua IA favorita (Lovable, v0, etc). A IA irá "ler" a imagem OCR e replicar os estilos reais com seu texto.
                                     </p>
@@ -777,7 +777,7 @@ Utilize a seguinte estrutura de seções:
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-blue-500/50 rounded-xl custom-scrollbar"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-cyan-500/50 rounded-xl custom-scrollbar"
                                             readOnly
                                             value={generatedPrompt}
                                         />
@@ -790,7 +790,7 @@ Utilize a seguinte estrutura de seções:
                                                 }, generatedPrompt, `${productName || niche}`)}
                                                 className={cn(
                                                     "bg-input hover:bg-muted-foreground/20 text-muted-foreground border-none transition-all",
-                                                    isFavorited(generatedPrompt) && "text-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20"
+                                                    isFavorited(generatedPrompt) && "text-cyan-500 bg-cyan-500/10 hover:bg-cyan-500/20"
                                                 )}
                                             >
                                                 {isFavorited(generatedPrompt) ? <Star size={20} fill="currentColor" className="mr-2" /> : <Star size={20} className="mr-2" />}
@@ -807,7 +807,7 @@ Utilize a seguinte estrutura de seções:
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Code size={48} className="text-blue-500 mb-4" />
+                                        <Code size={48} className="text-cyan-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Preencha os campos e clique em <strong>Gerar Prompt de Código</strong>.
                                         </p>
@@ -826,6 +826,15 @@ Utilize a seguinte estrutura de seções:
                         generatorName="gerador-webdesign"
                     />
                 </div>
+                {/* Footer Padrão */}
+                <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                        <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                            TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                        </p>
+                    </div>
+                </footer>
             </div>
 
             <FloatingHelpButton pageTitle="Gerador Front-end" />

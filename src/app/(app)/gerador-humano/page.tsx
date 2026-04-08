@@ -18,7 +18,8 @@ import {
     Sparkles,
     UserCircle2,
     CheckCircle2,
-    RotateCcw
+    RotateCcw,
+    Users
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { CopyWorkflowPopup } from "@/components/CopyWorkflowPopup"
@@ -92,7 +93,7 @@ function GeradorHumanoContent() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-rose-400 to-rose-600 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
                                         <UserCircle2 size={32} />
                                     </div>
                                 </TooltipTrigger>
@@ -101,7 +102,7 @@ function GeradorHumanoContent() {
                         </TooltipProvider>
                         <div className="text-left">
                             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                Human <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-400">Generator</span>
+                                Human <span className="bg-clip-text text-transparent bg-gradient-to-r from-rose-500 to-rose-500">Generator</span>
                             </h1>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">PHOTOREALISTIC PROMPT SYSTEM</p>
                         </div>
@@ -125,7 +126,7 @@ function GeradorHumanoContent() {
                                         className={cn(
                                             "flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold transition-all",
                                             mode === "imagem"
-                                                ? "bg-gradient-to-r from-orange-400 to-primary text-black shadow-md"
+                                                ? "bg-gradient-to-r from-rose-400 to-rose-500 text-white shadow-md"
                                                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                                         )}
                                     >
@@ -143,7 +144,7 @@ function GeradorHumanoContent() {
                                         <Video size={16} /> Vídeo
                                     </button>
                                 </div>
-                                <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-black uppercase tracking-widest text-[10px]">
+                                <Badge variant="secondary" className="bg-rose-500/10 text-rose-500 border-none font-black uppercase tracking-widest text-[10px]">
                                     COMPARISON
                                 </Badge>
                             </CardHeader>
@@ -201,9 +202,9 @@ function GeradorHumanoContent() {
                             <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Perfis Sugeridos <span className="text-orange-500 text-xl">↓</span>
+                                    Perfis Sugeridos <span className="text-rose-500 text-xl">↓</span>
                                 </CardTitle>
-                                <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-bold uppercase tracking-wider text-[10px]">
+                                <Badge variant="secondary" className="bg-rose-500/10 text-rose-500 border-none font-bold uppercase tracking-wider text-[10px]">
                                     AUTO
                                 </Badge>
                             </CardHeader>
@@ -247,7 +248,7 @@ function GeradorHumanoContent() {
                             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
+                                    <div className="size-12 bg-rose-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-rose-500/20">
                                         <Sparkles size={28} />
                                     </div>
                                     <div>
@@ -267,7 +268,7 @@ function GeradorHumanoContent() {
                                         onClick={() => setGenMode("advanced")}
                                         className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", genMode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <TerminalWindow size={18} /> Expert
+                                        <TerminalWindow size={18} /> Avançado
                                     </button>
                                 </div>
                             </CardHeader>
@@ -276,7 +277,7 @@ function GeradorHumanoContent() {
                                 {/* Demographics Info */}
                                 <div className="bg-muted/30 p-6 rounded-2xl border border-border/50 shadow-inner">
                                     <div className="flex items-center gap-2 mb-4">
-                                        <Badge variant="outline" className="text-[10px] font-bold border-orange-500/20 text-orange-500 uppercase">Fase 1</Badge>
+                                        <Badge variant="outline" className="text-[10px] font-bold border-rose-500/20 text-rose-500 uppercase">Fase 1</Badge>
                                         <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Características Físicas</Label>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -343,8 +344,8 @@ function GeradorHumanoContent() {
                                                 className={cn(
                                                     "px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all border whitespace-nowrap",
                                                     activeTab === tab.id
-                                                        ? "bg-orange-500 text-black border-orange-500 shadow-lg shadow-orange-500/20 scale-105"
-                                                        : "bg-muted text-muted-foreground border-border hover:border-orange-500/50 hover:text-foreground"
+                                                        ? "bg-rose-500 text-black border-rose-500 shadow-lg shadow-rose-500/20 scale-105"
+                                                        : "bg-muted text-muted-foreground border-border hover:border-rose-500/50 hover:text-foreground"
                                                 )}
                                             >
                                                 {tab.label}
@@ -363,17 +364,17 @@ function GeradorHumanoContent() {
                                                         onClick={() => toggleCommand(cmd.id)}
                                                         className={cn(
                                                             "group flex items-start gap-4 p-5 rounded-2xl border-2 transition-all text-left relative overflow-hidden",
-                                                            isSelected ? "border-orange-500 bg-orange-500/5 shadow-inner" : "border-border bg-card hover:border-orange-500/30"
+                                                            isSelected ? "border-rose-500 bg-rose-500/5 shadow-inner" : "border-border bg-card hover:border-rose-500/30"
                                                         )}
                                                     >
                                                         <div className={cn(
                                                             "size-6 shrink-0 rounded-lg border-2 flex items-center justify-center transition-all mt-0.5 shadow-sm",
-                                                            isSelected ? "bg-orange-500 border-orange-500 text-black" : "border-muted-foreground/30 bg-background"
+                                                            isSelected ? "bg-rose-500 border-rose-500 text-black" : "border-muted-foreground/30 bg-background"
                                                         )}>
                                                             {isSelected && <CheckCircle2 size={16} strokeWidth={3} />}
                                                         </div>
                                                         <div className="relative z-10">
-                                                            <div className="font-bold text-foreground mb-1 leading-tight group-hover:text-orange-500 transition-colors">
+                                                            <div className="font-bold text-foreground mb-1 leading-tight group-hover:text-rose-500 transition-colors">
                                                                 {cmd.title}
                                                             </div>
                                                             <div className="text-[10px] font-medium text-muted-foreground leading-relaxed uppercase tracking-tight">
@@ -430,7 +431,7 @@ function GeradorHumanoContent() {
                                     </div>
                                     <Button
                                         onClick={() => {}} // Prompt generates automatically in the side panel via hook
-                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-orange-500 hover:bg-orange-600 text-black shadow-2xl shadow-orange-500/20 transition-all active:scale-[0.98] mt-4"
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-rose-500 hover:bg-rose-600 text-black shadow-2xl shadow-rose-500/20 transition-all active:scale-[0.98] mt-4"
                                         disabled={!finalPrompt}
                                     >
                                         Prompt Pronto
@@ -446,19 +447,19 @@ function GeradorHumanoContent() {
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                                        <TerminalWindow size={24} className="text-orange-500" />
+                                        <TerminalWindow size={24} className="text-rose-500" />
                                         Prompt Gerado
                                     </CardTitle>
-                                    <Badge className="bg-orange-500/20 text-orange-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                    <Badge className="bg-rose-500/20 text-rose-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
                                         HUMAN ENGINE
                                     </Badge>
                                 </div>
                             </CardHeader>
 
-                            <div className="bg-orange-500/10 border-b border-orange-500/20 p-4 flex items-start gap-3">
-                                <span className="text-2xl mt-0.5 animate-pulse">👥</span>
+                            <div className="bg-rose-500/10 border-b border-rose-500/20 p-4 flex items-start gap-3">
+                                <span className="mt-0.5 animate-pulse"><Users size={24} className="text-rose-500 mt-0.5" /></span>
                                 <div>
-                                    <h3 className="text-orange-500 font-bold text-sm tracking-tight mb-1">Qualidade Profissional</h3>
+                                    <h3 className="text-rose-500 font-bold text-sm tracking-tight mb-1">Qualidade Profissional</h3>
                                     <p className="text-muted-foreground text-xs leading-relaxed font-medium">
                                         Use este prompt no <strong className="text-foreground">Flux.1 Pro</strong> ou <strong className="text-foreground">Midjourney v6.1</strong> para melhores resultados em peles e texturas.
                                     </p>
@@ -469,7 +470,7 @@ function GeradorHumanoContent() {
                                 {finalPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[250px] text-[14px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-orange-500/50 rounded-xl custom-scrollbar leading-relaxed"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[250px] text-[14px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-rose-500/50 rounded-xl custom-scrollbar leading-relaxed"
                                             readOnly
                                             value={finalPrompt}
                                         />
@@ -502,7 +503,7 @@ function GeradorHumanoContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <ImageIcon size={48} className="text-orange-500 mb-4" />
+                                        <ImageIcon size={48} className="text-rose-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm font-medium">
                                             Selecione as características e clique para gerar as instruções de realismo.
                                         </p>
@@ -521,6 +522,16 @@ function GeradorHumanoContent() {
                         generatorName="gerador-humano"
                     />
                 </div>
+
+                {/* Footer Padrão */}
+                <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                        <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                            TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                        </p>
+                    </div>
+                </footer>
             </div>
 
             <FloatingHelpButton pageTitle="Gerador Humano" />

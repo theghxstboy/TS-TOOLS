@@ -25,7 +25,8 @@ import {
     Sparkles,
     Split,
     Info,
-    Star
+    Star,
+    Camera
 } from "lucide-react"
 import { TutorialDialog } from "@/components/TutorialDialog"
 import { CopyWorkflowPopup } from "@/components/CopyWorkflowPopup"
@@ -294,7 +295,7 @@ function AntesEDepoisContent() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-rose-400 to-rose-600 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
                                         <Split size={32} />
                                     </div>
                                 </TooltipTrigger>
@@ -303,7 +304,7 @@ function AntesEDepoisContent() {
                         </TooltipProvider>
                         <div className="text-left">
                             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                Antes <span className="text-primary italic">&</span> Depois
+                                Antes <span className="text-rose-500 italic">&</span> Depois
                             </h1>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">ADS VS REALITY SYSTEM</p>
                         </div>
@@ -332,9 +333,9 @@ function AntesEDepoisContent() {
                             <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Presets de Campanha <span className="text-primary text-xl">↓</span>
+                                    Presets de Campanha <span className="text-rose-500 text-xl">↓</span>
                                 </CardTitle>
-                                <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold uppercase tracking-wider text-[10px]">
+                                <Badge variant="secondary" className="bg-rose-500/10 text-rose-500 border-none font-bold uppercase tracking-wider text-[10px]">
                                     READY-TO-USE
                                 </Badge>
                             </CardHeader>
@@ -347,7 +348,7 @@ function AntesEDepoisContent() {
                                             onClick={() => handlePresetClick(preset.id)}
                                             className={cn(
                                                 "relative w-[145px] h-[110px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                                selectedPreset === preset.id ? "border-primary shadow-[0_0_20px_rgba(255,184,0,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                                selectedPreset === preset.id ? "border-rose-500 shadow-[0_0_20px_rgba(255,184,0,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
                                             )}
                                         >
                                             <img
@@ -359,7 +360,7 @@ function AntesEDepoisContent() {
 
                                             <div className={cn(
                                                 "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                                selectedPreset === preset.id ? "bg-primary border-primary text-black" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                                selectedPreset === preset.id ? "bg-rose-500 border-rose-500 text-black" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                             )}>
                                                 {selectedPreset === preset.id && <Check size={14} />}
                                             </div>
@@ -378,7 +379,7 @@ function AntesEDepoisContent() {
                             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
+                                    <div className="size-12 bg-rose-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-rose-500/20">
                                         <Sparkle size={28} />
                                     </div>
                                     <div>
@@ -390,15 +391,15 @@ function AntesEDepoisContent() {
                                 <div className="flex bg-muted p-1 rounded-xl shadow-inner border border-border">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'simple' ? 'bg-card text-rose-500 shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <ListChecks size={18} /> Automático
+                                        <ListChecks size={18} /> Básico
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <TerminalWindow size={18} /> Expert
+                                        <TerminalWindow size={18} /> Avançado
                                     </button>
                                 </div>
                             </CardHeader>
@@ -410,19 +411,19 @@ function AntesEDepoisContent() {
                                     <div className="flex bg-muted p-1 rounded-2xl w-full border border-border shadow-inner">
                                         <button
                                             onClick={() => setGenerationMode("both")}
-                                            className={cn("flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'both' ? 'bg-primary text-black shadow-lg shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                            className={cn("flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'both' ? 'bg-rose-500 text-black shadow-lg shadow-rose-500/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
                                         >
                                             Split Screen
                                         </button>
                                         <button
                                             onClick={() => setGenerationMode("only_before")}
-                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_before' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_before' ? 'bg-rose-600 text-black shadow-lg shadow-rose-600/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
                                         >
                                             <ImagePlus size={16} /> Só o Antes
                                         </button>
                                         <button
                                             onClick={() => setGenerationMode("only_after")}
-                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_after' ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
+                                            className={cn("flex-1 flex items-center justify-center gap-2 py-3 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all", generationMode === 'only_after' ? 'bg-rose-600 text-black shadow-lg shadow-rose-600/20 scale-[1.02]' : 'text-muted-foreground hover:text-foreground')}
                                         >
                                             <ImagePlus size={16} /> Só o Depois
                                         </button>
@@ -485,12 +486,12 @@ function AntesEDepoisContent() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-muted/30 p-6 rounded-2xl border border-border shadow-inner relative overflow-hidden group">
                                             {generationMode === 'only_after' ? (
                                                 <div className="space-y-2">
-                                                    <Label className="text-[10px] font-black text-amber-500 uppercase flex items-center gap-2">
+                                                    <Label className="text-[10px] font-black text-rose-600 uppercase flex items-center gap-2">
                                                         <FileImage size={14} /> Foto Antes (Original)
                                                     </Label>
                                                     <div
                                                         onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
+                                                        className="border-2 border-dashed border-border hover:border-rose-600/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
                                                     >
                                                         {referencePhotoUrl ? (
                                                             <>
@@ -502,7 +503,7 @@ function AntesEDepoisContent() {
                                                             </>
                                                         ) : (
                                                             <div className="flex flex-col items-center gap-2">
-                                                                <Upload size={28} className="text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                                                                <Upload size={28} className="text-muted-foreground group-hover:text-rose-600 transition-colors" />
                                                                 <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Upload Inicial</span>
                                                             </div>
                                                         )}
@@ -531,12 +532,12 @@ function AntesEDepoisContent() {
 
                                             {generationMode === 'only_before' ? (
                                                 <div className="space-y-2">
-                                                    <Label className="text-[10px] font-black text-amber-500 uppercase flex items-center gap-2">
+                                                    <Label className="text-[10px] font-black text-rose-600 uppercase flex items-center gap-2">
                                                         <FileImage size={14} /> Foto Depois (Resultado)
                                                     </Label>
                                                     <div
                                                         onClick={() => referencePhotoInputRef.current?.click()}
-                                                        className="border-2 border-dashed border-border hover:border-amber-500/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
+                                                        className="border-2 border-dashed border-border hover:border-rose-600/50 bg-input/20 rounded-xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center h-[140px] relative overflow-hidden"
                                                     >
                                                         {referencePhotoUrl ? (
                                                             <>
@@ -548,7 +549,7 @@ function AntesEDepoisContent() {
                                                             </>
                                                         ) : (
                                                             <div className="flex flex-col items-center gap-2">
-                                                                <Upload size={28} className="text-muted-foreground group-hover:text-amber-500 transition-colors" />
+                                                                <Upload size={28} className="text-muted-foreground group-hover:text-rose-600 transition-colors" />
                                                                 <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Upload Final</span>
                                                             </div>
                                                         )}
@@ -638,7 +639,7 @@ function AntesEDepoisContent() {
                                 <div className="pt-6">
                                     <Button
                                         onClick={handleGenerate}
-                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-primary hover:bg-primary/90 text-black shadow-2xl shadow-primary/20 transition-all active:scale-[0.98]"
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-rose-500 hover:bg-rose-500/90 text-black shadow-2xl shadow-rose-500/20 transition-all active:scale-[0.98]"
                                         disabled={isGenerating}
                                     >
                                         {isGenerating ? <RotateCcw className="animate-spin size-6" /> : "Gerar Comparação"}
@@ -647,7 +648,7 @@ function AntesEDepoisContent() {
                                         <button onClick={handleClear} className="text-[10px] font-black uppercase text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 tracking-widest">
                                             <X size={12} /> Limpar campos
                                         </button>
-                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 tracking-widest">
+                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-rose-500 transition-colors flex items-center gap-1 tracking-widest">
                                             <Info size={12} /> Mostrar Manual
                                         </button>
                                     </div>
@@ -663,19 +664,19 @@ function AntesEDepoisContent() {
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                                        <TerminalWindow size={24} className="text-primary" />
+                                        <TerminalWindow size={24} className="text-rose-500" />
                                         Prompt Final
                                     </CardTitle>
-                                    <Badge className="bg-primary/20 text-primary border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                    <Badge className="bg-rose-500/20 text-rose-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
                                         ADS READY
                                     </Badge>
                                 </div>
                             </CardHeader>
 
-                            <div className="bg-primary/10 border-b border-primary/20 p-4 flex items-start gap-3">
-                                <span className="text-2xl mt-0.5 animate-pulse">📷</span>
+                            <div className="bg-rose-500/10 border-b border-rose-500/20 p-4 flex items-start gap-3">
+                                <span className="mt-0.5 animate-pulse"><Camera size={24} className="text-rose-500 mt-0.5" /></span>
                                 <div>
-                                    <h3 className="text-primary font-bold text-sm tracking-tight mb-1">Como usar no Midjourney?</h3>
+                                    <h3 className="text-rose-500 font-bold text-sm tracking-tight mb-1">Como usar no Midjourney?</h3>
                                     <p className="text-muted-foreground text-xs leading-relaxed font-medium">
                                         Use este prompt no <strong className="text-foreground">MJ v6.1</strong> com a tag <code className="bg-muted px-1 rounded">--ar 16:9</code> ou <code className="bg-muted px-1 rounded">--ar 4:5</code> dependendo do formato do anúncio.
                                     </p>
@@ -686,7 +687,7 @@ function AntesEDepoisContent() {
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[250px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-primary/50 rounded-xl custom-scrollbar leading-relaxed"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[250px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-rose-500/50 rounded-xl custom-scrollbar leading-relaxed"
                                             readOnly
                                             value={generatedPrompt}
                                         />
@@ -711,7 +712,7 @@ function AntesEDepoisContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Sparkles size={48} className="text-primary mb-4" />
+                                        <Sparkles size={48} className="text-rose-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm font-medium">
                                             Configure as fotos e clique em <strong>Gerar Comparação</strong> para ver o prompt estruturado.
                                         </p>
@@ -730,6 +731,16 @@ function AntesEDepoisContent() {
                         generatorName="antes-depois"
                     />
                 </div>
+
+                {/* Footer Padrão */}
+                <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                        <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                            TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                        </p>
+                    </div>
+                </footer>
             </div>
 
             <FloatingHelpButton pageTitle="Antes & Depois" />

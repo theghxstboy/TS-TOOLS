@@ -428,7 +428,7 @@ function GeradorContent() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-xl relative group cursor-help transition-transform hover:scale-110">
                                         <MagicWand size={32} />
                                     </div>
                                 </TooltipTrigger>
@@ -437,7 +437,7 @@ function GeradorContent() {
                         </TooltipProvider>
                         <div className="text-left">
                             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                Gerador <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-400">PRO</span>
+                                Gerador <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-emerald-600">PRO</span>
                             </h1>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">REALISM & COMPOSITION SYSTEM</p>
                         </div>
@@ -512,7 +512,7 @@ function GeradorContent() {
                             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
+                                    <div className="size-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
                                         <Sparkles size={28} />
                                     </div>
                                     <div>
@@ -524,15 +524,15 @@ function GeradorContent() {
                                 <div className="flex bg-muted p-1 rounded-xl shadow-inner border border-border">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'simple' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+                                        className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'simple' ? 'bg-card text-emerald-500 shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <Zap size={18} /> Smart
+                                        <Zap size={18} /> Básico
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all", mode === 'advanced' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
                                     >
-                                        <Cpu size={18} /> Expert
+                                        <Cpu size={18} /> Avançado
                                     </button>
                                 </div>
                             </CardHeader>
@@ -708,10 +708,10 @@ function GeradorContent() {
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                                        <TerminalWindow size={24} className="text-primary" />
-                                        Prompt Final
+                                        <TerminalWindow size={24} className="text-emerald-500" />
+                                        Resultado
                                     </CardTitle>
-                                    <Badge className="bg-primary/20 text-primary border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                    <Badge className="bg-emerald-500/20 text-emerald-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
                                         HIGH FIDELITY
                                     </Badge>
                                 </div>
@@ -770,6 +770,16 @@ function GeradorContent() {
                         generatorName="gerador"
                     />
                 </div>
+
+                {/* Footer Padrão */}
+                <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                        <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                            TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                        </p>
+                    </div>
+                </footer>
             </div>
 
             <FloatingHelpButton pageTitle="Fábrica de Imagens" />

@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import {
-    ArrowLeft,
     Sparkles,
     Copy,
     CheckCircle2 as CheckCircle,
@@ -39,6 +37,10 @@ import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
 import { BANNER_NICHES, BANNER_STYLES, BANNER_RATIOS, BANNER_COMPOSITIONS, BANNER_THEMES } from "@/constants/presets-banners"
+import { FloatingHelpButton } from "@/components/FloatingHelpButton"
+import { useGenerationHistory } from "@/hooks/useGenerationHistory"
+import { GenerationHistory } from "@/components/GenerationHistory"
+import { HistoryItem } from "@/types/generator"
 
 export default function GeradorBanners() {
     const [niche, setNiche] = useState("roofing")
@@ -52,6 +54,28 @@ export default function GeradorBanners() {
     const [isGenerating, setIsGenerating] = useState(false)
     const [generatedPrompt, setGeneratedPrompt] = useState("")
     const { isCopied, copy } = useClipboard()
+
+    const { history, saveHistory } = useGenerationHistory<{
+        niche: string, nicheOther: string,
+        style: string, styleOther: string,
+        theme: string, themeOther: string,
+        ratio: string,
+        composition: string 
+    }>("gerador-banners")
+
+    const handleRestore = (item: HistoryItem<any>) => {
+        const p = item.payload;
+        if (!p) return;
+        setNiche(p.niche || "roofing")
+        setNicheOther(p.nicheOther || "")
+        setStyle(p.style || "photorealistic")
+        setStyleOther(p.styleOther || "")
+        setTheme(p.theme || "none")
+        setThemeOther(p.themeOther || "")
+        setRatio(p.ratio || "desktop-hd")
+        setComposition(p.composition || "left")
+        setGeneratedPrompt(item.prompt || "")
+    }
 
     const handleGenerate = () => {
         setIsGenerating(true)
@@ -89,6 +113,7 @@ export default function GeradorBanners() {
 
         setTimeout(() => {
             setGeneratedPrompt(prompt)
+            saveHistory({niche, nicheOther, style, styleOther, theme, themeOther, ratio, composition}, prompt)
             setIsGenerating(false)
         }, 600)
     }
@@ -110,18 +135,23 @@ export default function GeradorBanners() {
             <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-8 md:py-12">
                 
                 {/* Header */}
-                <div className="flex flex-col items-center text-center gap-6 mb-16 animate-fade-up">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="size-20 rounded-[28px] bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-2xl shadow-cyan-500/30">
-                            <ImageIcon size={48} />
-                        </div>
-                        <div className="space-y-1">
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground uppercase">
+                <div className="text-center mb-12 animate-fade-up">
+                    <div className="flex items-center gap-4 justify-center mb-4">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center text-white shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                        <ImageIcon size={32} />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>Background Engine for Elementor</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <div className="text-left">
+                            <h1 className="text-4xl font-bold tracking-tight text-foreground">
                                 Gerador de <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Banners</span>
                             </h1>
-                            <p className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-[0.3em] mt-1 italic opacity-70">
-                                BACKGROUND ENGINE FOR ELEMENTOR
-                            </p>
+                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">BACKGROUND ENGINE FOR ELEMENTOR</p>
                         </div>
                     </div>
                 </div>
@@ -445,7 +475,27 @@ export default function GeradorBanners() {
                         </Card>
                     </div>
                 </div>
+
+                {/* History Section */}
+                <div className="mt-8 animate-fade-up" style={{ animationDelay: '450ms' }}>
+                    <GenerationHistory
+                        history={history}
+                        onRestore={handleRestore}
+                        generatorName="gerador-banners"
+                    />
+                </div>
+
+                {/* Footer Padrão */}
+                <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                    <div className="flex flex-col items-center gap-4">
+                        <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                        <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                            TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                        </p>
+                    </div>
+                </footer>
             </div>
+            <FloatingHelpButton pageTitle="Gerador de Banners" />
         </div>
     )
 }

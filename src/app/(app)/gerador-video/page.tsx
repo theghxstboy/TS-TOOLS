@@ -380,7 +380,7 @@ function GeradorVideoContent() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-orange-400 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
+                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-amber-500 flex items-center justify-center text-black shadow-xl relative group cursor-help transition-transform hover:scale-110">
                                         <MonitorPlay size={32} />
                                     </div>
                                 </TooltipTrigger>
@@ -389,7 +389,7 @@ function GeradorVideoContent() {
                         </TooltipProvider>
                         <div className="text-left">
                             <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                                Video <span className="bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-amber-400">Generator</span>
+                                Video <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-amber-400">Generator</span>
                             </h1>
                             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] leading-none mt-1">AI SCENE DIRECTOR SYSTEM</p>
                         </div>
@@ -408,9 +408,9 @@ function GeradorVideoContent() {
                             <CardHeader className="flex flex-row items-center justify-between pb-4 relative space-y-0">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-                                    Cenas Prontas <span className="text-orange-500 text-xl">↓</span>
+                                    Cenas Prontas <span className="text-blue-700 text-xl">↓</span>
                                 </CardTitle>
-                                <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-orange-500/20 font-bold uppercase tracking-wider text-[10px]">
+                                <Badge variant="secondary" className="bg-blue-700/10 text-blue-700 border-blue-700/20 font-bold uppercase tracking-wider text-[10px]">
                                     AUTO
                                 </Badge>
                             </CardHeader>
@@ -423,7 +423,7 @@ function GeradorVideoContent() {
                                             onClick={() => handlePresetClick(preset.id)}
                                             className={cn(
                                                 "relative w-[155px] h-[120px] shrink-0 rounded-xl overflow-hidden group text-left border-2 transition-all p-3 flex flex-col justify-end bg-input/50 snap-start",
-                                                selectedPreset === preset.id ? "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
+                                                selectedPreset === preset.id ? "border-blue-700 shadow-[0_0_20px_rgba(249,115,22,0.2)] z-10 scale-[1.02]" : "border-transparent border hover:border-border/50"
                                             )}
                                         >
                                             <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-muted to-background flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
@@ -438,7 +438,7 @@ function GeradorVideoContent() {
 
                                             <div className={cn(
                                                 "absolute top-2 right-2 size-5 rounded-md border flex items-center justify-center transition-colors shadow-sm",
-                                                selectedPreset === preset.id ? "bg-orange-500 border-orange-500 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
+                                                selectedPreset === preset.id ? "bg-blue-700 border-blue-700 text-white" : "border-white/30 bg-black/40 backdrop-blur-sm"
                                             )}>
                                                 {selectedPreset === preset.id && <Check size={14} />}
                                             </div>
@@ -457,7 +457,7 @@ function GeradorVideoContent() {
                             <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 relative">
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center gap-4">
-                                    <div className="size-12 bg-orange-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-orange-500/20">
+                                    <div className="size-12 bg-blue-700 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-blue-700/20">
                                         <FilmStrip size={28} />
                                     </div>
                                     <div>
@@ -469,15 +469,15 @@ function GeradorVideoContent() {
                                 <div className="flex items-center bg-muted p-1 rounded-2xl">
                                     <button
                                         onClick={() => setMode("simple")}
-                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-orange-500 shadow-sm" : "text-muted-foreground hover:text-foreground")}
+                                        className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'simple' ? "bg-card text-blue-700 shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Automático
+                                        Básico
                                     </button>
                                     <button
                                         onClick={() => setMode("advanced")}
                                         className={cn("px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all", mode === 'advanced' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
                                     >
-                                        Expert
+                                        Avançado
                                     </button>
                                 </div>
                             </CardHeader>
@@ -486,7 +486,7 @@ function GeradorVideoContent() {
                                 {/* Video Type Selector */}
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="text-[10px] font-bold border-orange-500/20 text-orange-500 uppercase">Fase 1</Badge>
+                                        <Badge variant="outline" className="text-[10px] font-bold border-blue-700/20 text-blue-700 uppercase">Fase 1</Badge>
                                         <Label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Tipo de Produção</Label>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -501,7 +501,7 @@ function GeradorVideoContent() {
                                                 onClick={() => setVideoType(opt.id as any)}
                                                 className={cn(
                                                     "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2",
-                                                    videoType === opt.id ? "bg-orange-500/5 border-orange-500 text-orange-500 shadow-sm scale-105" : "bg-card border-border hover:border-border/80 text-muted-foreground"
+                                                    videoType === opt.id ? "bg-blue-700/5 border-blue-700 text-blue-700 shadow-sm scale-105" : "bg-card border-border hover:border-border/80 text-muted-foreground"
                                                 )}
                                             >
                                                 <opt.icon size={24} className={cn(videoType === opt.id ? "animate-pulse" : "opacity-50")} />
@@ -518,13 +518,13 @@ function GeradorVideoContent() {
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <Label htmlFor="action" className="font-semibold text-foreground flex items-center gap-2">
-                                                <Play size={16} className="text-orange-500" />
+                                                <Play size={16} className="text-blue-700" />
                                                 O que acontece na cena?
                                             </Label>
                                             <Textarea
                                                 id="action"
                                                 placeholder="Descreva a ação em até 10 segundos. Ex: O pintor profissional com camisa azul rola a tinta branca na parede..."
-                                                className="min-h-[120px] bg-input border-border focus:border-orange-500/50 rounded-2xl p-5 text-base font-medium resize-none shadow-inner"
+                                                className="min-h-[120px] bg-input border-border focus:border-blue-700/50 rounded-2xl p-5 text-base font-medium resize-none shadow-inner"
                                                 value={action}
                                                 onChange={(e) => setAction(e.target.value)}
                                             />
@@ -623,13 +623,13 @@ function GeradorVideoContent() {
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <Label htmlFor="tlAction" className="font-semibold text-foreground flex items-center gap-2">
-                                                <TerminalWindow size={16} className="text-orange-500" />
+                                                <TerminalWindow size={16} className="text-blue-700" />
                                                 O que está sendo construído?
                                             </Label>
                                             <Textarea
                                                 id="tlAction"
                                                 placeholder="Ex: instalação completa de piso de vinílico em sala de estar, pintura total de fachada..."
-                                                className="min-h-[100px] bg-input border-border focus:border-orange-500/50 rounded-2xl p-5 text-base font-medium shadow-inner"
+                                                className="min-h-[100px] bg-input border-border focus:border-blue-700/50 rounded-2xl p-5 text-base font-medium shadow-inner"
                                                 value={tlAction}
                                                 onChange={(e) => setTlAction(e.target.value)}
                                             />
@@ -720,13 +720,13 @@ function GeradorVideoContent() {
                                 {videoType === 'ken_burns' && (
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <Label className="font-semibold text-foreground flex items-center gap-1.5 uppercase text-[10px] tracking-widest text-orange-500">
+                                            <Label className="font-semibold text-foreground flex items-center gap-1.5 uppercase text-[10px] tracking-widest text-blue-700">
                                                 <FileImage size={16} />
                                                 Input: Foto Base
                                             </Label>
                                             <div
                                                 onClick={() => kbPhotoInputRef.current?.click()}
-                                                className="border-2 border-dashed border-border hover:border-orange-500/50 bg-input/20 rounded-2xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center min-h-[160px]"
+                                                className="border-2 border-dashed border-border hover:border-blue-700/50 bg-input/20 rounded-2xl p-4 text-center cursor-pointer transition-all group flex flex-col items-center justify-center min-h-[160px]"
                                             >
                                                 {kbPhotoUrl ? (
                                                     <div className="relative w-full h-full flex items-center justify-center">
@@ -739,11 +739,11 @@ function GeradorVideoContent() {
                                                         >
                                                             <X size={12} />
                                                         </Button>
-                                                        <p className="text-[10px] font-bold text-orange-500 uppercase mt-2">Clique para trocar</p>
+                                                        <p className="text-[10px] font-bold text-blue-700 uppercase mt-2">Clique para trocar</p>
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col items-center gap-3">
-                                                        <ImagePlus size={40} className="text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                                                        <ImagePlus size={40} className="text-muted-foreground group-hover:text-blue-700 transition-colors" />
                                                         <div className="space-y-1">
                                                             <p className="text-sm font-bold text-foreground">Upload da Foto</p>
                                                             <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">DRAG AND DROP OR CLICK</p>
@@ -792,7 +792,7 @@ function GeradorVideoContent() {
                                 <div className="pt-6">
                                     <Button
                                         onClick={handleGenerate}
-                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-orange-500 hover:bg-orange-600 text-black shadow-2xl shadow-orange-500/20 transition-all active:scale-[0.98]"
+                                        className="w-full py-8 text-lg font-bold uppercase tracking-[0.2em] rounded-2xl bg-blue-700 hover:bg-orange-600 text-black shadow-2xl shadow-blue-700/20 transition-all active:scale-[0.98]"
                                     >
                                         {isGenerating ? <RotateCcw className="animate-spin size-6" /> : "Gerar Prompt de Vídeo"}
                                     </Button>
@@ -800,7 +800,7 @@ function GeradorVideoContent() {
                                         <button onClick={handleClear} className="text-[10px] font-black uppercase text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 tracking-widest">
                                             <X size={12} /> Limpar campos
                                         </button>
-                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-orange-500 transition-colors flex items-center gap-1 tracking-widest">
+                                        <button onClick={() => setIsTutorialOpen(true)} className="text-[10px] font-black uppercase text-muted-foreground hover:text-blue-700 transition-colors flex items-center gap-1 tracking-widest">
                                             <Info size={12} /> Tutorial rápido
                                         </button>
                                     </div>
@@ -816,19 +816,19 @@ function GeradorVideoContent() {
                                 <Separator className="absolute bottom-0 left-0 right-0" />
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                                        <TerminalWindow size={24} className="text-orange-500" />
+                                        <TerminalWindow size={24} className="text-blue-700" />
                                         Prompt Gerado
                                     </CardTitle>
-                                    <Badge className="bg-orange-500/20 text-orange-500 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
+                                    <Badge className="bg-blue-700/20 text-blue-700 border-none font-extrabold uppercase tracking-wider text-[0.65rem]">
                                         READY TO AI
                                     </Badge>
                                 </div>
                             </CardHeader>
 
-                            <div className="bg-orange-500/10 border-b border-orange-500/20 p-4 flex items-start gap-3">
+                            <div className="bg-blue-700/10 border-b border-blue-700/20 p-4 flex items-start gap-3">
                                 <span className="text-2xl mt-0.5 animate-pulse">🎬</span>
                                 <div>
-                                    <h3 className="text-orange-500 font-bold text-sm tracking-tight mb-1">Como utilizar?</h3>
+                                    <h3 className="text-blue-700 font-bold text-sm tracking-tight mb-1">Como utilizar?</h3>
                                     <p className="text-muted-foreground text-xs leading-relaxed font-medium">
                                         Copie o prompt e cole em ferramentas como <strong className="text-foreground">Luma (Dream Machine)</strong>, <strong className="text-foreground">Kling</strong> ou <strong className="text-foreground">Runway</strong> para transformar em vídeo.
                                     </p>
@@ -839,7 +839,7 @@ function GeradorVideoContent() {
                                 {generatedPrompt ? (
                                     <div className="flex-1 flex flex-col">
                                         <Textarea
-                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-orange-500/50 rounded-xl custom-scrollbar"
+                                            className="flex-1 bg-input border-none text-foreground placeholder:text-muted-foreground resize-none min-h-[200px] text-[13px] font-mono p-4 focus-visible:ring-1 focus-visible:ring-blue-700/50 rounded-xl custom-scrollbar"
                                             readOnly
                                             value={generatedPrompt}
                                         />
@@ -872,7 +872,7 @@ function GeradorVideoContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Video size={48} className="text-orange-500 mb-4" />
+                                        <Video size={48} className="text-blue-700 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm">
                                             Configure sua cena e clique em <strong>Gerar Prompt de Vídeo</strong> para visualizar o roteiro.
                                         </p>
@@ -892,6 +892,16 @@ function GeradorVideoContent() {
                     />
                 </div>
             </div>
+
+            {/* Footer Padrão */}
+            <footer className="py-12 text-center border-t border-border mt-auto animate-fade-up" style={{ animationDelay: '300ms' }}>
+                <div className="flex flex-col items-center gap-4">
+                    <img src="/logo/TS-TOOLS-ALLWHITE.svg" alt="TS TOOLS" className="h-[25px] opacity-20 hover:opacity-50 transition-opacity grayscale" />
+                    <p className="text-[11px] text-muted-foreground/60 font-semibold uppercase tracking-widest leading-none">
+                        TS TOOLS &copy; {new Date().getFullYear()} &bull; CENTRAL DE FERRAMENTAS
+                    </p>
+                </div>
+            </footer>
 
             <FloatingHelpButton pageTitle="Gerador de Vídeo" />
             <CopyWorkflowPopup
