@@ -115,7 +115,7 @@ export default function Header() {
                                 {session.user.role === "admin" && (
                                     <>
                                         <DropdownMenuItem className="cursor-pointer">
-                                            <Link href="/admin/ferramentas" className="w-full">Painel Admin</Link>
+                                            <Link href="/ferramentas/admin" className="w-full">Painel Admin</Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                     </>
