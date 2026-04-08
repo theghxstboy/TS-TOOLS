@@ -284,6 +284,32 @@ Todos os geradores com dois modos devem usar **exatamente** as labels **"Básico
 </div>
 ```
 
+### 5.4 Atalhos para IA (Flow & Gemini)
+
+Todos os geradores devem exibir obrigatoriamente atalhos diretos para o **Google Flow** e **Gemini** na base da `CardContent` do resultado.
+
+**Regras de Posicionamento:**
+- Devem estar **fora** do bloco condicional de resultado (sempre visíveis).
+- Devem estar posicionados logo antes do fechamento de `<CardContent />`.
+- Devem ser separados do conteúdo superior por uma borda ou espaçamento (`mt-auto pt-6 border-t border-border/50`).
+
+**Padrão Visual:**
+- Grid de duas colunas (`grid-cols-2 gap-3`).
+- Sem preenchimento de fundo pesado (`bg-muted/30 hover:bg-muted/50`).
+- Ícones padrão (`Zap` ou `Lightning` para Flow, `MagicWand` para Gemini) com a cor de acento do departamento.
+- Texto em caixa alta, extra-bold (`font-black uppercase text-[10px] tracking-widest`).
+
+```tsx
+<div className="grid grid-cols-2 gap-3 mt-auto pt-6 border-t border-border/50">
+    <a href="https://labs.google/fx/pt/tools/flow" ...className="[PADRÃO]">
+        <Lightning size={14} className="text-[COR_DEPTO]" /> Flow
+    </a>
+    <a href="https://gemini.google.com/app" ...className="[PADRÃO]">
+        <MagicWand size={14} className="text-[COR_DEPTO]" /> Gemini
+    </a>
+</div>
+```
+
 ### 5.2 Regra do Botão Copiar — Direto vs. Popup
 
 | Situação                                                                  | Comportamento do "Copiar"           |

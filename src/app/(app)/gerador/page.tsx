@@ -743,12 +743,33 @@ function GeradorContent() {
                                     </div>
                                 ) : (
                                     <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-                                        <Sparkles size={48} className="text-primary mb-4" />
+                                        <Sparkles size={48} className="text-emerald-500 mb-4" />
                                         <p className="text-muted-foreground max-w-[250px] text-sm font-medium">
-                                            Selecione o nicho e as configurações para gerar o prompt estruturado.
+                                            Configure os campos e gere seu prompt.
                                         </p>
                                     </div>
                                 )}
+
+                                <div className="grid grid-cols-2 gap-3 mt-auto pt-6 border-t border-border/50">
+                                    <a 
+                                        href="https://labs.google/fx/pt/tools/flow" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <Zap size={14} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+                                        Flow
+                                    </a>
+                                    <a 
+                                        href="https://gemini.google.com/app" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <MagicWand size={14} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+                                        Gemini
+                                    </a>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

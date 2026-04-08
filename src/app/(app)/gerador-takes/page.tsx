@@ -683,6 +683,7 @@ Ambient Sound: ${finalSound}
                                                     <>{isCopied ? <CheckCircle size={18} className="mr-2" /> : <Copy size={18} className="mr-2" />} {isCopied ? "Copiado!" : "Copiar Prompt"}</>
                                                 )}
                                             </Button>
+
                                         </div>
                                     </>
                                 ) : (
@@ -696,6 +697,27 @@ Ambient Sound: ${finalSound}
                                         </div>
                                     </div>
                                 )}
+
+                                <div className="grid grid-cols-2 gap-3 mt-auto pt-6 border-t border-border/50">
+                                    <a 
+                                        href="https://labs.google/fx/pt/tools/flow" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <Zap size={14} className="text-blue-600 group-hover:scale-110 transition-transform" />
+                                        Flow
+                                    </a>
+                                    <a 
+                                        href="https://gemini.google.com/app" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <MagicWand size={14} className="text-blue-600 group-hover:scale-110 transition-transform" />
+                                        Gemini
+                                    </a>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

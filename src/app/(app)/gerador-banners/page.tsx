@@ -12,7 +12,8 @@ import {
     Layers,
     Info,
     RefreshCcw,
-    Zap,
+    Zap as Lightning,
+    Wand2 as MagicWand,
     Image as ImageIcon,
     Type,
     Maximize,
@@ -164,7 +165,7 @@ export default function GeradorBanners() {
                             <CardHeader className="pb-6 relative border-b border-border/50">
                                 <div className="flex items-center gap-3">
                                     <div className="size-10 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-500 border border-cyan-500/20">
-                                        <Zap size={20} />
+                                        <Lightning size={20} />
                                     </div>
                                     <div>
                                         <CardTitle className="text-lg font-bold uppercase tracking-tight">Parâmetros da Imagem</CardTitle>
@@ -448,7 +449,9 @@ export default function GeradorBanners() {
                                             </>
                                         )}
                                     </Button>
+
                                 </div>
+
 
                                 <Separator className="bg-border/50" />
 
@@ -470,6 +473,27 @@ export default function GeradorBanners() {
                                             <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Use widgets de <strong className="text-foreground">Heading/Editor de Texto</strong> para sobrepor a copy exatamente na área limpa selecionada.</p>
                                         </li>
                                     </ul>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mt-auto pt-6 border-t border-border/50">
+                                    <a 
+                                        href="https://labs.google/fx/pt/tools/flow" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <Lightning size={14} className="text-cyan-500 group-hover:scale-110 transition-transform" />
+                                        Flow
+                                    </a>
+                                    <a 
+                                        href="https://gemini.google.com/app" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/30 hover:bg-muted/50 text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <MagicWand size={14} className="text-cyan-500 group-hover:scale-110 transition-transform" />
+                                        Gemini
+                                    </a>
                                 </div>
                             </CardContent>
                         </Card>

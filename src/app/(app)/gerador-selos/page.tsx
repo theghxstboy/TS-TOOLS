@@ -679,24 +679,45 @@ REQUIREMENTS:
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
-                                <Button
-                                    variant="outline"
-                                    onClick={handleResetForm}
-                                    className="h-16 font-black uppercase text-[10px] tracking-widest border-2 rounded-2xl flex items-center gap-2"
-                                >
-                                    <RotateCcw size={16} />
-                                    Limpar
-                                </Button>
-                                <Button 
-                                    onClick={handleCopy}
-                                    className="w-full h-16 bg-black hover:bg-neutral-800 text-white font-black uppercase text-xs tracking-[0.3em] rounded-2xl shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-                                >
-                                    <Copy size={20} />
-                                    {isCopied ? "COPIADO" : "COPIAR PROMPT"}
-                                </Button>
-                            </div>
-                        </CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleResetForm}
+                                        className="h-16 font-black uppercase text-[10px] tracking-widest border-2 rounded-2xl flex items-center gap-2"
+                                    >
+                                        <RotateCcw size={16} />
+                                        Limpar
+                                    </Button>
+                                    <Button 
+                                        onClick={handleCopy}
+                                        className="w-full h-16 bg-black hover:bg-neutral-800 text-white font-black uppercase text-xs tracking-[0.3em] rounded-2xl shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3"
+                                    >
+                                        <Copy size={20} />
+                                        {isCopied ? "COPIADO" : "COPIAR PROMPT"}
+                                    </Button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 mt-3">
+                                    <a 
+                                        href="https://labs.google/fx/pt/tools/flow" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/50 hover:bg-muted text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <Lightning size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                                        Flow
+                                    </a>
+                                    <a 
+                                        href="https://gemini.google.com/app" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-2 h-10 bg-muted/50 hover:bg-muted text-foreground font-black uppercase text-[10px] tracking-widest rounded-xl transition-all border border-border shadow-sm group"
+                                    >
+                                        <MagicWand size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
+                                        Gemini
+                                    </a>
+                                </div>
+                            </CardContent>
                     </Card>
                 </div>
             </div>
