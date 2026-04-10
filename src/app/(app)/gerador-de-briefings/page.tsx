@@ -34,7 +34,10 @@ import {
     FileCheck,
     PenTool,
     TrendingUp,
-    Image as ImageIcon
+    ImageIcon,
+    X,
+    Eye,
+    EyeOff
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,6 +48,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useClipboard } from "@/hooks/useClipboard"
@@ -53,16 +57,19 @@ import { useClipboard } from "@/hooks/useClipboard"
 
 interface BriefingData {
     // PERGUNTAS GERAIS
-    tipoPrograma: string;
+    servicosContratados: string[];
+    servicosContratadosCustom: string[];
     responsavel: string;
     dataNascimento: string;
     nomeEmpresa: string;
     dataFundacao: string;
-    anosRamo: string;
+    anosRamo: string[];
+    anosRamoCustom: string;
     endereco: string;
-    numeroComercial: string;
+    numeroComercial: string[];
     experienciaMarketing: string;
     plataformasMarketing: string[];
+    plataformasMarketingCustom: string[];
     motivoFechouTS: string;
     quaisInformacoesComunicacao: string;
     sonhosCompanhia: string;
@@ -72,12 +79,14 @@ interface BriefingData {
 
     // SOBRE A EMPRESA
     historiaEmpresa: string;
-    quantidadePessoas: string;
+    quantidadePessoas: string[];
+    quantidadePessoasCustom: string;
     selosParcerias: string;
     origemNome: string;
     dificuldadeEvolucao: string;
     abertoPromocoes: string;
     datasComemorativas: string[];
+    datasComemorativasCustom: string[];
 
     // SOBRE OS SERVIÇOS
     produtosServicos: string;
@@ -104,6 +113,7 @@ interface BriefingData {
 
     // DESIGN
     idiomas: string[];
+    idiomasCustom: string[];
     sistemasInternos: string;
     identidadeVisual: string;
     vetorPdf: string;
@@ -131,7 +141,8 @@ interface BriefingData {
 
     // SOCIAL MEDIA
     facilidadeRedes: string;
-    comunicacaoClientes: string;
+    comunicacaoClientes: string[];
+    comunicacaoClientesCustom: string;
     preferenciaPosts: string;
     disponibilidadeMateriais: string;
     referenciasInstagram: string;
@@ -162,58 +173,126 @@ interface BriefingData {
     ssnItin: string;
     driveLicensePassaporte: string;
     servicosAtivosGLS: string[];
+    servicosAtivosGLSCustom: string[];
 
     // ACESSOS
-    acessoFacebook: string;
-    acessoInstagram: string;
-    acessoGmail: string;
+    fbLogin: string;
+    fbPass: string;
+    igLogin: string;
+    igPass: string;
+    gmailLogin: string;
+    gmailPass: string;
+    informacoesAdicionais: string;
 }
 
 const INITIAL_STATE: BriefingData = {
-    tipoPrograma: "", responsavel: "", dataNascimento: "", nomeEmpresa: "", dataFundacao: "", anosRamo: "", endereco: "", numeroComercial: "", experienciaMarketing: "", plataformasMarketing: [], motivoFechouTS: "", quaisInformacoesComunicacao: "", sonhosCompanhia: "", referenciasSegmento: "", horariosReuniao: "", horariosAtendimento: "",
-    historiaEmpresa: "", quantidadePessoas: "", selosParcerias: "", origemNome: "", dificuldadeEvolucao: "", abertoPromocoes: "", datasComemorativas: [],
+    servicosContratados: [], servicosContratadosCustom: [], responsavel: "", dataNascimento: "", nomeEmpresa: "", dataFundacao: "", anosRamo: [], anosRamoCustom: "", endereco: "", numeroComercial: [], experienciaMarketing: "", plataformasMarketing: [], plataformasMarketingCustom: [], motivoFechouTS: "", quaisInformacoesComunicacao: "", sonhosCompanhia: "", referenciasSegmento: "", horariosReuniao: "", horariosAtendimento: "",
+    historiaEmpresa: "", quantidadePessoas: [], quantidadePessoasCustom: "", selosParcerias: "", origemNome: "", dificuldadeEvolucao: "", abertoPromocoes: "", datasComemorativas: [], datasComemorativasCustom: [],
     produtosServicos: "", mediaValores: "", principaisServicosAnuncios: "", servicosNaoFaz: "", diferenciais: "", possuiFotosVideos: "", problemaBancoImagens: "",
     perfilCliente: "", problemasFrequentes: "", experienciaMarcante: "", duvidasFrequentes: "", nacionalidadeCliente: "", meioContatoPreferido: "", primeiroAtendimento: "", comoEnviaOrcamento: "", uniformeVistas: "", numerosRecomendar: "", amostrasPisos: "", portfolioVisitas: "",
-    idiomas: [],
+    idiomas: [], idiomasCustom: [],
     sistemasInternos: "",
     identidadeVisual: "",
     vetorPdf: "",
     referenciasLogo: "", estiloLogo: "", coresTransmitir: "", coresNaoQuer: "", obrigatorioLogo: "", cartaoVisitas: "", informacoesCartao: "", plotagemVeiculo: "", tipoPlotagem: "",
     conheceHospedagemDominio: "", possuiSite: "", manterDominio: "", hospedagemAtual: "", manterHospedagem: "", emailProfissional: "", transferirEmails: "", referenciasSites: "", obrigatorioSite: "", tipoNegocio: "",
-    facilidadeRedes: "", comunicacaoClientes: "", preferenciaPosts: "", disponibilidadeMateriais: "", referenciasInstagram: "", layoutArtes: "", layoutFotos: "", estiloMusicalNao: "", termosInglesSim: "", termosInglesNao: "",
+    facilidadeRedes: "", comunicacaoClientes: [], comunicacaoClientesCustom: "", preferencePosts: "", disponibilidadeMateriais: "", referenciasInstagram: "", layoutArtes: "", layoutFotos: "", estiloMusicalNao: "", termosInglesSim: "", termosInglesNao: "",
     experienciaAnuncios: "", regiaoAtuacao: "", faturamentoAtualDesejo: "", fechamentosMesProjecao: "", ticketMedio: "", margemLucro: "", investimentoDisponivel: "", cplEsperado: "", expectativaLeads: "", cpaEsperado: "",
     conheceGMB: "",
-    licenseEmpresa: "", seguroLiability: "", ssnItin: "", driveLicensePassaporte: "", servicosAtivosGLS: [],
-    acessoFacebook: "", acessoInstagram: "", acessoGmail: ""
+    licenseEmpresa: "", seguroLiability: "", ssnItin: "", driveLicensePassaporte: "", servicosAtivosGLS: [], servicosAtivosGLSCustom: [],
+    fbLogin: "", fbPass: "", igLogin: "", igPass: "", gmailLogin: "", gmailPass: "",
+    informacoesAdicionais: ""
 }
 
 // --- Helper Data ---
 
-const PLATFORMS_OPTIONS = ["Yelp", "Thumbtack", "Nextdoor", "Houzz", "Angi List"];
+const PLATFORMS_OPTIONS = ["Yelp", "Thumbtack", "Nextdoor", "Houzz", "Angi List", "OUTRO"];
 
 const HOLIDAYS_OPTIONS = [
     "New Year’s Day", "Martin Luther King Jr. Day", "Valentine's Day", "Presidents’ Day",
     "St. Patrick's Day", "Easter", "Beginning of Spring", "Patriots’ Day", "Memorial Day",
     "Mother's Day", "Juneteenth", "Father’s Day", "Beginning of Summer", "4th of July (Independence Day)",
-    "Labor Day", "Patriot Day", "Beginning of Fall", "Halloween", "Veterans Day"
+    "Labor Day", "Patriot Day", "Beginning of Fall", "Halloween", "Veterans Day", "OUTRO"
 ];
 
-const GLS_SERVICES = [
-    "Baseboards", "Carpet", "Floor polishing", "Floor refinishing", "Floor repair & maintenance",
-    "Hardwood", "Installing floors", "Marble", "Stair flooring", "Tile", "Wood floor sanding"
-];
+const NICHE_GLS_SERVICES: Record<string, string[]> = {
+    "construction": ["General contracting", "Kitchen remodeling", "Bathroom remodeling", "Home building", "Basement finishing", "OUTRO"],
+    "roofing": ["Roof repair", "Roof installation", "Gutter repair", "Skylight installation", "OUTRO"],
+    "painting": ["Interior painting", "Exterior painting", "Cabinet painting", "Drywall repair", "OUTRO"],
+    "hvac": ["AC repair", "AC installation", "Heating repair", "Heating installation", "Duct cleaning", "OUTRO"],
+    "plumbing": ["Leak detection", "Pipe repair", "Water heater installation", "Drain cleaning", "OUTRO"],
+    "electrical": ["Wiring installation", "Panel upgrade", "Lighting installation", "Outlet repair", "OUTRO"],
+    "cleaning": ["House cleaning", "Deep cleaning", "Move-in/move-out cleaning", "Office cleaning", "Carpet cleaning", "OUTRO"],
+    "landscaping": ["Lawn care", "Landscape design", "Tree removal", "Hardscaping", "OUTRO"],
+    "flooring": ["Baseboards", "Carpet", "Floor polishing", "Floor refinishing", "Hardwood", "Installing floors", "Marble", "Stair flooring", "Tile", "OUTRO"],
+    "hardwood-flooring": ["Hardwood installation", "Hardwood refinishing", "Hardwood repair", "Stair flooring", "Baseboards", "OUTRO"],
+    "luxury-vinyl-plank": ["LVP installation", "LVP repair", "Subfloor prep", "Baseboards", "OUTRO"],
+    "laminate-flooring": ["Laminate installation", "Laminate repair", "Subfloor prep", "Baseboards", "OUTRO"],
+    "info-business": ["Mentoria individual", "Mentoria em grupo", "Curso gravado", "E-book", "Comunidade", "OUTRO"],
+    "health-beauty": ["Tratamento facial", "Tratamento corporal", "Botox", "Laser", "Massagem", "OUTRO"],
+    "real-estate": ["Venda de imóveis", "Aluguel", "Gestão de propriedades", "Avaliação", "OUTRO"],
+    "b2b-saas": ["SaaS", "Consultoria TI", "Implementação", "Suporte", "OUTRO"],
+    "ecommerce": ["Produtos físicos", "Dropshipping", "Private label", "OUTRO"],
+    "other": ["Serviço 1", "Serviço 2", "OUTRO"]
+};
+
+const NICHE_PLACEHOLDERS: Record<string, { nomeEmpresa: string, responsavel: string, servicosAnuncios: string }> = {
+    "construction": { nomeEmpresa: "Ex: Elite Construction LLC", responsavel: "Ex: John Builder", servicosAnuncios: "Ex: Kitchen & Bath Remodeling" },
+    "roofing": { nomeEmpresa: "Ex: Top Roofing LLC", responsavel: "Ex: Mike Roofer", servicosAnuncios: "Ex: Roof Replacement & Repair" },
+    "painting": { nomeEmpresa: "Ex: Pro Painting Bros", responsavel: "Ex: Alex Painter", servicosAnuncios: "Ex: Interior & Exterior Painting" },
+    "hvac": { nomeEmpresa: "Ex: Cool Air HVAC", responsavel: "Ex: David Tech", servicosAnuncios: "Ex: AC Repair & Installation" },
+    "plumbing": { nomeEmpresa: "Ex: Quick Plumbing Services", responsavel: "Ex: Mario Plumber", servicosAnuncios: "Ex: Emergency Plumbing & Water Heaters" },
+    "electrical": { nomeEmpresa: "Ex: Spark Electrical", responsavel: "Ex: Tom Electrician", servicosAnuncios: "Ex: Panel Upgrades & Rewiring" },
+    "cleaning": { nomeEmpresa: "Ex: Sparkle Cleaning Services", responsavel: "Ex: Maria Maid", servicosAnuncios: "Ex: Deep Cleaning & Move-In/Out" },
+    "landscaping": { nomeEmpresa: "Ex: Green Turf Landscaping", responsavel: "Ex: Carlos Landscaper", servicosAnuncios: "Ex: Lawn Care & Hardscaping" },
+    "flooring": { nomeEmpresa: "Ex: Top Flooring LLC", responsavel: "Ex: John Doe", servicosAnuncios: "Ex: Hardwood Installation & Refinishing" },
+    "hardwood-flooring": { nomeEmpresa: "Ex: Hardwood Experts", responsavel: "Ex: John Wood", servicosAnuncios: "Ex: Hardwood Refinishing & Installation" },
+    "luxury-vinyl-plank": { nomeEmpresa: "Ex: LVP Masters", responsavel: "Ex: John Smith", servicosAnuncios: "Ex: LVP Installation" },
+    "laminate-flooring": { nomeEmpresa: "Ex: Laminate Pros", responsavel: "Ex: John Doe", servicosAnuncios: "Ex: Laminate Installation" },
+    "info-business": { nomeEmpresa: "Ex: Mentoria Alpha", responsavel: "Ex: João Mentor", servicosAnuncios: "Ex: Venda de Curso / Captação de Leads" },
+    "health-beauty": { nomeEmpresa: "Ex: Estética Beauty", responsavel: "Ex: Maria Esteticista", servicosAnuncios: "Ex: Limpeza de Pele & Botox" },
+    "real-estate": { nomeEmpresa: "Ex: Real Estate Homes", responsavel: "Ex: Carlos Corretor", servicosAnuncios: "Ex: Imóveis de Alto Padrão" },
+    "b2b-saas": { nomeEmpresa: "Ex: Tech Solutions", responsavel: "Ex: Pedro CEO", servicosAnuncios: "Ex: ERP & Consultoria" },
+    "ecommerce": { nomeEmpresa: "Ex: Store Online", responsavel: "Ex: Ana Lojista", servicosAnuncios: "Ex: Venda de Roupas & Acessórios" },
+    "other": { nomeEmpresa: "Ex: Company LLC", responsavel: "Ex: John Doe", servicosAnuncios: "Ex: Serviço Principal" }
+};
 
 // --- Sub-components ---
 
 export default function GeradorBriefing() {
+    const [niche, setNiche] = useState("flooring")
+    const [nicheOther, setNicheOther] = useState("")
+
+    const currentPlaceholders = NICHE_PLACEHOLDERS[niche] || NICHE_PLACEHOLDERS.other;
+    const currentGlsServices = NICHE_GLS_SERVICES[niche] || NICHE_GLS_SERVICES.other;
+
     const [data, setData] = useState<BriefingData>(INITIAL_STATE)
     const [outputAsana, setOutputAsana] = useState("")
     const [outputMissing, setOutputMissing] = useState("")
+    const [tempServico, setTempServico] = useState("")
+    const [tempIdioma, setTempIdioma] = useState("")
+    const [tempPlataforma, setTempPlataforma] = useState("")
+    const [tempDataComemorativa, setTempDataComemorativa] = useState("")
+    const [tempNumeroComercial, setTempNumeroComercial] = useState("")
+    const [tempServicoGLS, setTempServicoGLS] = useState("")
     const { copy, isCopied } = useClipboard()
+
+    // Password visibility states
+    const [showFbPass, setShowFbPass] = useState(false)
+    const [showIgPass, setShowIgPass] = useState(false)
+    const [showGmailPass, setShowGmailPass] = useState(false)
+
+    // Control Local Services Inputs
+    const [showLocal, setShowLocal] = useState({
+        license: false,
+        insurance: false,
+        ssn: false,
+        dl: false
+    })
 
     const handleInputChange = (field: keyof BriefingData, value: string | string[]) => {
         let formattedValue = value;
-        
+
         // Simple masks
         if (typeof value === 'string') {
             if (field === 'dataNascimento') {
@@ -222,15 +301,17 @@ export default function GeradorBriefing() {
             if (field === 'dataFundacao') {
                 formattedValue = value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2').slice(0, 7);
             }
-            if (field === 'numeroComercial') {
-                const x = value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,4})/);
-                if (x) {
-                    formattedValue = !x[2] ? x[1] : `+${x[1]} (${x[2]}) ${x[3]}${x[4] ? '-' + x[4] : ''}`;
-                }
-            }
         }
-        
+
         setData(prev => ({ ...prev, [field]: formattedValue }))
+    }
+
+    const formatPhone = (value: string) => {
+        const x = value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,4})/);
+        if (x) {
+            return !x[2] ? x[1] : `+${x[1]} (${x[2]}) ${x[3]}${x[4] ? '-' + x[4] : ''}`;
+        }
+        return value;
     }
 
     const toggleArrayItem = (field: keyof BriefingData, item: string) => {
@@ -241,11 +322,38 @@ export default function GeradorBriefing() {
         setData(prev => ({ ...prev, [field]: updated }))
     }
 
+    const addCustomTag = (field: keyof BriefingData, value: string, clearValue?: () => void) => {
+        if (!value.trim()) return;
+        const current = data[field] as string[];
+        if (!current.includes(value)) {
+            setData(prev => ({ ...prev, [field]: [...current, value] }));
+        }
+        if (clearValue) clearValue();
+    }
+
+    const removeCustomTag = (field: keyof BriefingData, value: string) => {
+        const current = data[field] as string[];
+        setData(prev => ({ ...prev, [field]: current.filter(i => i !== value) }));
+    }
+
+    const mergeValues = (selected: string[], custom?: string | string[]) => {
+        const values = [...selected.filter(v => v !== "OUTRO")];
+        if (selected.includes("OUTRO")) {
+            if (Array.isArray(custom)) {
+                values.push(...custom);
+            } else if (custom && custom.trim() !== "") {
+                values.push(custom);
+            }
+        }
+        return Array.from(new Set(values));
+    }
+
     const generateBriefing = () => {
         const companyName = data.nomeEmpresa || "CLIENTE";
         const date = new Date().toLocaleDateString('pt-BR');
-        
+
         let briefing = `📋 BRIEFING DE PROJETO - ${companyName}\n`;
+        briefing += `Nicho: ${niche === 'other' ? nicheOther : niche}\n`;
         briefing += `Gerado automaticamente via TS-TOOLS em ${date}\n`;
         briefing += `==================================================\n\n`;
 
@@ -274,16 +382,16 @@ export default function GeradorBriefing() {
 
         // Section mappings
         briefing += addSection("Perguntas Gerais", [
-            { label: "Tipo de programa", value: data.tipoPrograma },
+            { label: "Serviços/Produtos Contratados", value: mergeValues(data.servicosContratados, data.servicosContratadosCustom) },
             { label: "Responsável", value: data.responsavel },
             { label: "Data de Nascimento", value: data.dataNascimento },
             { label: "Nome da Empresa", value: data.nomeEmpresa },
             { label: "Data da Fundação", value: data.dataFundacao },
-            { label: "Anos no Ramo", value: data.anosRamo },
+            { label: "Anos no Ramo", value: mergeValues(data.anosRamo, data.anosRamoCustom) },
             { label: "Endereço", value: data.endereco },
-            { label: "Número Comercial", value: data.numeroComercial },
+            { label: "Números Comerciais", value: data.numeroComercial },
             { label: "Experiência Marketing", value: data.experienciaMarketing },
-            { label: "Plataformas utilizadas", value: data.plataformasMarketing },
+            { label: "Plataformas utilizadas", value: mergeValues(data.plataformasMarketing, data.plataformasMarketingCustom) },
             { label: "Motivo fechou com TS", value: data.motivoFechouTS },
             { label: "Informações Comunicação", value: data.quaisInformacoesComunicacao },
             { label: "Sonhos Companhia", value: data.sonhosCompanhia },
@@ -294,12 +402,12 @@ export default function GeradorBriefing() {
 
         briefing += addSection("Sobre a Empresa", [
             { label: "Breve História", value: data.historiaEmpresa },
-            { label: "Quantidade de Pessoas", value: data.quantidadePessoas },
+            { label: "Quantidade de Pessoas", value: mergeValues(data.quantidadePessoas, data.quantidadePessoasCustom) },
             { label: "Selos e Parcerias", value: data.selosParcerias },
             { label: "Origem do Nome", value: data.origemNome },
             { label: "O que atrapalha a evolução", value: data.dificuldadeEvolucao },
             { label: "Aberto a Promoções", value: data.abertoPromocoes },
-            { label: "Datas Comemorativas", value: data.datasComemorativas },
+            { label: "Datas Comemorativas", value: mergeValues(data.datasComemorativas, data.datasComemorativasCustom) },
         ]);
 
         briefing += addSection("Sobre os Serviços", [
@@ -324,10 +432,11 @@ export default function GeradorBriefing() {
             { label: "Uniforme Vistas", value: data.uniformeVistas },
             { label: "Números Recomendar", value: data.numerosRecomendar },
             { label: "Amostras", value: data.amostrasPisos },
-            { label: "Portfólio Visitas", value: data.portfolioVisitas },
+            { label: "Portfolio Visitas", value: data.portfolioVisitas },
         ]);
 
         briefing += addSection("Design", [
+            { label: "Idiomas de Atendimento", value: mergeValues(data.idiomas, data.idiomasCustom) },
             { label: "Identidade Visual", value: data.identidadeVisual },
             { label: "Vetor/PDF", value: data.vetorPdf },
             { label: "Referências Logo", value: data.referenciasLogo },
@@ -356,7 +465,7 @@ export default function GeradorBriefing() {
 
         briefing += addSection("Social Media", [
             { label: "Facilidade Redes", value: data.facilidadeRedes },
-            { label: "Comunicação Clientes", value: data.comunicacaoClientes },
+            { label: "Comunicação Clientes", value: mergeValues(data.comunicacaoClientes, data.comunicacaoClientesCustom) },
             { label: "Preferência Posts", value: data.preferenciaPosts },
             { label: "Acesso Materiais", value: data.disponibilidadeMateriais },
             { label: "Referências Instagram", value: data.referenciasInstagram },
@@ -368,13 +477,13 @@ export default function GeradorBriefing() {
         ]);
 
         briefing += addSection("Tráfego Pago", [
-            { label: "Experiência Anúncios", value: data.experienciaAnuncios },
-            { label: "Região Atuação", value: data.regiaoAtuacao },
-            { label: "Faturamento Atual/Projeção", value: data.faturamentoAtualDesejo },
-            { label: "Fechamentos Atual/Projeção", value: data.fechamentosMesProjecao },
-            { label: "Ticket Médio", value: data.ticketMedio },
+            { label: "Experiencia Anuncios", value: data.experienciaAnuncios },
+            { label: "Regiao Atuacao", value: data.regiaoAtuacao },
+            { label: "Faturamento Atual/Projecao", value: data.faturamentoAtualDesejo },
+            { label: "Fechamentos Atual/Projecao", value: data.fechamentosMesProjecao },
+            { label: "Ticket Medio", value: data.ticketMedio },
             { label: "Margem Lucro %", value: data.margemLucro },
-            { label: "Investimento Semanal/Mês", value: data.investimentoDisponivel },
+            { label: "Investimento Semanal/Mes", value: data.investimentoDisponivel },
             { label: "CPL Esperado", value: data.cplEsperado },
             { label: "Expectativa Leads", value: data.expectativaLeads },
             { label: "CPA Esperado", value: data.cpaEsperado },
@@ -388,14 +497,21 @@ export default function GeradorBriefing() {
             { label: "License Empresa", value: data.licenseEmpresa },
             { label: "Seguro Liability", value: data.seguroLiability },
             { label: "SSN ou ITIN", value: data.ssnItin },
-            { label: "DL ou Passaporte", value: data.driveLicensePassaporte },
-            { label: "Serviços GLS", value: data.servicosAtivosGLS },
+            { label: "DL ou Passaporte Americano?", value: data.driveLicensePassaporte },
+            { label: "Serviços GLS", value: mergeValues(data.servicosAtivosGLS, data.servicosAtivosGLSCustom) },
         ]);
 
         briefing += addSection("Acessos", [
-            { label: "Facebook Access", value: data.acessoFacebook },
-            { label: "Instagram Access", value: data.acessoInstagram },
-            { label: "Gmail Access", value: data.acessoGmail },
+            { label: "Facebook Login", value: data.fbLogin },
+            { label: "Facebook Senha", value: data.fbPass },
+            { label: "Instagram Login", value: data.igLogin },
+            { label: "Instagram Senha", value: data.igPass },
+            { label: "Gmail Login", value: data.gmailLogin },
+            { label: "Gmail Senha", value: data.gmailPass },
+        ]);
+
+        briefing += addSection("Mais", [
+            { label: "Informações Adicionais", value: data.informacoesAdicionais },
         ]);
 
         briefing += `\nEste é um documento confidencial - TS TOOLS © ${new Date().getFullYear()}`;
@@ -403,7 +519,7 @@ export default function GeradorBriefing() {
 
         // Calculate Missing Fields
         const missingFields: string[] = [];
-        const excludedFields = ["datasComemorativas", "plataformasMarketing", "servicosAtivosGLS"];
+        const excludedFields = ["datasComemorativas", "plataformasMarketing", "servicosAtivosGLS", "fbPass", "igPass", "gmailPass"];
 
         Object.keys(INITIAL_STATE).forEach(key => {
             if (excludedFields.includes(key)) return;
@@ -438,6 +554,7 @@ export default function GeradorBriefing() {
         { id: "webdesign", label: "Webdesign", icon: <Globe size={20} style={{ color: '#ffa300' }} />, color: "border-[#ffa300]/50 text-[#ffa300]" },
         { id: "marketing", label: "Marketing", icon: <Share2 size={20} style={{ color: '#ffa300' }} />, color: "border-[#ffa300]/50 text-[#ffa300]" },
         { id: "acessos", label: "Acessos", icon: <Lock size={20} style={{ color: '#ffa300' }} />, color: "border-[#ffa300]/50 text-[#ffa300]" },
+        { id: "mais", label: "Mais", icon: <Settings size={20} style={{ color: '#ffa300' }} />, color: "border-[#ffa300]/50 text-[#ffa300]" },
     ];
 
     return (
@@ -483,18 +600,24 @@ export default function GeradorBriefing() {
                     <Card className="lg:col-span-8 rounded-[32px] border-border shadow-2xl overflow-hidden bg-card/50 backdrop-blur-sm animate-fade-up" style={{ animationDelay: '100ms' }}>
                         <Tabs defaultValue="geral" className="w-full">
                             <div className="px-4 md:px-6 pt-6 w-full">
-                                <div className="bg-muted/50 rounded-2xl p-1 overflow-x-auto no-scrollbar border border-border/50 flex justify-center">
-                                    <TabsList className="h-12 bg-transparent w-full lg:w-max justify-center gap-1 flex-nowrap border-0 shadow-none">
+                                <div className="bg-muted/50 rounded-2xl p-1 overflow-x-auto no-scrollbar border border-border/50 flex w-full">
+                                    <TabsList className="h-12 bg-transparent w-full flex justify-between gap-1 flex-nowrap border-0 shadow-none px-1">
                                         {sections.map(s => (
                                             <TabsTrigger
                                                 key={s.id}
                                                 value={s.id}
                                                 className={cn(
-                                                    "h-full rounded-xl px-3 lg:px-4 text-[9px] font-black uppercase tracking-tighter gap-1.5 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-[#ffa300] transition-all whitespace-nowrap",
+                                                    "flex-1 h-full rounded-xl group flex items-center justify-center transition-all duration-300 ease-in-out whitespace-nowrap outline-none",
+                                                    "data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-[#ffa300] data-[state=active]:px-4",
+                                                    "px-3 text-muted-foreground/50 hover:bg-white/5 data-[state=active]:hover:bg-card"
                                                 )}
                                             >
-                                                {s.icon}
-                                                <span className="shrink-0">{s.label}</span>
+                                                <div className="shrink-0 transition-colors opacity-70 group-hover:opacity-100 group-data-[state=active]:opacity-100">
+                                                    {s.icon}
+                                                </div>
+                                                <span className="text-[9px] font-black uppercase tracking-tighter shrink-0 overflow-hidden max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 group-hover:ml-2 group-data-[state=active]:max-w-[100px] group-data-[state=active]:opacity-100 group-data-[state=active]:ml-2 transition-all duration-300 ease-in-out">
+                                                    {s.label}
+                                                </span>
                                             </TabsTrigger>
                                         ))}
                                     </TabsList>
@@ -505,49 +628,177 @@ export default function GeradorBriefing() {
                                 <CardContent className="p-8">
                                     <TabsContent value="geral" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2 md:col-span-2">
-                                                <Label className="font-bold text-foreground flex items-center gap-2">
-                                                    <Target size={16} style={{ color: '#ffa300' }} /> Tipo de Programa
-                                                </Label>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {["Acelerador", "Setup", "Recorrência"].map(opt => (
-                                                        <Badge
-                                                            key={opt}
-                                                            variant="outline"
-                                                            onClick={() => handleInputChange('tipoPrograma', opt)}
-                                                            className={cn(
-                                                                "cursor-pointer px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
-                                                                data.tipoPrograma === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
-                                                            )}
-                                                        >
-                                                            {opt}
-                                                        </Badge>
-                                                    ))}
+                                            <div className="space-y-4 md:col-span-2">
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-foreground flex items-center gap-2">
+                                                        <Briefcase size={16} style={{ color: '#ffa300' }} /> Serviços/Produtos Contratados
+                                                    </Label>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {[
+                                                            "Identidade visual",
+                                                            "Social Media",
+                                                            "Pontual",
+                                                            "Recorrência",
+                                                            "Estrutura",
+                                                            "Google My Business",
+                                                            "Google Ads",
+                                                            "Meta Ads",
+                                                            "OUTRO"
+                                                        ].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => toggleArrayItem('servicosContratados', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    data.servicosContratados.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="font-bold text-foreground flex items-center gap-2">
-                                                    <Settings size={16} style={{ color: '#ffa300' }} /> Tipo de programa
-                                                </Label>
-                                                <Input placeholder="Ex: Programa Acelerador" value={data.tipoPrograma} onChange={e => handleInputChange('tipoPrograma', e.target.value)} className="h-12 rounded-xl" />
+
+                                                {data.servicosContratados.includes("OUTRO") && (
+                                                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                        {data.servicosContratadosCustom.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 p-4 rounded-2xl bg-muted/10 border border-muted-foreground/10">
+                                                                {data.servicosContratadosCustom.map(tag => (
+                                                                    <Badge
+                                                                        key={tag}
+                                                                        className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                                                                    >
+                                                                        {tag}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                removeCustomTag('servicosContratadosCustom', tag);
+                                                                            }}
+                                                                            className="cursor-pointer hover:text-white transition-colors"
+                                                                        >
+                                                                            <X size={14} />
+                                                                        </button>
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="Adicionar serviço (Ex: SEO, Copywriting)..."
+                                                                value={tempServico}
+                                                                onChange={e => setTempServico(e.target.value)}
+                                                                onKeyDown={e => {
+                                                                    if (e.key === 'Enter') {
+                                                                        e.preventDefault();
+                                                                        addCustomTag('servicosContratadosCustom', tempServico);
+                                                                    }
+                                                                }}
+                                                                className="h-12 rounded-xl"
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                onClick={() => addCustomTag('servicosContratadosCustom', tempServico)}
+                                                                className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold"
+                                                            >
+                                                                Adicionar
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
                                                     <User size={16} style={{ color: '#ffa300' }} /> Nome do responsável
                                                 </Label>
-                                                <Input placeholder="Ex: John Doe" value={data.responsavel} onChange={e => handleInputChange('responsavel', e.target.value)} className="h-12 rounded-xl" />
+                                                <Input placeholder={currentPlaceholders.responsavel} value={data.responsavel} onChange={e => handleInputChange('responsavel', e.target.value)} className="h-12 rounded-xl" />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
                                                     <Building2 size={16} style={{ color: '#ffa300' }} /> Nome da empresa
                                                 </Label>
-                                                <Input placeholder="Ex: Top Flooring LLC" value={data.nomeEmpresa} onChange={e => handleInputChange('nomeEmpresa', e.target.value)} className="h-12 rounded-xl" />
+                                                <Input placeholder={currentPlaceholders.nomeEmpresa} value={data.nomeEmpresa} onChange={e => handleInputChange('nomeEmpresa', e.target.value)} className="h-12 rounded-xl" />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
                                                     <Phone size={16} style={{ color: '#ffa300' }} /> Número comercial (WhatsApp)
                                                 </Label>
-                                                <Input placeholder="+1 (123) 456-7890" value={data.numeroComercial} onChange={e => handleInputChange('numeroComercial', e.target.value)} className="h-12 rounded-xl" />
+                                                {data.numeroComercial.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mb-2 p-3 rounded-xl bg-muted/10 border border-muted-foreground/10">
+                                                        {data.numeroComercial.map(num => (
+                                                            <Badge key={num} className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                                                                {num}
+                                                                <button type="button" onClick={(e) => { e.stopPropagation(); removeCustomTag('numeroComercial', num); }} className="cursor-pointer hover:text-white transition-colors">
+                                                                    <X size={14} />
+                                                                </button>
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        placeholder="+1 (123) 456-7890"
+                                                        value={tempNumeroComercial}
+                                                        onChange={e => setTempNumeroComercial(formatPhone(e.target.value))}
+                                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomTag('numeroComercial', tempNumeroComercial, () => setTempNumeroComercial("")))}
+                                                        className="h-12 rounded-xl"
+                                                    />
+                                                    <Button type="button" onClick={() => addCustomTag('numeroComercial', tempNumeroComercial, () => setTempNumeroComercial(""))} className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs">
+                                                        Adicionar
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-foreground flex items-center gap-2">
+                                                    <Target size={16} style={{ color: '#ffa300' }} /> Nicho de Atuação
+                                                </Label>
+                                                <Select value={niche} onValueChange={(val) => {
+                                                    setNiche(val);
+                                                    setData(prev => ({ ...prev, servicosAtivosGLS: [] }));
+                                                }}>
+                                                    <SelectTrigger className="bg-card h-12 rounded-xl">
+                                                        <SelectValue placeholder="Selecione o nicho..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel className="bg-muted uppercase text-[10px] font-black tracking-widest px-4 py-2">
+                                                                🇺🇸 Home Services (USA)
+                                                            </SelectLabel>
+                                                            <SelectItem value="construction">Construction / Remodeling</SelectItem>
+                                                            <SelectItem value="roofing">Roofing</SelectItem>
+                                                            <SelectItem value="painting">Painting</SelectItem>
+                                                            <SelectItem value="hvac">HVAC</SelectItem>
+                                                            <SelectItem value="plumbing">Plumbing</SelectItem>
+                                                            <SelectItem value="electrical">Electrical</SelectItem>
+                                                            <SelectItem value="cleaning">Cleaning / Maid Services</SelectItem>
+                                                            <SelectItem value="landscaping">Landscaping</SelectItem>
+                                                            <SelectItem value="flooring">Flooring (Geral)</SelectItem>
+                                                            <SelectItem value="hardwood-flooring">Hardwood Flooring</SelectItem>
+                                                            <SelectItem value="luxury-vinyl-plank">Luxury Vinyl Plank (LVP)</SelectItem>
+                                                            <SelectItem value="laminate-flooring">Laminate Flooring</SelectItem>
+                                                        </SelectGroup>
+                                                        <SelectGroup>
+                                                            <SelectLabel className="bg-muted uppercase text-[10px] font-black tracking-widest px-4 py-2 mt-2">
+                                                                🌎 Outros Mercados
+                                                            </SelectLabel>
+                                                            <SelectItem value="info-business">Infoprodutos / Mentorias</SelectItem>
+                                                            <SelectItem value="health-beauty">Saúde, Estética e Beleza</SelectItem>
+                                                            <SelectItem value="real-estate">Imóveis / Corretores</SelectItem>
+                                                            <SelectItem value="b2b-saas">B2B / Software (SaaS)</SelectItem>
+                                                            <SelectItem value="ecommerce">E-commerce / Físicos</SelectItem>
+                                                        </SelectGroup>
+                                                        <SelectItem value="other">Outro (Personalizado)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {niche === "other" && (
+                                                    <Input
+                                                        placeholder="Especifique o nicho..."
+                                                        value={nicheOther}
+                                                        onChange={(e) => setNicheOther(e.target.value)}
+                                                        className="mt-2 h-12 rounded-xl"
+                                                    />
+                                                )}
                                             </div>
                                             <div className="space-y-2 md:col-span-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
@@ -555,25 +806,56 @@ export default function GeradorBriefing() {
                                                 </Label>
                                                 <Input placeholder="123 Main St, Miami, FL" value={data.endereco} onChange={e => handleInputChange('endereco', e.target.value)} className="h-12 rounded-xl" />
                                             </div>
-                                            <div className="space-y-2 md:col-span-2">
-                                                <Label className="font-bold text-foreground flex items-center gap-2">
-                                                    <Globe size={16} style={{ color: '#ffa300' }} /> Idiomas de Atendimento
-                                                </Label>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {["Português", "Inglês", "Espanhol"].map(opt => (
-                                                        <Badge
-                                                            key={opt}
-                                                            variant="outline"
-                                                            onClick={() => toggleArrayItem('idiomas', opt)}
-                                                            className={cn(
-                                                                "cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all",
-                                                                data.idiomas.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
-                                                            )}
-                                                        >
-                                                            {opt}
-                                                        </Badge>
-                                                    ))}
+                                            <div className="space-y-4 md:col-span-2">
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-foreground flex items-center gap-2">
+                                                        <Globe size={16} style={{ color: '#ffa300' }} /> Idiomas de Atendimento
+                                                    </Label>
+                                                    <div className="flex flex-wrap gap-2 text-white/90">
+                                                        {["PORTUGUÊS", "INGLÊS", "ESPANHOL", "OUTRO"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => toggleArrayItem('idiomas', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    data.idiomas.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
+
+                                                {data.idiomas.includes("OUTRO") && (
+                                                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                        {data.idiomasCustom.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 p-4 rounded-2xl bg-muted/10 border border-muted-foreground/10">
+                                                                {data.idiomasCustom.map(tag => (
+                                                                    <Badge key={tag} className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                                                                        {tag}
+                                                                        <button type="button" onClick={(e) => { e.stopPropagation(); removeCustomTag('idiomasCustom', tag); }} className="cursor-pointer hover:text-white transition-colors">
+                                                                            <X size={14} />
+                                                                        </button>
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="Adicionar idioma..."
+                                                                value={tempIdioma}
+                                                                onChange={e => setTempIdioma(e.target.value)}
+                                                                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomTag('idiomasCustom', tempIdioma, () => setTempIdioma("")))}
+                                                                className="h-12 rounded-xl"
+                                                            />
+                                                            <Button type="button" onClick={() => addCustomTag('idiomasCustom', tempIdioma, () => setTempIdioma(""))} className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs">
+                                                                Adicionar
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="space-y-2 md:col-span-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
@@ -598,43 +880,76 @@ export default function GeradorBriefing() {
                                                     <Clock size={16} style={{ color: '#ffa300' }} /> Anos no ramo
                                                 </Label>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {["< 1 ano", "1-3 anos", "3-5 anos", "5-10 anos", "10+ anos"].map(opt => (
+                                                    {["< 1 ano", "1-3 anos", "3-5 anos", "5-10 anos", "10+ anos", "OUTRO"].map(opt => (
                                                         <Badge
                                                             key={opt}
                                                             variant="outline"
-                                                            onClick={() => handleInputChange('anosRamo', opt)}
+                                                            onClick={() => toggleArrayItem('anosRamo', opt)}
                                                             className={cn(
                                                                 "cursor-pointer px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all",
-                                                                data.anosRamo === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                data.anosRamo.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
                                                             )}
                                                         >
                                                             {opt}
                                                         </Badge>
                                                     ))}
                                                 </div>
-                                                <Input placeholder="Outro..." value={data.anosRamo} onChange={e => handleInputChange('anosRamo', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
+                                                {data.anosRamo.includes("OUTRO") && (
+                                                    <Input placeholder="Especifique os anos..." value={data.anosRamoCustom} onChange={e => handleInputChange('anosRamoCustom', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
+                                                )}
                                             </div>
                                         </div>
 
-                                        <div className="space-y-3">
-                                            <Label className="font-bold text-foreground flex items-center gap-2">
-                                                <Globe size={16} style={{ color: '#ffa300' }} /> Plataformas já utilizadas
-                                            </Label>
-                                            <div className="flex flex-wrap gap-2">
-                                                {PLATFORMS_OPTIONS.map(opt => (
-                                                    <Badge
-                                                        key={opt}
-                                                        variant="outline"
-                                                        onClick={() => toggleArrayItem('plataformasMarketing', opt)}
-                                                        className={cn(
-                                                            "cursor-pointer px-4 py-2 rounded-full font-bold uppercase tracking-wider text-[10px] transition-all",
-                                                            data.plataformasMarketing.includes(opt) ? "bg-orange-500/10 text-yellow-500 border-orange-500" : "hover:bg-muted"
-                                                        )}
-                                                    >
-                                                        {opt}
-                                                    </Badge>
-                                                ))}
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-foreground flex items-center gap-2">
+                                                    <Globe size={16} style={{ color: '#ffa300' }} /> Plataformas já utilizadas
+                                                </Label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {PLATFORMS_OPTIONS.map(opt => (
+                                                        <Badge
+                                                            key={opt}
+                                                            variant="outline"
+                                                            onClick={() => toggleArrayItem('plataformasMarketing', opt)}
+                                                            className={cn(
+                                                                "cursor-pointer px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                data.plataformasMarketing.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                            )}
+                                                        >
+                                                            {opt}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
                                             </div>
+
+                                            {data.plataformasMarketing.includes("OUTRO") && (
+                                                <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                    {data.plataformasMarketingCustom.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2 p-4 rounded-2xl bg-muted/10 border border-muted-foreground/10">
+                                                            {data.plataformasMarketingCustom.map(tag => (
+                                                                <Badge key={tag} className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                                                                    {tag}
+                                                                    <button type="button" onClick={(e) => { e.stopPropagation(); removeCustomTag('plataformasMarketingCustom', tag); }} className="cursor-pointer hover:text-white transition-colors text-white">
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex gap-2">
+                                                        <Input
+                                                            placeholder="Adicionar plataforma..."
+                                                            value={tempPlataforma}
+                                                            onChange={e => setTempPlataforma(e.target.value)}
+                                                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomTag('plataformasMarketingCustom', tempPlataforma, () => setTempPlataforma("")))}
+                                                            className="h-12 rounded-xl"
+                                                        />
+                                                        <Button type="button" onClick={() => addCustomTag('plataformasMarketingCustom', tempPlataforma, () => setTempPlataforma(""))} className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs">
+                                                            Adicionar
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="space-y-4">
@@ -654,13 +969,13 @@ export default function GeradorBriefing() {
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
                                                     <Star size={16} style={{ color: '#ffa300' }} /> Sonhos que pretende realizar com a companhia?
                                                 </Label>
-                                                <Input placeholder="..." value={data.sonhosCompanhia} onChange={e => handleInputChange('sonhosCompanhia', e.target.value)} className="h-12 rounded-xl" />
+                                                <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.sonhosCompanhia} onChange={e => handleInputChange('sonhosCompanhia', e.target.value)} />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="font-bold text-foreground flex items-center gap-2">
                                                     <Search size={16} style={{ color: '#ffa300' }} /> Referências do segmento (Personalidades, empresas)
                                                 </Label>
-                                                <Input placeholder="..." value={data.referenciasSegmento} onChange={e => handleInputChange('referenciasSegmento', e.target.value)} className="h-12 rounded-xl" />
+                                                <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.referenciasSegmento} onChange={e => handleInputChange('referenciasSegmento', e.target.value)} />
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                                 <div className="space-y-2">
@@ -693,21 +1008,23 @@ export default function GeradorBriefing() {
                                                         <Users size={16} style={{ color: '#ffa300' }} /> Quantas pessoas trabalham?
                                                     </Label>
                                                     <div className="flex flex-wrap gap-2">
-                                                        {["1-3", "4-7", "8-15", "15+"].map(opt => (
+                                                        {["1-3", "4-7", "8-15", "15+", "OUTRO"].map(opt => (
                                                             <Badge
                                                                 key={opt}
                                                                 variant="outline"
-                                                                onClick={() => handleInputChange('quantidadePessoas', opt)}
+                                                                onClick={() => toggleArrayItem('quantidadePessoas', opt)}
                                                                 className={cn(
                                                                     "cursor-pointer px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all",
-                                                                    data.quantidadePessoas === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                    data.quantidadePessoas.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
                                                                 )}
                                                             >
                                                                 {opt}
                                                             </Badge>
                                                         ))}
                                                     </div>
-                                                    <Input placeholder="Outro..." value={data.quantidadePessoas} onChange={e => handleInputChange('quantidadePessoas', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
+                                                    {data.quantidadePessoas.includes("OUTRO") && (
+                                                        <Input placeholder="Especifique a quantidade..." value={data.quantidadePessoasCustom} onChange={e => handleInputChange('quantidadePessoasCustom', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
+                                                    )}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-foreground flex items-center gap-2">
@@ -719,13 +1036,13 @@ export default function GeradorBriefing() {
                                                     <Label className="font-bold text-foreground flex items-center gap-2">
                                                         <PenTool size={16} style={{ color: '#ffa300' }} /> Como surgiu o nome da empresa?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.origemNome} onChange={e => handleInputChange('origemNome', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.origemNome} onChange={e => handleInputChange('origemNome', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-foreground flex items-center gap-2">
                                                         <AlertCircle size={16} style={{ color: '#ffa300' }} /> O que sente que atrapalha a evolução?
                                                     </Label>
-                                                    <Input placeholder="Ex: Falta de visibilidade" value={data.dificuldadeEvolucao} onChange={e => handleInputChange('dificuldadeEvolucao', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="Ex: Falta de visibilidade" className="resize-none rounded-2xl" rows={2} value={data.dificuldadeEvolucao} onChange={e => handleInputChange('dificuldadeEvolucao', e.target.value)} />
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
@@ -734,105 +1051,135 @@ export default function GeradorBriefing() {
                                                 </Label>
                                                 <Input placeholder="Ex: 10% OFF em Março" value={data.abertoPromocoes} onChange={e => handleInputChange('abertoPromocoes', e.target.value)} className="h-12 rounded-xl" />
                                             </div>
-                                            <div className="space-y-3">
-                                                <Label className="font-bold text-foreground flex items-center gap-2">
-                                                    <Calendar size={16} style={{ color: '#ffa300' }} /> Datas comemorativas para focar
-                                                </Label>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {HOLIDAYS_OPTIONS.map(opt => (
-                                                        <Badge
-                                                            key={opt}
-                                                            variant="outline"
-                                                            onClick={() => toggleArrayItem('datasComemorativas', opt)}
-                                                            className={cn(
-                                                                "cursor-pointer px-4 py-2 rounded-full font-bold uppercase tracking-wider text-[10px] transition-all",
-                                                                data.datasComemorativas.includes(opt) ? "text-yellow-500/10 text-yellow-500 border-yellow-500/30" : "hover:bg-muted"
-                                                            )}
-                                                        >
-                                                            {opt}
-                                                        </Badge>
-                                                    ))}
+                                            <div className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-foreground flex items-center gap-2">
+                                                        <Calendar size={16} style={{ color: '#ffa300' }} /> Datas comemorativas para focar
+                                                    </Label>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {HOLIDAYS_OPTIONS.map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => toggleArrayItem('datasComemorativas', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all",
+                                                                    data.datasComemorativas.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
+
+                                                {data.datasComemorativas.includes("OUTRO") && (
+                                                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                        {data.datasComemorativasCustom.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 p-4 rounded-2xl bg-muted/10 border border-muted-foreground/10">
+                                                                {data.datasComemorativasCustom.map(tag => (
+                                                                    <Badge key={tag} className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                                                                        {tag}
+                                                                        <button type="button" onClick={(e) => { e.stopPropagation(); removeCustomTag('datasComemorativasCustom', tag); }} className="cursor-pointer hover:text-white transition-colors">
+                                                                            <X size={14} />
+                                                                        </button>
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="Adicionar data personalizada..."
+                                                                value={tempDataComemorativa}
+                                                                onChange={e => setTempDataComemorativa(e.target.value)}
+                                                                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomTag('datasComemorativasCustom', tempDataComemorativa, () => setTempDataComemorativa("")))}
+                                                                className="h-12 rounded-xl"
+                                                            />
+                                                            <Button type="button" onClick={() => addCustomTag('datasComemorativasCustom', tempDataComemorativa, () => setTempDataComemorativa(""))} className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs">
+                                                                Adicionar
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </TabsContent>
 
                                     <TabsContent value="servicos" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div className="space-y-6">
-                                             <div className="space-y-2">
-                                                 <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                     <Briefcase size={16} style={{ color: '#ffa300' }} /> Produtos ou Serviços (Descrição detalhada de cada)
-                                                 </Label>
-                                                 <Textarea placeholder="..." className="resize-none rounded-2xl" rows={6} value={data.produtosServicos} onChange={e => handleInputChange('produtosServicos', e.target.value)} />
-                                             </div>
-                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <ClipboardCheck size={16} style={{ color: '#ffa300' }} /> Média de valores (cada tipo de serviço)
-                                                     </Label>
-                                                     <Input placeholder="$2500 - $3500 avg" value={data.mediaValores} onChange={e => handleInputChange('mediaValores', e.target.value)} className="h-12 rounded-xl" />
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <Target size={16} style={{ color: '#ffa300' }} /> 2 Principais serviços foco para anúncios
-                                                     </Label>
-                                                     <Input placeholder="Ex: Hardwood Installation & Refinishing" value={data.principaisServicosAnuncios} onChange={e => handleInputChange('principaisServicosAnuncios', e.target.value)} className="h-12 rounded-xl" />
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <PenTool size={16} style={{ color: '#ffa300' }} /> Algum trabalho que NÃO faz?
-                                                     </Label>
-                                                     <Input placeholder="Ex: Tirar entulho, mover móveis" value={data.servicosNaoFaz} onChange={e => handleInputChange('servicosNaoFaz', e.target.value)} className="h-12 rounded-xl" />
-                                                 </div>
-                                                 <div className="space-y-2 md:col-span-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <Sparkles size={16} style={{ color: '#ffa300' }} /> Maiores Diferenciais
-                                                     </Label>
-                                                     <Textarea placeholder="Ex: 20 anos de experiência, atendimento em 3 idiomas, tratamentos personalizados..." value={data.diferenciais} onChange={e => handleInputChange('diferenciais', e.target.value)} className="min-h-[100px] rounded-xl" />
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <FileCheck size={16} style={{ color: '#ffa300' }} /> Possui fotos e vídeos dos trabalhos?
-                                                     </Label>
-                                                     <div className="flex gap-2">
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                    <Briefcase size={16} style={{ color: '#ffa300' }} /> Produtos ou Serviços (Descrição detalhada de cada)
+                                                </Label>
+                                                <Textarea placeholder="..." className="resize-none rounded-2xl" rows={6} value={data.produtosServicos} onChange={e => handleInputChange('produtosServicos', e.target.value)} />
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <ClipboardCheck size={16} style={{ color: '#ffa300' }} /> Média de valores (cada tipo de serviço)
+                                                    </Label>
+                                                    <Input placeholder="$2500 - $3500 avg" value={data.mediaValores} onChange={e => handleInputChange('mediaValores', e.target.value)} className="h-12 rounded-xl" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <Target size={16} style={{ color: '#ffa300' }} /> 2 Principais serviços foco para anúncios
+                                                    </Label>
+                                                    <Input placeholder={currentPlaceholders.servicosAnuncios} value={data.principaisServicosAnuncios} onChange={e => handleInputChange('principaisServicosAnuncios', e.target.value)} className="h-12 rounded-xl" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <PenTool size={16} style={{ color: '#ffa300' }} /> Algum trabalho que NÃO faz?
+                                                    </Label>
+                                                    <Input placeholder="Ex: Tirar entulho, mover móveis" value={data.servicosNaoFaz} onChange={e => handleInputChange('servicosNaoFaz', e.target.value)} className="h-12 rounded-xl" />
+                                                </div>
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <Sparkles size={16} style={{ color: '#ffa300' }} /> Maiores Diferenciais
+                                                    </Label>
+                                                    <Textarea placeholder="Ex: 20 anos de experiência, atendimento em 3 idiomas, tratamentos personalizados..." value={data.diferenciais} onChange={e => handleInputChange('diferenciais', e.target.value)} className="min-h-[100px] rounded-xl" />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <FileCheck size={16} style={{ color: '#ffa300' }} /> Possui fotos e vídeos dos trabalhos?
+                                                    </Label>
+                                                    <div className="flex gap-2">
                                                         {["Sim", "Não", "Gravar"].map(opt => (
                                                             <Badge
                                                                 key={opt}
                                                                 variant="outline"
                                                                 onClick={() => handleInputChange('possuiFotosVideos', opt)}
                                                                 className={cn(
-                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
                                                                     data.possuiFotosVideos === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
                                                                 )}
                                                             >
                                                                 {opt}
                                                             </Badge>
                                                         ))}
-                                                     </div>
-                                                     <Input placeholder="Outro..." value={data.possuiFotosVideos} onChange={e => handleInputChange('possuiFotosVideos', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <ImageIcon size={16} style={{ color: '#ffa300' }} /> Problema com fotos de banco?
-                                                     </Label>
-                                                     <div className="flex gap-2">
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <ImageIcon size={16} style={{ color: '#ffa300' }} /> Problema com fotos de banco?
+                                                    </Label>
+                                                    <div className="flex gap-2">
                                                         {["Sim", "Não"].map(opt => (
                                                             <Badge
                                                                 key={opt}
                                                                 variant="outline"
                                                                 onClick={() => handleInputChange('problemaBancoImagens', opt)}
                                                                 className={cn(
-                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
                                                                     data.problemaBancoImagens === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
                                                                 )}
                                                             >
                                                                 {opt}
                                                             </Badge>
                                                         ))}
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </TabsContent>
 
                                     <TabsContent value="publico" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -866,49 +1213,49 @@ export default function GeradorBriefing() {
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Globe size={16} style={{ color: '#ffa300' }} /> Cliente é Brasileiro ou Americano?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.nacionalidadeCliente} onChange={e => handleInputChange('nacionalidadeCliente', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.nacionalidadeCliente} onChange={e => handleInputChange('nacionalidadeCliente', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Mail size={16} style={{ color: '#ffa300' }} /> Meio de contato preferido do cliente
                                                     </Label>
-                                                    <Input placeholder="Messenger, SMS, WhatsApp..." value={data.meioContatoPreferido} onChange={e => handleInputChange('meioContatoPreferido', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="Messenger, SMS, WhatsApp..." className="resize-none rounded-2xl" rows={2} value={data.meioContatoPreferido} onChange={e => handleInputChange('meioContatoPreferido', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <User size={16} style={{ color: '#ffa300' }} /> Como é feito o 1º atendimento?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.primeiroAtendimento} onChange={e => handleInputChange('primeiroAtendimento', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.primeiroAtendimento} onChange={e => handleInputChange('primeiroAtendimento', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <FileCheck size={16} style={{ color: '#ffa300' }} /> Como envia o orçamento?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.comoEnviaOrcamento} onChange={e => handleInputChange('comoEnviaOrcamento', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.comoEnviaOrcamento} onChange={e => handleInputChange('comoEnviaOrcamento', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Sparkles size={16} style={{ color: '#ffa300' }} /> Tem uniforme para as visitas?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.uniformeVistas} onChange={e => handleInputChange('uniformeVistas', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.uniformeVistas} onChange={e => handleInputChange('uniformeVistas', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Phone size={16} style={{ color: '#ffa300' }} /> Tem clientes para recomendar?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.numerosRecomendar} onChange={e => handleInputChange('numerosRecomendar', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.numerosRecomendar} onChange={e => handleInputChange('numerosRecomendar', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Palette size={16} style={{ color: '#ffa300' }} /> Anda com amostras de pisos?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.amostrasPisos} onChange={e => handleInputChange('amostrasPisos', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.amostrasPisos} onChange={e => handleInputChange('amostrasPisos', e.target.value)} />
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Layout size={16} style={{ color: '#ffa300' }} /> Possui portfólio físico/digital em mãos?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.portfolioVisitas} onChange={e => handleInputChange('portfolioVisitas', e.target.value)} className="h-12 rounded-xl" />
+                                                    <Textarea placeholder="..." className="resize-none rounded-2xl" rows={2} value={data.portfolioVisitas} onChange={e => handleInputChange('portfolioVisitas', e.target.value)} />
                                                 </div>
                                             </div>
                                         </div>
@@ -922,19 +1269,58 @@ export default function GeradorBriefing() {
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Palette size={16} style={{ color: '#ffa300' }} /> Já possui Identidade Visual? (Gostaria de manter?)
                                                     </Label>
-                                                    <Input placeholder="..." value={data.identidadeVisual} onChange={e => handleInputChange('identidadeVisual', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        {["Sim e quero manter (VETORIZAÇÃO)", "Sim e quero mudar", "Não", "Rebranding"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => handleInputChange('identidadeVisual', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer w-full py-4 flex items-center justify-center text-center rounded-xl text-[9px] font-bold uppercase transition-all leading-tight px-2",
+                                                                    data.identidadeVisual === opt ? "bg-primary/10 text-primary border-primary shadow-sm shadow-primary/10" : "hover:bg-muted/50 border-border/50"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <FileCheck size={16} style={{ color: '#ffa300' }} /> Tem a versão em VETOR/PDF da Logo?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.vetorPdf} onChange={e => handleInputChange('vetorPdf', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Sim", "Não"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => handleInputChange('vetorPdf', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    data.vetorPdf === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Search size={16} style={{ color: '#ffa300' }} /> Referências Visuais (Cite 3 logos que gosta)
                                                     </Label>
                                                     <Input placeholder="..." value={data.referenciasLogo} onChange={e => handleInputChange('referenciasLogo', e.target.value)} className="h-12 rounded-xl" />
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <a 
+                                                        href="https://drive.google.com/file/d/1GyTJxS-WhkaxbkTS_jDoP_HfcqNBDVTu/view" 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#ffa300] hover:text-[#ffa300]/80 transition-colors w-fit bg-[#ffa300]/10 px-4 py-2 rounded-lg border border-[#ffa300]/20 mb-2"
+                                                    >
+                                                        <Search size={14} />
+                                                        Clique aqui para ver referências de Estilos e Cores
+                                                    </a>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
@@ -964,7 +1350,21 @@ export default function GeradorBriefing() {
                                                     <Label className="font-bold flex items-center gap-2">
                                                         <ClipboardCheck size={16} style={{ color: '#ffa300' }} /> Cartão de visitas (Borda arredondada ou reta?)
                                                     </Label>
-                                                    <Input placeholder="..." value={data.cartaoVisitas} onChange={e => handleInputChange('cartaoVisitas', e.target.value)} className="h-12 rounded-xl mt-2" />
+                                                    <div className="flex gap-2">
+                                                        {["Borda Reta", "Borda Arredondada"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => handleInputChange('cartaoVisitas', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    data.cartaoVisitas === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                                 <div className="space-y-2 text-white/90 md:col-span-2">
                                                     <Label className="font-bold flex items-center gap-2">
@@ -977,13 +1377,27 @@ export default function GeradorBriefing() {
                                                         <MapPin size={16} style={{ color: '#ffa300' }} /> Plotagem de veículo? (Modelo, cor e ano)
                                                     </Label>
                                                     <Input placeholder="..." value={data.plotagemVeiculo} onChange={e => handleInputChange('plotagemVeiculo', e.target.value)} className="h-12 rounded-xl mt-2" />
-                                                    <p className="text-[10px] opacity-50 uppercase font-bold mt-1">⚠️ Plotagem total requer alteração no documento do veículo.</p>
+                                                    <p className="text-[10px] opacity-50 uppercase font-bold mt-1">⚠️ Plotagem total requer alteração no documento του βεικύλο.</p>
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
                                                         <Layout size={16} style={{ color: '#ffa300' }} /> Tipo de plotagem (Adesivagem, Ímã ou Completa)
                                                     </Label>
-                                                    <Input placeholder="..." value={data.tipoPlotagem} onChange={e => handleInputChange('tipoPlotagem', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Adesivagem", "Ímã", "Completa"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => handleInputChange('tipoPlotagem', opt)}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    data.tipoPlotagem === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -992,11 +1406,11 @@ export default function GeradorBriefing() {
                                     <TabsContent value="webdesign" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div className="space-y-6">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <HelpCircle size={16} style={{ color: '#ffa300' }} /> Entende Hospedagem/Domínio?
-                                                     </Label>
-                                                     <div className="flex gap-2">
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <HelpCircle size={16} style={{ color: '#ffa300' }} /> Entende Hospedagem/Domínio?
+                                                    </Label>
+                                                    <div className="flex gap-2">
                                                         {["Sim", "Não", "Básico"].map(opt => (
                                                             <Badge
                                                                 key={opt}
@@ -1010,20 +1424,19 @@ export default function GeradorBriefing() {
                                                                 {opt}
                                                             </Badge>
                                                         ))}
-                                                     </div>
-                                                     <Input placeholder="Outro..." value={data.conheceHospedagemDominio} onChange={e => handleInputChange('conheceHospedagemDominio', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
-                                                 </div>
-                                                 <div className="space-y-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <Globe size={16} style={{ color: '#ffa300' }} /> Já possui site?
-                                                     </Label>
-                                                     <Input placeholder="Qual domínio atual?" value={data.possuiSite} onChange={e => handleInputChange('possuiSite', e.target.value)} className="h-12 rounded-xl" />
-                                                 </div>
-                                                 <div className="space-y-2 md:col-span-2">
-                                                     <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                         <Share2 size={16} style={{ color: '#ffa300' }} /> Transferir emails p/ HOSTINGER?
-                                                     </Label>
-                                                     <div className="flex gap-2">
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <Globe size={16} style={{ color: '#ffa300' }} /> Já possui site?
+                                                    </Label>
+                                                    <Input placeholder="Qual domínio atual?" value={data.possuiSite} onChange={e => handleInputChange('possuiSite', e.target.value)} className="h-12 rounded-xl" />
+                                                </div>
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                        <Share2 size={16} style={{ color: '#ffa300' }} /> Transferir emails p/ HOSTINGER?
+                                                    </Label>
+                                                    <div className="flex gap-2">
                                                         {["Sim", "Não", "Não sei"].map(opt => (
                                                             <Badge
                                                                 key={opt}
@@ -1037,8 +1450,8 @@ export default function GeradorBriefing() {
                                                                 {opt}
                                                             </Badge>
                                                         ))}
-                                                     </div>
-                                                 </div>
+                                                    </div>
+                                                </div>
                                                 <div className="space-y-2 md:col-span-2 border-t border-purple-500/10 pt-4">
                                                     <Label className="font-bold text-white/90 italic flex items-center gap-2">
                                                         <Search size={16} style={{ color: '#ffa300' }} /> Referências de sites (Cite no mínimo 3)
@@ -1071,40 +1484,47 @@ export default function GeradorBriefing() {
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <Settings size={16} style={{ color: '#ffa300' }} /> Facilidade com Redes
                                                     </Label>
-                                                    <div className="flex gap-2">
-                                                        {["Baixa", "Média", "Alta"].map(opt => (
-                                                            <Badge
-                                                                key={opt}
-                                                                variant="outline"
-                                                                onClick={() => handleInputChange('facilidadeRedes', opt)}
-                                                                className={cn(
-                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
-                                                                    data.facilidadeRedes === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
-                                                                )}
-                                                            >
-                                                                {opt}
-                                                            </Badge>
-                                                        ))}
+                                                    <div className="flex gap-2 flex-col">
+                                                        <div className="flex gap-2">
+                                                            {["Baixa", "Média", "Alta"].map(opt => (
+                                                                <Badge
+                                                                    key={opt}
+                                                                    variant="outline"
+                                                                    onClick={() => handleInputChange('facilidadeRedes', opt)}
+                                                                    className={cn(
+                                                                        "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
+                                                                        data.facilidadeRedes === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                    )}
+                                                                >
+                                                                    {opt}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <Users size={16} style={{ color: '#ffa300' }} /> Tom de Comunicação
                                                     </Label>
-                                                    <div className="flex gap-2">
-                                                        {["Formal", "Direto", "Divertido"].map(opt => (
-                                                            <Badge
-                                                                key={opt}
-                                                                variant="outline"
-                                                                onClick={() => handleInputChange('comunicacaoClientes', opt)}
-                                                                className={cn(
-                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
-                                                                    data.comunicacaoClientes === opt ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
-                                                                )}
-                                                            >
-                                                                {opt}
-                                                            </Badge>
-                                                        ))}
+                                                    <div className="flex gap-2 flex-col">
+                                                        <div className="flex gap-2">
+                                                            {["Formal", "Direto", "Divertido", "OUTRO"].map(opt => (
+                                                                <Badge
+                                                                    key={opt}
+                                                                    variant="outline"
+                                                                    onClick={() => toggleArrayItem('comunicacaoClientes', opt)}
+                                                                    className={cn(
+                                                                        "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black transition-all",
+                                                                        data.comunicacaoClientes.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
+                                                                    )}
+                                                                >
+                                                                    {opt}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                        {data.comunicacaoClientes.includes("OUTRO") && (
+                                                            <Input placeholder="Especifique..." value={data.comunicacaoClientesCustom} onChange={e => handleInputChange('comunicacaoClientesCustom', e.target.value)} className="h-10 rounded-xl mt-2 text-[11px]" />
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
@@ -1134,7 +1554,7 @@ export default function GeradorBriefing() {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6 pt-12 border-t border-white/90/10">
+                                        <div className="space-y-6 pt-12 border-t border-white/10">
                                             <h3 className="text-lg font-black uppercase tracking-widest text-white/90 flex items-center gap-2">
                                                 <TrendingUp size={24} style={{ color: '#ffa300' }} /> Tráfego Pago
                                             </h3>
@@ -1172,91 +1592,347 @@ export default function GeradorBriefing() {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6 pt-12 border-t border-white/90/10">
+                                        <div className="space-y-6 pt-12 border-t border-white/10">
                                             <h3 className="text-lg font-black uppercase tracking-widest text-white/90 flex items-center gap-2">
                                                 <SearchCheck size={24} style={{ color: '#ffa300' }} /> Local Services
                                             </h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div className="space-y-2">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                                {/* License Field */}
+                                                <div className="space-y-3">
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <FileCheck size={16} style={{ color: '#ffa300' }} /> Possui License?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.licenseEmpresa} onChange={e => handleInputChange('licenseEmpresa', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Sim", "Não"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (opt === "Não") {
+                                                                        handleInputChange('licenseEmpresa', 'Não');
+                                                                        setShowLocal(prev => ({ ...prev, license: false }));
+                                                                    } else {
+                                                                        setShowLocal(prev => ({ ...prev, license: true }));
+                                                                        if (data.licenseEmpresa === "Não") handleInputChange('licenseEmpresa', '');
+                                                                    }
+                                                                }}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    (opt === "Não" && data.licenseEmpresa === "Não") || (opt === "Sim" && (showLocal.license || (data.licenseEmpresa !== "Não" && data.licenseEmpresa !== "")))
+                                                                        ? "bg-primary/10 text-primary border-primary"
+                                                                        : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                    {(showLocal.license || (data.licenseEmpresa !== "Não" && data.licenseEmpresa !== "")) && (
+                                                        <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                                                            <Input placeholder="Descreva a license ou número..." value={data.licenseEmpresa === "Não" ? "" : data.licenseEmpresa} onChange={e => handleInputChange('licenseEmpresa', e.target.value)} className="h-12 rounded-xl" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="space-y-2">
+
+                                                {/* Liability Field */}
+                                                <div className="space-y-3">
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <Lock size={16} style={{ color: '#ffa300' }} /> Possui Liability Insurance?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.seguroLiability} onChange={e => handleInputChange('seguroLiability', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Sim", "Não"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (opt === "Não") {
+                                                                        handleInputChange('seguroLiability', 'Não');
+                                                                        setShowLocal(prev => ({ ...prev, insurance: false }));
+                                                                    } else {
+                                                                        setShowLocal(prev => ({ ...prev, insurance: true }));
+                                                                        if (data.seguroLiability === "Não") handleInputChange('seguroLiability', '');
+                                                                    }
+                                                                }}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    (opt === "Não" && data.seguroLiability === "Não") || (opt === "Sim" && (showLocal.insurance || (data.seguroLiability !== "Não" && data.seguroLiability !== "")))
+                                                                        ? "bg-primary/10 text-primary border-primary"
+                                                                        : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                    {(showLocal.insurance || (data.seguroLiability !== "Não" && data.seguroLiability !== "")) && (
+                                                        <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                                                            <Input placeholder="Valor da apólice, seguradora..." value={data.seguroLiability === "Não" ? "" : data.seguroLiability} onChange={e => handleInputChange('seguroLiability', e.target.value)} className="h-12 rounded-xl" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="space-y-2">
+
+                                                {/* SSN Field */}
+                                                <div className="space-y-3">
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <Settings size={16} style={{ color: '#ffa300' }} /> SSN ou ITIN Number?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.ssnItin} onChange={e => handleInputChange('ssnItin', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Sim", "Não"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (opt === "Não") {
+                                                                        handleInputChange('ssnItin', 'Não');
+                                                                        setShowLocal(prev => ({ ...prev, ssn: false }));
+                                                                    } else {
+                                                                        setShowLocal(prev => ({ ...prev, ssn: true }));
+                                                                        if (data.ssnItin === "Não") handleInputChange('ssnItin', '');
+                                                                    }
+                                                                }}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    (opt === "Não" && data.ssnItin === "Não") || (opt === "Sim" && (showLocal.ssn || (data.ssnItin !== "Não" && data.ssnItin !== "")))
+                                                                        ? "bg-primary/10 text-primary border-primary"
+                                                                        : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                    {(showLocal.ssn || (data.ssnItin !== "Não" && data.ssnItin !== "")) && (
+                                                        <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                                                            <Input placeholder="Insira o número..." value={data.ssnItin === "Não" ? "" : data.ssnItin} onChange={e => handleInputChange('ssnItin', e.target.value)} className="h-12 rounded-xl" />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="space-y-2">
+
+                                                {/* DL Field */}
+                                                <div className="space-y-3">
                                                     <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
                                                         <User size={16} style={{ color: '#ffa300' }} /> DL ou Passaporte Americano?
                                                     </Label>
-                                                    <Input placeholder="..." value={data.driveLicensePassaporte} onChange={e => handleInputChange('driveLicensePassaporte', e.target.value)} className="h-12 rounded-xl" />
+                                                    <div className="flex gap-2">
+                                                        {["Sim", "Não"].map(opt => (
+                                                            <Badge
+                                                                key={opt}
+                                                                variant="outline"
+                                                                onClick={() => {
+                                                                    if (opt === "Não") {
+                                                                        handleInputChange('driveLicensePassaporte', 'Não');
+                                                                        setShowLocal(prev => ({ ...prev, dl: false }));
+                                                                    } else {
+                                                                        setShowLocal(prev => ({ ...prev, dl: true }));
+                                                                        if (data.driveLicensePassaporte === "Não") handleInputChange('driveLicensePassaporte', '');
+                                                                    }
+                                                                }}
+                                                                className={cn(
+                                                                    "cursor-pointer flex-1 py-3 justify-center rounded-xl text-[10px] font-black uppercase transition-all",
+                                                                    (opt === "Não" && data.driveLicensePassaporte === "Não") || (opt === "Sim" && (showLocal.dl || (data.driveLicensePassaporte !== "Não" && data.driveLicensePassaporte !== "")))
+                                                                        ? "bg-primary/10 text-primary border-primary"
+                                                                        : "hover:bg-muted"
+                                                                )}
+                                                            >
+                                                                {opt}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                    {(showLocal.dl || (data.driveLicensePassaporte !== "Não" && data.driveLicensePassaporte !== "")) && (
+                                                        <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                                                            <Input placeholder="..." value={data.driveLicensePassaporte === "Não" ? "" : data.driveLicensePassaporte} onChange={e => handleInputChange('driveLicensePassaporte', e.target.value)} className="h-12 rounded-xl" />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="font-bold text-white/90 text-xs uppercase tracking-wider">⚪ Serviços Ativos no Local Services</Label>
+                                                <Label className="font-bold text-white/90 text-xs uppercase tracking-wider flex items-center gap-2">
+                                                    <Settings size={16} style={{ color: '#ffa300' }} /> Serviços Ativos no Local Services
+                                                </Label>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {GLS_SERVICES.map(opt => (
+                                                    {currentGlsServices.map(opt => (
                                                         <Badge
                                                             key={opt}
                                                             variant="outline"
                                                             onClick={() => toggleArrayItem('servicosAtivosGLS', opt)}
                                                             className={cn(
-                                                                "cursor-pointer px-4 py-2 rounded-full font-bold uppercase tracking-wider text-[10px] transition-all",
-                                                                data.servicosAtivosGLS.includes(opt) ? "text-[#ffa300]/10 text-white/90 border-yellow-500/20" : "hover:bg-muted"
+                                                                "cursor-pointer px-4 py-2 rounded-xl font-bold uppercase tracking-wider text-[10px] transition-all",
+                                                                data.servicosAtivosGLS.includes(opt) ? "bg-primary/10 text-primary border-primary" : "hover:bg-muted"
                                                             )}
                                                         >
                                                             {opt}
                                                         </Badge>
                                                     ))}
                                                 </div>
+
+                                                {data.servicosAtivosGLS.includes("OUTRO") && (
+                                                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                                                        {data.servicosAtivosGLSCustom.length > 0 && (
+                                                            <div className="flex flex-wrap gap-2 p-4 rounded-2xl bg-muted/10 border border-muted-foreground/10">
+                                                                {data.servicosAtivosGLSCustom.map(tag => (
+                                                                    <Badge key={tag} className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20 gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                                                                        {tag}
+                                                                        <button type="button" onClick={(e) => { e.stopPropagation(); removeCustomTag('servicosAtivosGLSCustom', tag); }} className="cursor-pointer hover:text-white transition-colors">
+                                                                            <X size={14} />
+                                                                        </button>
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                        <div className="flex gap-2">
+                                                            <Input
+                                                                placeholder="Adicionar serviço GLS..."
+                                                                value={tempServicoGLS}
+                                                                onChange={e => setTempServicoGLS(e.target.value)}
+                                                                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomTag('servicosAtivosGLSCustom', tempServicoGLS, () => setTempServicoGLS("")))}
+                                                                className="h-12 rounded-xl"
+                                                            />
+                                                            <Button type="button" onClick={() => addCustomTag('servicosAtivosGLSCustom', tempServicoGLS, () => setTempServicoGLS(""))} className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs">
+                                                                Adicionar
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </TabsContent>
 
                                     <TabsContent value="acessos" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                         <div className="space-y-6">
-                                            <div className="space-y-2 flex items-center gap-4 bg-yellow-500/5 p-6 rounded-3xl border border-yellow-500/10">
-                                                <div className="size-14 rounded-2xl bg-yellow-500 flex items-center justify-center text-black shadow-lg">
-                                                    <Facebook size={32} />
+                                            {/* Facebook Group */}
+                                            <div className="space-y-4 bg-yellow-500/5 p-6 rounded-[24px] border border-yellow-500/10 transition-all hover:border-yellow-500/20">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="size-14 rounded-2xl bg-yellow-500 flex items-center justify-center text-black shadow-lg">
+                                                        <Facebook size={32} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <Label className="font-black text-white/90 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                                                            <Lock size={12} style={{ color: '#ffa300' }} /> Facebook Account
+                                                        </Label>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">Login & Senha Pessoal</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 space-y-2">
-                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                        <Lock size={16} style={{ color: '#ffa300' }} /> Facebook (Login/Senha Pessoal)
-                                                    </Label>
-                                                    <Input placeholder="User @ Pass" value={data.acessoFacebook} onChange={e => handleInputChange('acessoFacebook', e.target.value)} className="h-12 rounded-xl" />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Username / Email</Label>
+                                                        <Input placeholder="Ex: john.doe@email.com" value={data.fbLogin} onChange={e => handleInputChange('fbLogin', e.target.value)} className="h-12 rounded-xl bg-black/40 border-white/5" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Password</Label>
+                                                        <div className="relative group">
+                                                            <Input 
+                                                                type={showFbPass ? "text" : "password"} 
+                                                                placeholder="••••••••" 
+                                                                value={data.fbPass} 
+                                                                onChange={e => handleInputChange('fbPass', e.target.value)} 
+                                                                className="h-12 rounded-xl bg-black/40 border-white/5 pr-12 focus:border-primary/50" 
+                                                            />
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setShowFbPass(!showFbPass)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                                                            >
+                                                                {showFbPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2 flex items-center gap-4 bg-yellow-500/5 p-6 rounded-3xl border border-yellow-500/10">
-                                                <div className="size-14 rounded-2xl bg-gradient-to-tr from-pink-500 to-orange-400 flex items-center justify-center text-white shadow-lg">
-                                                    <Instagram size={32} />
+
+                                            {/* Instagram Group */}
+                                            <div className="space-y-4 bg-primary/5 p-6 rounded-[24px] border border-primary/10 transition-all hover:border-primary/20">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="size-14 rounded-2xl bg-gradient-to-tr from-pink-500 to-orange-400 flex items-center justify-center text-white shadow-lg">
+                                                        <Instagram size={32} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <Label className="font-black text-white/90 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                                                            <Lock size={12} style={{ color: '#ffa300' }} /> Instagram Account
+                                                        </Label>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">Login & Senha Business</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 space-y-2">
-                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                        <Lock size={16} style={{ color: '#ffa300' }} /> Instagram (Login/Senha Business)
-                                                    </Label>
-                                                    <Input placeholder="User @ Pass" value={data.acessoInstagram} onChange={e => handleInputChange('acessoInstagram', e.target.value)} className="h-12 rounded-xl" />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Username / Phone</Label>
+                                                        <Input placeholder="Ex: @topflooring" value={data.igLogin} onChange={e => handleInputChange('igLogin', e.target.value)} className="h-12 rounded-xl bg-black/40 border-white/5" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Password</Label>
+                                                        <div className="relative group">
+                                                            <Input 
+                                                                type={showIgPass ? "text" : "password"} 
+                                                                placeholder="••••••••" 
+                                                                value={data.igPass} 
+                                                                onChange={e => handleInputChange('igPass', e.target.value)} 
+                                                                className="h-12 rounded-xl bg-black/40 border-white/5 pr-12 focus:border-primary/50" 
+                                                            />
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setShowIgPass(!showIgPass)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                                                            >
+                                                                {showIgPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-2 flex items-center gap-4 bg-yellow-500/5 p-6 rounded-3xl border border-yellow-500/10">
-                                                <div className="size-14 rounded-2xl bg-white flex items-center justify-center shadow-lg overflow-hidden">
-                                                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" className="size-8" alt="gmail" />
+
+                                            {/* Gmail Group */}
+                                            <div className="space-y-4 bg-white/5 p-6 rounded-[24px] border border-white/10 transition-all hover:border-white/20">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="size-14 rounded-2xl bg-white flex items-center justify-center shadow-lg overflow-hidden">
+                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" className="size-8" alt="gmail" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <Label className="font-black text-white/90 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                                                            <Mail size={12} style={{ color: '#ffa300' }} /> Gmail Account
+                                                        </Label>
+                                                        <p className="text-[10px] text-muted-foreground font-medium">Login & Senha de Recuperação</p>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 space-y-2">
-                                                    <Label className="font-bold text-white/90 flex items-center gap-2">
-                                                        <Mail size={16} style={{ color: '#ffa300' }} /> Gmail (Login/Senha de Recuperação)
-                                                    </Label>
-                                                    <Input placeholder="User @ Pass" value={data.acessoGmail} onChange={e => handleInputChange('acessoGmail', e.target.value)} className="h-12 rounded-xl" />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Email</Label>
+                                                        <Input placeholder="Ex: business@gmail.com" value={data.gmailLogin} onChange={e => handleInputChange('gmailLogin', e.target.value)} className="h-12 rounded-xl bg-black/40 border-white/5" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold text-white/50 uppercase ml-2">Password</Label>
+                                                        <div className="relative group">
+                                                            <Input 
+                                                                type={showGmailPass ? "text" : "password"} 
+                                                                placeholder="••••••••" 
+                                                                value={data.gmailPass} 
+                                                                onChange={e => handleInputChange('gmailPass', e.target.value)} 
+                                                                className="h-12 rounded-xl bg-black/40 border-white/5 pr-12 focus:border-primary/50" 
+                                                            />
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setShowGmailPass(!showGmailPass)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                                                            >
+                                                                {showGmailPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="mais" className="m-0 space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div className="space-y-6">
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-white/90 flex items-center gap-2">
+                                                    <Settings size={16} style={{ color: '#ffa300' }} /> Informações Adicionais
+                                                </Label>
+                                                <Textarea 
+                                                    placeholder="Qualquer outra observação importante..." 
+                                                    className="min-h-[300px] resize-none rounded-[24px] bg-black/20 border-white/5 focus:border-primary/50 text-white/80 p-6" 
+                                                    value={data.informacoesAdicionais} 
+                                                    onChange={e => handleInputChange('informacoesAdicionais', e.target.value)} 
+                                                />
                                             </div>
                                         </div>
                                     </TabsContent>
