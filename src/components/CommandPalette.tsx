@@ -17,7 +17,8 @@ import {
     Sticker,
     Star,
     ArrowRight,
-    Map
+    Map,
+    ClipboardCheck
 } from "lucide-react"
 import {
     Dialog,
@@ -94,6 +95,14 @@ const STATIC_ACTIONS: CommandAction[] = [
         description: "Prompts de código para v0, Lovable e Bolt",
         icon: <MagicWand size={20} className="text-blue-500" />,
         href: "/gerador-webdesign",
+        category: "Ferramentas"
+    },
+    {
+        id: "gerador-de-briefings",
+        title: "Gerador de Briefings",
+        description: "Estruture briefings otimizados para Asana",
+        icon: <ClipboardCheck size={20} className="text-blue-500" />,
+        href: "/gerador-de-briefings",
         category: "Ferramentas"
     },
     {

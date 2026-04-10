@@ -36,6 +36,7 @@ import {
   Sticker,
   CalendarDays,
   Image as ImageIcon,
+  ClipboardCheck
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -178,6 +179,17 @@ const DEFAULT_TOOLS: Tool[] = [
     description: "Estrutura páginas web de alta conversão (HTML/Tailwind) prontas para IAs criarem.",
     icon: <LayoutTemplate size={32} strokeWidth={1.5} />,
     departments: ["Webdesign"],
+  },
+  {
+    id: "gerador-de-briefings",
+    href: "/gerador-de-briefings",
+    label: "Gerador de Briefing",
+    badge: "Operacional",
+    badgeColor: "bg-blue-500/20 text-blue-400 font-black",
+    accentColor: "blue",
+    description: "Briefing comercial otimizado para o Asana com detecção automática de pendências.",
+    icon: <ClipboardCheck size={32} strokeWidth={1.5} />,
+    departments: ["Social Media", "Webdesign", "Tráfego pago", "Design"],
   },
   {
     id: "workflow",
