@@ -37,7 +37,8 @@ import {
     ImageIcon,
     X,
     Eye,
-    EyeOff
+    EyeOff,
+    Award
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -196,7 +197,7 @@ const INITIAL_STATE: BriefingData = {
     vetorPdf: "",
     referenciasLogo: "", estiloLogo: "", coresTransmitir: "", coresNaoQuer: "", obrigatorioLogo: "", cartaoVisitas: "", informacoesCartao: "", plotagemVeiculo: "", tipoPlotagem: "",
     conheceHospedagemDominio: "", possuiSite: "", manterDominio: "", hospedagemAtual: "", manterHospedagem: "", emailProfissional: "", transferirEmails: "", referenciasSites: "", obrigatorioSite: "", tipoNegocio: "",
-    facilidadeRedes: "", comunicacaoClientes: [], comunicacaoClientesCustom: "", preferencePosts: "", disponibilidadeMateriais: "", referenciasInstagram: "", layoutArtes: "", layoutFotos: "", estiloMusicalNao: "", termosInglesSim: "", termosInglesNao: "",
+    facilidadeRedes: "", comunicacaoClientes: [], comunicacaoClientesCustom: "", preferenciaPosts: "", disponibilidadeMateriais: "", referenciasInstagram: "", layoutArtes: "", layoutFotos: "", estiloMusicalNao: "", termosInglesSim: "", termosInglesNao: "",
     experienciaAnuncios: "", regiaoAtuacao: "", faturamentoAtualDesejo: "", fechamentosMesProjecao: "", ticketMedio: "", margemLucro: "", investimentoDisponivel: "", cplEsperado: "", expectativaLeads: "", cpaEsperado: "",
     conheceGMB: "",
     licenseEmpresa: "", seguroLiability: "", ssnItin: "", driveLicensePassaporte: "", servicosAtivosGLS: [], servicosAtivosGLSCustom: [],
@@ -1028,7 +1029,7 @@ export default function GeradorBriefing() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="font-bold text-foreground flex items-center gap-2">
-                                                        <Badge size={16} style={{ color: '#ffa300' }} /> Companhia tem selos ou parcerias?
+                                                        <Award size={16} style={{ color: '#ffa300' }} /> Companhia tem selos ou parcerias?
                                                     </Label>
                                                     <Input placeholder="Ex: NWFA, Yelp Guaranteed" value={data.selosParcerias} onChange={e => handleInputChange('selosParcerias', e.target.value)} className="h-12 rounded-xl" />
                                                 </div>
