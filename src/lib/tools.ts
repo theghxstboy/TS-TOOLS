@@ -1,5 +1,3 @@
-import { query } from './db';
-
 export interface Tool {
     id: string;
     title: string;
@@ -12,10 +10,36 @@ export interface Tool {
     createdAt: string;
 }
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || process.env.SUPABASE_ANON_KEY;
+
+const getHeaders = () => {
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase configuration missing');
+    }
+    return {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+    };
+};
+
 export async function getTools(): Promise<Tool[]> {
+    if (!supabaseUrl || !supabaseKey) return [];
+
     try {
-        const { rows } = await query('SELECT * FROM tools ORDER BY "createdAt" DESC');
-        return rows.map(row => ({
+        const res = await fetch(`${supabaseUrl}/rest/v1/tools?select=*&order=createdAt.desc`, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch tools');
+        const data = await res.json();
+
+        return data.map((row: any) => ({
             ...row,
             submittedBy: row.submittedBy,
             userId: row.userId,
@@ -28,28 +52,60 @@ export async function getTools(): Promise<Tool[]> {
 }
 
 export async function addTool(tool: Omit<Tool, 'id' | 'createdAt' | 'status'>): Promise<Tool> {
-    const { rows } = await query(
-        `INSERT INTO tools (title, description, url, category, status, "submittedBy", "userId") 
-         VALUES ($1, $2, $3, $4, 'pending', $5, $6) 
-         RETURNING *`,
-        [tool.title, tool.description, tool.url, tool.category, tool.submittedBy, tool.userId]
-    );
+    const res = await fetch(`${supabaseUrl}/rest/v1/tools`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+            title: tool.title,
+            description: tool.description,
+            url: tool.url,
+            category: tool.category,
+            status: 'pending',
+            submittedBy: tool.submittedBy,
+            userId: tool.userId
+        })
+    });
 
-    return rows[0];
+    if (!res.ok) {
+        const error = await res.text();
+        console.error('Supabase insert tool failed:', error);
+        throw new Error('Failed to insert tool into Supabase');
+    }
+
+    const data = await res.json();
+    return data[0];
 }
 
 export async function updateToolStatus(id: string, status: 'approved' | 'rejected' | 'pending'): Promise<Tool | null> {
-    const { rows } = await query(
-        'UPDATE tools SET status = $1 WHERE id = $2 RETURNING *',
-        [status, id]
-    );
-    return rows[0] || null;
+    try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/tools?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify({ status })
+        });
+
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data[0] || null;
+    } catch (error) {
+        console.error('Update tool status failed:', error);
+        return null;
+    }
 }
 
 export async function getToolsByUser(userId: string): Promise<Tool[]> {
+    if (!supabaseUrl || !supabaseKey) return [];
+
     try {
-        const { rows } = await query('SELECT * FROM tools WHERE "userId" = $1 ORDER BY "createdAt" DESC', [userId]);
-        return rows || [];
+        const res = await fetch(`${supabaseUrl}/rest/v1/tools?userId=eq.${userId}&select=*&order=createdAt.desc`, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch tools by user');
+        return await res.json();
     } catch (error) {
         console.error('Database GET tools by user failed:', error);
         return [];
@@ -58,27 +114,35 @@ export async function getToolsByUser(userId: string): Promise<Tool[]> {
 
 export async function deleteTool(id: string): Promise<boolean> {
     try {
-        await query('DELETE FROM tools WHERE id = $1', [id]);
-        return true;
+        const res = await fetch(`${supabaseUrl}/rest/v1/tools?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        return res.ok;
     } catch {
         return false;
     }
 }
 
 export async function updateTool(id: string, updates: Partial<Tool>): Promise<Tool | null> {
-    const fields = Object.keys(updates);
-    if (fields.length === 0) return null;
+    if (Object.keys(updates).length === 0) return null;
 
-    const setClause = fields.map((f, i) => {
-        const columnName = (f === "submittedBy" || f === "userId" || f === "createdAt") ? `"${f}"` : f;
-        return `${columnName} = $${i + 1}`;
-    }).join(', ');
-    const values = fields.map(f => (updates as any)[f]);
+    try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/tools?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify(updates)
+        });
 
-    const { rows } = await query(
-        `UPDATE tools SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
-        [...values, id]
-    );
-    
-    return rows[0] || null;
+        if (!res.ok) {
+            console.error('Supabase update tool failed:', await res.text());
+            return null;
+        }
+
+        const data = await res.json();
+        return data[0] || null;
+    } catch (error) {
+        console.error('Update tool failed:', error);
+        return null;
+    }
 }

@@ -532,9 +532,9 @@ export default function CodigosPage() {
                 </div>
 
                 <h3 className={cn(
-                  "font-bold group-hover:text-primary transition-colors line-clamp-2 leading-tight",
+                  "font-bold group-hover:text-primary transition-colors truncate leading-tight",
                   viewMode === 'grid' ? "text-lg mb-4" : "text-lg md:text-xl"
-                )}>{post.title}</h3>
+                )} title={post.title}>{post.title}</h3>
                 
                 <div className="flex flex-wrap gap-1.5 min-h-[22px] mt-2 mb-1">
                   {post.tags.slice(0, 5).map(tag => (
@@ -546,12 +546,21 @@ export default function CodigosPage() {
                   {post.tags.length === 0 && <div className="h-5 opacity-0 invisible" aria-hidden="true" />}
                 </div>
 
-                <div className={cn(
-                  "pt-4 border-t border-border/50 flex items-center justify-between",
-                  viewMode === 'grid' ? "mt-6" : "mt-4"
-                )}>
+                <div className="pt-4 border-t border-border/50 flex items-center justify-between mt-auto">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground font-extrabold tracking-widest">
-                    <FileCode size={16} className="text-primary/70" /> {post.language.toUpperCase()}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 rounded-lg bg-muted/50 hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-95 transition-all text-muted-foreground border border-border/50 shadow-sm cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCopyCode(post.code);
+                      }}
+                      title="Copiar código"
+                    >
+                      <Copy size={14} />
+                    </Button>
+                    <FileCode size={16} className="text-primary/70 ml-1" /> {post.language.toUpperCase()}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { addBug } from "@/lib/bugs";
+import { addBug, getBugs } from "@/lib/bugs";
 import { z } from "zod";
 
 const bugSchema = z.object({
@@ -38,5 +38,20 @@ export async function POST(request: Request) {
     } catch (error: any) {
         console.error("Error creating bug report:", error);
         return NextResponse.json({ error: "Erro interno do servidor ao criar report." }, { status: 500 });
+    }
+}
+
+export async function GET() {
+    try {
+        const session = await auth();
+        if (!session?.user || (session.user as any).role !== "admin") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const bugs = await getBugs();
+        return NextResponse.json(bugs);
+    } catch (error) {
+        console.error("Error fetching bug reports:", error);
+        return NextResponse.json({ error: "Erro ao buscar bugs." }, { status: 500 });
     }
 }

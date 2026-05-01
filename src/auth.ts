@@ -70,8 +70,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ],
     callbacks: {
         async jwt({ token, user }) {
+            const adminEmails = [
+                process.env.ADMIN_EMAIL,
+                'joaogoncalves@trajetoriadosucesso.com',
+                'luizbarros@trajetoriadosucesso.com',
+                'hernandespires@trajetoriadosucesso.com'
+            ];
+
             if (user) {
-                token.role = user.role || (user.email === process.env.ADMIN_EMAIL ? "admin" : "user");
+                token.role = user.role || (adminEmails.includes(user.email || "") ? "admin" : "user");
+            } else if (token.email) {
+                // Double check role for existing tokens if user is not passed
+                token.role = adminEmails.includes(token.email) ? "admin" : "user";
             }
             return token;
         },

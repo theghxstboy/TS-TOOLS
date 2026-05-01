@@ -36,7 +36,8 @@ import {
   Sticker,
   CalendarDays,
   Image as ImageIcon,
-  ClipboardCheck
+  ClipboardCheck,
+  Presentation
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -80,6 +81,7 @@ type Tool = {
   description: string
   icon: React.ReactNode
   departments: string[]
+  external?: boolean
 }
 
 const DEPARTMENTS = [
@@ -245,6 +247,18 @@ const DEFAULT_TOOLS: Tool[] = [
     description: "Datas estratégicas, sazonalidade e feriados para Home Services nos EUA.",
     icon: <CalendarDays size={32} strokeWidth={1.5} />,
     departments: ["Social Media", "Tráfego pago"],
+  },
+  {
+    id: "gerador-apresentacoes",
+    href: "https://ts-brush.vercel.app/",
+    label: "Gerador de Apresentações",
+    badge: "Design",
+    badgeColor: "bg-rose-500/20 text-rose-500 font-black",
+    accentColor: "rose",
+    description: "Crie e apresente propostas de marca dinâmicas e profissionais.",
+    icon: <Presentation size={32} strokeWidth={1.5} />,
+    departments: ["Design"],
+    external: true,
   }
 ]
 
@@ -337,6 +351,8 @@ function SortableCard({ item, index }: { item: Tool; index: number }) {
 
       <Link
         href={item.href}
+        target={item.external ? "_blank" : undefined}
+        rel={item.external ? "noopener noreferrer" : undefined}
         style={{ animationDelay: `${index * 60}ms` }}
         className="flex flex-col p-6 h-full w-full relative min-h-[300px]"
       >

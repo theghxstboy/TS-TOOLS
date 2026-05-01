@@ -1,5 +1,3 @@
-import { query } from './db';
-
 export interface CodigosPost {
     id: string;
     title: string;
@@ -15,11 +13,36 @@ export interface CodigosPost {
     userId?: string;
 }
 
-// Remove local storage logic for Vercel persistence
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || process.env.SUPABASE_ANON_KEY;
+
+const getHeaders = () => {
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase configuration missing');
+    }
+    return {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+    };
+};
+
 export async function getPosts(): Promise<CodigosPost[]> {
+    if (!supabaseUrl || !supabaseKey) return [];
+
     try {
-        const { rows } = await query('SELECT * FROM codigos ORDER BY date DESC');
-        return rows.map(row => ({
+        const res = await fetch(`${supabaseUrl}/rest/v1/codigos?select=*&order=date.desc`, {
+            headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch codigos');
+        const data = await res.json();
+        
+        return data.map((row: any) => ({
             ...row,
             imageUrl: row.imageUrl,
             isGif: row.isGif,
@@ -32,55 +55,63 @@ export async function getPosts(): Promise<CodigosPost[]> {
 }
 
 export async function addPost(post: Omit<CodigosPost, 'id' | 'date' | 'reactions'>): Promise<CodigosPost> {
-    const tempId = crypto.randomUUID();
-    
-    const imageUrl = post.imageUrl;
+    const res = await fetch(`${supabaseUrl}/rest/v1/codigos`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+            title: post.title.toUpperCase(),
+            author: post.author,
+            language: post.language,
+            code: post.code,
+            tags: post.tags,
+            imageUrl: post.imageUrl,
+            isGif: post.isGif,
+            observations: post.observations || "",
+            userId: post.userId
+        })
+    });
 
-    const { rows } = await query(
-        `INSERT INTO codigos (title, author, language, code, tags, "imageUrl", "isGif", observations, "userId") 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-         RETURNING *`,
-        [
-            post.title.toUpperCase(), 
-            post.author, 
-            post.language, 
-            post.code, 
-            post.tags, 
-            imageUrl, 
-            post.isGif, 
-            post.observations || "", 
-            post.userId
-        ]
-    );
+    if (!res.ok) {
+        const error = await res.text();
+        console.error('Supabase insert failed:', error);
+        throw new Error('Failed to insert post into Supabase');
+    }
 
-    return rows[0];
+    const data = await res.json();
+    return data[0];
 }
 
 export async function deletePost(id: string): Promise<boolean> {
     try {
-        await query('DELETE FROM codigos WHERE id = $1', [id]);
-        return true;
+        const res = await fetch(`${supabaseUrl}/rest/v1/codigos?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        return res.ok;
     } catch {
         return false;
     }
 }
 
 export async function updatePost(id: string, updates: Partial<CodigosPost>): Promise<CodigosPost | null> {
+    if (Object.keys(updates).length === 0) return null;
 
-    const fields = Object.keys(updates);
-    if (fields.length === 0) return null;
+    try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/codigos?id=eq.${id}`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify(updates)
+        });
 
-    // Map camelCase keys to quoted identifiers if they match the DB column names
-    const setClause = fields.map((f, i) => {
-        const columnName = (f === "imageUrl" || f === "isGif" || f === "userId") ? `"${f}"` : f;
-        return `${columnName} = $${i + 1}`;
-    }).join(', ');
-    const values = fields.map(f => (updates as any)[f]);
+        if (!res.ok) {
+            console.error('Supabase update failed:', await res.text());
+            return null;
+        }
 
-    const { rows } = await query(
-        `UPDATE codigos SET ${setClause} WHERE id = $${fields.length + 1} RETURNING *`,
-        [...values, id]
-    );
-    
-    return rows[0] || null;
+        const data = await res.json();
+        return data[0] || null;
+    } catch (error) {
+        console.error('Update post failed:', error);
+        return null;
+    }
 }
